@@ -1,16 +1,24 @@
-#include "SparkFun_ST25DV64KC_Arduino_Library.h"
-#include "SparkFun_ST25DV64KC_Arduino_Library_Constants.h"
+#include <SparkFun_ST25DV64KC_Arduino_Library.h> // Click here to get the library:  http://librarymanager/All#SparkFun_ST25DV64KC
 
 SFE_ST25DV64KC tag;
+
+// Use a jumper cable to link the ST25DV64KC GPO1 pin to a digital pin
+const uint8_t GPO_PIN = 2; // Change this to match the digital pin you have linked GPO1 to
+
 static volatile bool interruptChanged = false;
-const uint8_t GPO_PIN = 2;
 
 void setup()
 {
+    delay(1000);
+    
     Serial.begin(115200);
     Wire.begin();
+
+    Serial.println("ST25DV64KC example.");
+    
     pinMode(GPO_PIN, INPUT);
     attachInterrupt(digitalPinToInterrupt(GPO_PIN), ISR, CHANGE);
+
     if (tag.begin(Wire))
     {
         uint8_t values[8] = {0};

@@ -4,8 +4,13 @@ SFE_ST25DV64KC tag;
 
 void setup()
 {
+    delay(1000);
+    
     Serial.begin(115200);
     Wire.begin();
+
+    Serial.println("ST25DV64KC example.");
+    
     if (tag.begin(Wire))
     {
         uint8_t values[8] = {0};

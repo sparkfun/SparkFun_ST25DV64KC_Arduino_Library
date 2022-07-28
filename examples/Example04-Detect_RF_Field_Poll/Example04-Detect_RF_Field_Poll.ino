@@ -1,12 +1,16 @@
-#include "SparkFun_ST25DV64KC_Arduino_Library.h"
-#include "SparkFun_ST25DV64KC_Arduino_Library_Constants.h"
+#include <SparkFun_ST25DV64KC_Arduino_Library.h> // Click here to get the library:  http://librarymanager/All#SparkFun_ST25DV64KC
 
 SFE_ST25DV64KC tag;
 
 void setup()
 {
+    delay(1000);
+    
     Serial.begin(115200);
     Wire.begin();
+
+    Serial.println("ST25DV64KC example.");
+    
     if (tag.begin(Wire))
     {
         uint8_t values[8] = {0};
@@ -41,5 +45,5 @@ void loop()
     else
         Serial.println("RF field not detected.");
 
-    delay(1000);
+    delay(250);
 }
