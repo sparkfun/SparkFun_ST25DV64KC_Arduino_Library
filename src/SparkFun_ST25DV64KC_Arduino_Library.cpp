@@ -412,12 +412,12 @@ void SFE_ST25DV64KC::setGPO2Bit(uint8_t bitMask, bool enabled)
 
 bool SFE_ST25DV64KC::getGPO2Bit(uint8_t bitMask)
 {
-    return st25_io.isBitSet(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_GPO2, bitMask);
+  return st25_io.isBitSet(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_GPO2, bitMask);
 }
 
 void SFE_ST25DV64KC::setGPO_CTRL_DynBit(bool enabled)
 {
-  if(enabled)
+  if (enabled)
     st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::DATA, DYN_REG_GPO_CTRL_DYN, BIT_GPO_CTRL_DYN_GPO_EN);
   else
     st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::DATA, DYN_REG_GPO_CTRL_DYN, BIT_GPO_CTRL_DYN_GPO_EN);

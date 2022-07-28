@@ -26,44 +26,44 @@
 class SFE_ST2525DV64KC_IO
 {
 private:
-    TwoWire *_i2cPort;
+  TwoWire *_i2cPort;
 
 public:
-    // Default constructor.
-    SFE_ST2525DV64KC_IO() {};
+  // Default constructor.
+  SFE_ST2525DV64KC_IO(){};
 
-    // Default destructor
-    ~SFE_ST2525DV64KC_IO() {};
+  // Default destructor
+  ~SFE_ST2525DV64KC_IO(){};
 
-    // Starts two wire interface.
-    bool begin(TwoWire &wirePort);
+  // Starts two wire interface.
+  bool begin(TwoWire &wirePort);
 
-    // Returns true if we get a reply from the I2C device.
-    bool isConnected();
+  // Returns true if we get a reply from the I2C device.
+  bool isConnected();
 
-    // Since ST25DV64KC has two possible I2C addresses, the correct address must be passed to each corresponding
-    // IO function so the proper area is addressed.
+  // Since ST25DV64KC has two possible I2C addresses, the correct address must be passed to each corresponding
+  // IO function so the proper area is addressed.
 
-    // Read a single uint8_t from a register.
-    uint8_t readSingleByte(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress);
+  // Read a single uint8_t from a register.
+  uint8_t readSingleByte(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress);
 
-    // Writes a single uint8_t into a register.
-    bool writeSingleByte(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, const uint8_t value);
+  // Writes a single uint8_t into a register.
+  bool writeSingleByte(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, const uint8_t value);
 
-    // Reads multiple bytes from a register into buffer uint8_t array.
-    void readMultipleBytes(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, uint8_t* const buffer , const uint16_t packetLength);
+  // Reads multiple bytes from a register into buffer uint8_t array.
+  void readMultipleBytes(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, uint8_t *const buffer, const uint16_t packetLength);
 
-    // Writes multiple bytes to register from buffer uint8_t array.
-    bool writeMultipleBytes(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, uint8_t* const buffer, const uint16_t packetLength);
+  // Writes multiple bytes to register from buffer uint8_t array.
+  bool writeMultipleBytes(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, uint8_t *const buffer, const uint16_t packetLength);
 
-    // Sets a single bit in a specific register. Bit position ranges from 0 (lsb) to 7 (msb).
-    void setRegisterBit(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, const uint8_t bitMask);
+  // Sets a single bit in a specific register. Bit position ranges from 0 (lsb) to 7 (msb).
+  void setRegisterBit(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, const uint8_t bitMask);
 
-    // Clears a single bit in a specific register. Bit position ranges from 0 (lsb) to 7 (msb).
-    void clearRegisterBit(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, const uint8_t bitMask);
+  // Clears a single bit in a specific register. Bit position ranges from 0 (lsb) to 7 (msb).
+  void clearRegisterBit(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, const uint8_t bitMask);
 
-    // Returns true if a specific bit is set in a register. Bit position ranges from 0 (lsb) to 7 (msb).
-    bool isBitSet(const SF_ST25DV64KC_ADDRESS address, const uint16_t  registerAddress, const uint8_t bitMask);
+  // Returns true if a specific bit is set in a register. Bit position ranges from 0 (lsb) to 7 (msb).
+  bool isBitSet(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, const uint8_t bitMask);
 };
 
 #endif
