@@ -1,5 +1,4 @@
-#include "SparkFun_ST25DV64KC_Arduino_Library.h"
-#include "SparkFun_ST25DV64KC_Arduino_Library_Constants.h"
+#include <SparkFun_ST25DV64KC_Arduino_Library.h> // Click here to get the library:  http://librarymanager/All#SparkFun_ST25DV64KC
 
 SFE_ST25DV64KC tag;
 

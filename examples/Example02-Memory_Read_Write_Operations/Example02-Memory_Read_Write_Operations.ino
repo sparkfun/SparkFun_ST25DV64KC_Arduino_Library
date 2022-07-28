@@ -1,5 +1,4 @@
-#include "SparkFun_ST25DV64KC_Arduino_Library.h"
-#include "SparkFun_ST25DV64KC_Arduino_Library_Constants.h"
+#include <SparkFun_ST25DV64KC_Arduino_Library.h> // Click here to get the library:  http://librarymanager/All#SparkFun_ST25DV64KC
 
 SFE_ST25DV64KC tag;
 
@@ -56,11 +55,8 @@ void setup()
         }
         Serial.println();
 
-        // Write 16 random bytes from EEPROM location 0x0
-        uint8_t tagWrite[16] = {0};
-        randomSeed(analogRead(A0));
-        for (uint8_t i = 0; i < 16; i++)
-            tagWrite[i] = (uint8_t)random(0, 0xff);
+        // Write 16 bytes from EEPROM location 0x0
+        uint8_t tagWrite[16] = {0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF, 0xDE, 0xAD, 0xBE, 0xEF};
 
         Serial.print("Writing values starting on 0x0 with opened session: ");
         for (auto value : tagWrite)
@@ -94,6 +90,7 @@ void setup()
         Serial.print("I2C session is ");
         Serial.println(tag.isI2CSessionOpen() ? "opened." : "closed.");
 
+        // Try to write 16 random bytes from EEPROM location 0x0
         randomSeed(analogRead(A0));
         for (uint8_t i = 0; i < 16; i++)
             tagWrite[i] = (uint8_t)random(0, 0xff);
@@ -134,6 +131,19 @@ void setup()
 
         Serial.print("EEPROM area 1 write protection: ");
         Serial.println(tag.getEEPROMWriteProtectionBit(1) ? "protected." : "opened.");
+
+        Serial.print("Writing zeros starting on 0x0 with opened session: ");
+        memset(tagWrite, 0, 16);
+        for (auto value : tagWrite)
+        {
+            Serial.print("0x");
+            if (value < 0x10)
+                Serial.print("0");
+            Serial.print(value, HEX);
+            Serial.print(" ");
+        }
+        Serial.println();
+        tag.writeEEPROM(0x0, tagWrite, 16);
     }
 }
 

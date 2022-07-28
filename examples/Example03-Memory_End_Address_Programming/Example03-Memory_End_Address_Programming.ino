@@ -1,5 +1,4 @@
-#include "SparkFun_ST25DV64KC_Arduino_Library.h"
-#include "SparkFun_ST25DV64KC_Arduino_Library_Constants.h"
+#include <SparkFun_ST25DV64KC_Arduino_Library.h> // Click here to get the library:  http://librarymanager/All#SparkFun_ST25DV64KC
 
 SFE_ST25DV64KC tag;
 
@@ -39,7 +38,7 @@ void setup()
         sprintf(endAddress, "%04x", tag.getMemoryAreaEndAddress(1));
         Serial.println(endAddress);
 
-        // This function will succeed if ENDA1 value is less than ENDA2 or ENDA3.
+        // This function will succeed if ENDA1 value is less than or equal to ENDA2 and ENDA3.
         // Further information can be found on the datasheet on page 14.
         // Memory address will be: 0x20 * ENDAi + 0x1f which in this case results
         // in  0x20 * 0x10 + 0x1f = 0x021f
@@ -65,8 +64,8 @@ void setup()
 
         // This function will fail since ENDA2 value is less than if ENDA1 programmed above.
         // Further information can be found on the datasheet on page 14.
-        // Memory address will be: 0x03 * ENDAi + 0x1f which in this case results
-        // in 0x03 * 0x10 + 0x1f = 0x004f
+        // Memory address will be: 0x20 * ENDAi + 0x1f which in this case results
+        // in 0x20 * 0x03 + 0x1f = 0x007f
         if (tag.setMemoryAreaEndAddress(2, 0x03))
         {
             Serial.println("Success setting Area 2 end memory address.");
@@ -79,6 +78,31 @@ void setup()
         memset(endAddress, 0, 5);
         Serial.print("Area 2 ending address after: 0x");
         sprintf(endAddress, "%04x", tag.getMemoryAreaEndAddress(2));
+        Serial.println(endAddress);
+        
+        Serial.println();
+
+        memset(endAddress, 0, 5);
+        Serial.print("Area 1 ending address before: 0x");
+        sprintf(endAddress, "%04x", tag.getMemoryAreaEndAddress(1));
+        Serial.println(endAddress);
+
+        // Restore ENDA1
+        // This function will succeed if ENDA1 value is less than or equal to ENDA2 and ENDA3.
+        // Further information can be found on the datasheet on page 14.
+        // Memory address will be: 0x20 * ENDAi + 0x1f which in this case results
+        // in  0x20 * 0xff + 0x1f = 0x1fff
+        if (tag.setMemoryAreaEndAddress(1, 0xFF))
+        {
+            Serial.println("Success setting Area 1 end memory address.");
+        }
+        else
+        {
+            Serial.println("Error setting Area 1 end memory address.");
+        }
+        memset(endAddress, 0, 5);
+        Serial.print("Area 1 ending address after: 0x");
+        sprintf(endAddress, "%04x", tag.getMemoryAreaEndAddress(1));
         Serial.println(endAddress);
     }
 }
