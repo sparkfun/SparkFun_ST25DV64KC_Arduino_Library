@@ -55,16 +55,16 @@ public:
   uint8_t readRegisterValue(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress);
 
   // Reads multiple values from register
-  void readRegisterValues(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress, uint8_t* data, const uint16_t dataLength);
+  void readRegisterValues(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress, uint8_t *data, const uint16_t dataLength);
 
   // Gets device UID (8 bytes).
-  void getDeviceUID(uint8_t* values);
+  void getDeviceUID(uint8_t *values);
 
   // Gets device revision.
   uint8_t getDeviceRevision();
-  
+
   // Open I2C security session.
-  void openI2CSession(uint8_t* password);
+  void openI2CSession(uint8_t *password);
 
   // Checks if I2C security session is open.
   bool isI2CSessionOpen();
@@ -74,8 +74,8 @@ public:
   // since it's used to open a session to allow writing to some registers.
   // There's NO WAY it can be reset to factory defaults!
   // Returns true on success, false otherwise.
-  bool writeI2CPassword(uint8_t* password);
-  
+  bool writeI2CPassword(uint8_t *password);
+
   // Programs I2CSS read protection bits (Datasheet page 53)
   // Memory area ranges from 1 to 4. Values outside this range are ignored and function
   // calls the error callback if function pointer is set.
@@ -90,19 +90,19 @@ public:
 
   // Gets IC2SS read protection bits (Datasheet page 53)
   // Memory area ranges from 1 to 4. Values outside this range are ignored and function
-  // calls the error callback if function pointer is set, returning false.  
+  // calls the error callback if function pointer is set, returning false.
   bool getEEPROMReadProtectionBit(uint8_t memoryArea);
 
   // Gets IC2SS write protection bits (Datasheet page 53)
   // Memory area ranges from 1 to 4. Values outside this range are ignored and function
-  // calls the error callback if function pointer is set, returning false.  
+  // calls the error callback if function pointer is set, returning false.
   bool getEEPROMWriteProtectionBit(uint8_t memoryArea);
 
   // Reads block of data from EEPROM.
-  void readEEPROM(uint16_t baseAddress, uint8_t* data, uint16_t dataLength);
+  void readEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength);
 
   // Writes block of data to EEPROM.
-  void writeEEPROM(uint16_t baseAddress, uint8_t* data, uint16_t dataLength);
+  void writeEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength);
 
   // Sets memory area boundary. memoryNumber ranges from 1 to 4.
   // endAddressValue must comply with datasheet's area size specifications (page 14).
@@ -149,7 +149,6 @@ public:
 
   // Gets a specific EH_CTRL_DYN dynamic register bit
   bool getEH_CTRL_DYNBit(uint8_t bitMask);
-  
 };
 
 #endif
