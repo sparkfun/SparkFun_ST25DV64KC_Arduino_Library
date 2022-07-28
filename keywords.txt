@@ -1,0 +1,74 @@
+#######################################
+# Syntax Coloring Map
+#######################################
+
+#######################################
+# Datatypes 	KEYWORD1
+#######################################
+
+SFE_ST25DV64KC	KEYWORD1
+SF_ST25DV64KC_ADDRESS	KEYWORD1
+SF_ST25DV64KC_ERROR	KEYWORD1
+END_REGISTERS	KEYWORD1
+
+SFE_ST2525DV64KC_IO	KEYWORD1
+
+#######################################
+# Methods and Functions 	KEYWORD2
+#######################################
+
+setErrorCallback	KEYWORD2
+begin	KEYWORD2
+isConnected	KEYWORD2
+readRegisterValue	KEYWORD2
+readRegisterValues	KEYWORD2
+getDeviceUID	KEYWORD2
+getDeviceRevision	KEYWORD2
+openI2CSession	KEYWORD2
+isI2CSessionOpen	KEYWORD2
+writeI2CPassword	KEYWORD2
+programEEPROMReadProtectionBit	KEYWORD2
+programEEPROMWriteProtectionBit	KEYWORD2
+getEEPROMReadProtectionBit	KEYWORD2
+getEEPROMWriteProtectionBit	KEYWORD2
+readEEPROM	KEYWORD2
+writeEEPROM	KEYWORD2
+setMemoryAreaEndAddress	KEYWORD2
+getMemoryAreaEndAddress	KEYWORD2
+RFFieldDetected	KEYWORD2
+setGPO1Bit	KEYWORD2
+getGPO1Bit	KEYWORD2
+setGPO2Bit	KEYWORD2
+getGPO2Bit	KEYWORD2
+setGPO_CTRL_DynBit	KEYWORD2
+getGPO_CTRL_DynBit	KEYWORD2
+getIT_STS_DynBit	KEYWORD2
+setEH_MODEBit	KEYWORD2
+getEH_MODEBit	KEYWORD2
+setEH_CTRL_DYNBit	KEYWORD2
+getEH_CTRL_DYNBit	KEYWORD2
+
+readSingleByte	KEYWORD2
+writeSingleByte	KEYWORD2
+readMultipleBytes	KEYWORD2
+writeMultipleBytes	KEYWORD2
+setRegisterBit	KEYWORD2
+clearRegisterBit	KEYWORD2
+isBitSet	KEYWORD2
+
+#######################################
+# Constants 	LITERAL1
+#######################################
+
+SWARM_M138_MAX_PACKET_LENGTH_BYTES	LITERAL1
+DATA	LITERAL1
+SYSTEM	LITERAL1
+RF_SWITCH_OFF	LITERAL1
+RF_SWITCH_ON	LITERAL1
+I2C_INITIALIZATION_ERROR	LITERAL1
+INVALID_DEVICE	LITERAL1
+I2C_SESSION_NOT_OPENED	LITERAL1
+I2CSS_MEMORY_AREA_INVALID	LITERAL1
+INVALID_WATCHDOG_VALUE	LITERAL1
+INVALID_MEMORY_AREA_PASSED	LITERAL1
+INVALID_MEMORY_AREA_SIZE	LITERAL1
