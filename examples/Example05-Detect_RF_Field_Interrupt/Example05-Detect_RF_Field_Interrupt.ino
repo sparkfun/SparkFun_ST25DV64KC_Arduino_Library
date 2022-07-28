@@ -1,3 +1,23 @@
+/*
+  ST25DV64KC Example
+  By: Ricardo Ramos and Paul Clark
+  SparkFun Electronics
+  Date: July, 2022
+  License: MIT. Please see the license file for more information but you can
+  basically do whatever you want with this code.
+
+  This example demonstrates how to generate a GPO interrupt when the RF field changes.
+  
+  Feel like supporting open source hardware?
+  Buy a board from SparkFun!
+  SparkFun Qwiic RFID Tag - ST25DV64KC : https://www.sparkfun.com/products/19035
+
+  Hardware Connections:
+  Plug a Qwiic cable into the Qwiic RFID Tag and a RedBoard
+  If you don't have a platform with a Qwiic connection use the SparkFun Qwiic Breadboard Jumper (https://www.sparkfun.com/products/14425)
+  Open the serial monitor at 115200 baud to see the output
+*/
+
 #include <SparkFun_ST25DV64KC_Arduino_Library.h> // Click here to get the library:  http://librarymanager/All#SparkFun_ST25DV64KC
 
 SFE_ST25DV64KC tag;
