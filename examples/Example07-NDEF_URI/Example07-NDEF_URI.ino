@@ -124,55 +124,58 @@ void setup()
   Serial.begin(115200);
   Wire.begin();
 
-  Serial.println("ST25DV64KC example.");
+  Serial.println(F("ST25DV64KC example."));
 
   if (!tag.begin(Wire))
   {
-    Serial.println("ST25 not detected. Freezing...");
+    Serial.println(F("ST25 not detected. Freezing..."));
     while (1) // Do nothing more
       ;
   }
 
+  Serial.println(F("ST25 connected."));
+
   uint8_t values[8] = {0};
-  Serial.println("ST25 connected.");
-  Serial.print("Device UID: ");
-  tag.getDeviceUID(values);
-  for (uint8_t i = 0; i < 8; i++)
+  if (tag.getDeviceUID(values))
   {
-    if (values[i] < 0x0a)
-      Serial.print("0");
-    Serial.print(values[i], HEX);
-    Serial.print(" ");
+    Serial.print(F("Device UID: "));
+    for (uint8_t i = 0; i < 8; i++)
+    {
+      if (values[i] < 0x0a)
+        Serial.print(F("0"));
+      Serial.print(values[i], HEX);
+      Serial.print(F(" "));
+    }
+    Serial.println();
   }
-  Serial.println();
-  Serial.print("Revision: ");
-  Serial.println(tag.getDeviceRevision());
+  else
+    Serial.println(F("Could not read device UID!"));
+  
+  uint8_t rev;
+  if (tag.getDeviceRevision(&rev))
+  {
+    Serial.print(F("Revision: "));
+    Serial.println(rev);
+  }
+  else
+    Serial.println(F("Could not read device revision!"));
 
   Serial.println("Opening I2C session with password.");
   uint8_t password[8] = {0x0};
   tag.openI2CSession(password);
 
-  Serial.print("I2C session is ");
+  Serial.print(F("I2C session is "));
   Serial.println(tag.isI2CSessionOpen() ? "opened." : "closed.");
 
   // Allow writing to User Memory Area 1
-  Serial.println("Unprotecting area 1 for write operation.");
+  Serial.println(F("Unprotecting area 1 for write operation."));
   tag.programEEPROMWriteProtectionBit(1, false);
 
-  Serial.print("EEPROM area 1 write protection: ");
+  Serial.print(F("EEPROM area 1 write protection: "));
   Serial.println(tag.getEEPROMWriteProtectionBit(1) ? "protected." : "opened.");
 
-  /*
-  // Clear the first 256 bytes of user memory
-  uint8_t tagWrite[256];
-  memset(tagWrite, 0, 256);
-
-  Serial.println("Writing 0x0 to the first 256 bytes of user memory using the opened session.");
-  tag.writeEEPROM(0x0, tagWrite, 256);
-  */
-
   // Write the Type 5 CC File - starting at address zero
-  Serial.println("Writing CC_File");
+  Serial.println(F("Writing CC_File"));
   tag.writeEEPROM(0x0, (uint8_t *)CC_File, CC_Len);
 
   // Write the Type 5 NDEF URI 
@@ -187,11 +190,11 @@ void setup()
   tagWrite[6] = NDEF_PREFIX_HTTPS_WWW; // NDEF URI Prefix Code
   strcpy((char *)&tagWrite[7], URI); // Add the URI
   tagWrite[7 + strlen(URI)] = Type5_Terminator_TLV; // Type5 Tag TLV-Format: T (Type field)
-  Serial.println("Writing the NDEF URI record");
+  Serial.println(F("Writing the NDEF URI record"));
   tag.writeEEPROM(CC_Len, tagWrite, 256);
 
   // Read back the memory contents
-  Serial.println("The first 256 bytes of user memory are:");
+  Serial.println(F("The first 256 bytes of user memory are:"));
   uint8_t tagRead[256];
   tag.readEEPROM(0x0, tagRead, 256);
   prettyPrintChars(tagRead, 256);

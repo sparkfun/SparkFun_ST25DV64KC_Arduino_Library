@@ -30,27 +30,44 @@ void setup()
   Serial.begin(115200);
   Wire.begin();
 
-  Serial.println("ST25DV64KC example.");
+  Serial.println(F("ST25DV64KC example."));
 
-  if (tag.begin(Wire))
+  if (!tag.begin(Wire))
   {
-    uint8_t values[8] = {0};
-    Serial.println("ST25 connected.");
-    Serial.print("Device UID: ");
-    tag.getDeviceUID(values);
+    Serial.println(F("ST25 not detected. Freezing..."));
+    while (1) // Do nothing more
+      ;
+  }
+
+  Serial.println(F("ST25 connected."));
+
+  uint8_t values[8] = {0};
+  if (tag.getDeviceUID(values))
+  {
+    Serial.print(F("Device UID: "));
     for (uint8_t i = 0; i < 8; i++)
     {
       if (values[i] < 0x0a)
-        Serial.print("0");
+        Serial.print(F("0"));
       Serial.print(values[i], HEX);
-      Serial.print(" ");
+      Serial.print(F(" "));
     }
     Serial.println();
-    Serial.print("Revision: ");
-    Serial.println(tag.getDeviceRevision());
   }
+  else
+    Serial.println(F("Could not read device UID!"));
+  
+  uint8_t rev;
+  if (tag.getDeviceRevision(&rev))
+  {
+    Serial.print(F("Revision: "));
+    Serial.println(rev);
+  }
+  else
+    Serial.println(F("Could not read device revision!"));
 }
 
 void loop()
 {
+  // Nothing to do here
 }
