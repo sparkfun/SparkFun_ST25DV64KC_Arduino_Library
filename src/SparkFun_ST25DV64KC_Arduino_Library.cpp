@@ -31,32 +31,38 @@ bool SFE_ST25DV64KC::isConnected()
   return connected;
 }
 
-uint8_t SFE_ST25DV64KC::readRegisterValue(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress)
+bool SFE_ST25DV64KC::readRegisterValue(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress, uint8_t *value)
 {
-  return st25_io.readSingleByte(addressType, registerAddress);
+  return st25_io.readSingleByte(addressType, registerAddress, value);
 }
 
-void SFE_ST25DV64KC::readRegisterValues(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress, uint8_t *data, uint16_t dataLength)
+bool SFE_ST25DV64KC::readRegisterValues(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress, uint8_t *data, uint16_t dataLength)
 {
-  st25_io.readMultipleBytes(addressType, registerAddress, data, dataLength);
+  return st25_io.readMultipleBytes(addressType, registerAddress, data, dataLength);
 }
 
-void SFE_ST25DV64KC::getDeviceUID(uint8_t *values)
+bool SFE_ST25DV64KC::getDeviceUID(uint8_t *values)
 {
   uint8_t tempBuffer[8] = {0};
 
   // Get UID into tempBuffer and return it from back to front
-  st25_io.readMultipleBytes(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_UID_BASE, tempBuffer, 8);
-  for (uint8_t i = 0; i < 8; i++)
-    values[i] = tempBuffer[7 - i];
+  bool success = st25_io.readMultipleBytes(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_UID_BASE, tempBuffer, 8);
+
+  if (success)
+  {
+    for (uint8_t i = 0; i < 8; i++)
+      values[i] = tempBuffer[7 - i];
+  }
+
+  return success;
 }
 
-uint8_t SFE_ST25DV64KC::getDeviceRevision()
+bool SFE_ST25DV64KC::getDeviceRevision(uint8_t *value)
 {
-  return st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_IC_REV);
+  return st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_IC_REV, value);
 }
 
-void SFE_ST25DV64KC::openI2CSession(uint8_t *password)
+bool SFE_ST25DV64KC::openI2CSession(uint8_t *password)
 {
   // Passwords are written MSB first and need to be sent twice with 0x09 sent after the first
   // set of 8 bytes.
@@ -73,7 +79,7 @@ void SFE_ST25DV64KC::openI2CSession(uint8_t *password)
   for (uint8_t i = 0; i < 8; i++)
     tempBuffer[i + 9] = tempBuffer[i];
 
-  st25_io.writeMultipleBytes(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2C_PASSWD_BASE, tempBuffer, 17);
+  return st25_io.writeMultipleBytes(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2C_PASSWD_BASE, tempBuffer, 17);
 }
 
 bool SFE_ST25DV64KC::isI2CSessionOpen()
@@ -361,27 +367,27 @@ uint16_t SFE_ST25DV64KC::getMemoryAreaEndAddress(uint8_t memoryArea)
     return 0;
   }
 
-  uint16_t value = 0;
+  uint8_t value = 0;
 
   switch (memoryArea)
   {
   case 1:
-    value = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_ENDA1) * 32 + 31;
+    st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_ENDA1, &value);
     break;
 
   case 2:
-    value = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_ENDA2) * 32 + 31;
+    st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_ENDA2, &value);
     break;
 
   case 3:
-    value = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_ENDA3) * 32 + 31;
+    st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_ENDA3, &value);
     break;
 
   default:
     break;
   }
 
-  return value;
+  return ((uint16_t)value * 32 + 31);
 }
 
 bool SFE_ST25DV64KC::RFFieldDetected()

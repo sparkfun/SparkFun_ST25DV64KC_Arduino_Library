@@ -52,19 +52,19 @@ public:
   bool isConnected();
 
   // Reads single register value
-  uint8_t readRegisterValue(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress);
+  bool readRegisterValue(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress, uint8_t *value);
 
   // Reads multiple values from register
-  void readRegisterValues(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress, uint8_t *data, const uint16_t dataLength);
+  bool readRegisterValues(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress, uint8_t *data, const uint16_t dataLength);
 
   // Gets device UID (8 bytes).
-  void getDeviceUID(uint8_t *values);
+  bool getDeviceUID(uint8_t *values);
 
   // Gets device revision.
-  uint8_t getDeviceRevision();
+  bool getDeviceRevision(uint8_t *value);
 
   // Open I2C security session.
-  void openI2CSession(uint8_t *password);
+  bool openI2CSession(uint8_t *password);
 
   // Checks if I2C security session is open.
   bool isI2CSessionOpen();

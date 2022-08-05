@@ -35,6 +35,11 @@ public:
   // Default destructor
   ~SFE_ST2525DV64KC_IO(){};
 
+  // Define the I2C chunk size (the maximum number of bytes to be read/written in one transmission)
+  uint8_t readWriteChunkSize = 32;
+  const uint8_t maxRetries = 6;
+  const uint8_t retryDelay = 5;
+
   // Starts two wire interface.
   bool begin(TwoWire &wirePort);
 
@@ -45,22 +50,22 @@ public:
   // IO function so the proper area is addressed.
 
   // Read a single uint8_t from a register.
-  uint8_t readSingleByte(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress);
+  bool readSingleByte(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, uint8_t *value);
 
   // Writes a single uint8_t into a register.
   bool writeSingleByte(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, const uint8_t value);
 
   // Reads multiple bytes from a register into buffer uint8_t array.
-  void readMultipleBytes(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, uint8_t *const buffer, const uint16_t packetLength);
+  bool readMultipleBytes(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, uint8_t *const buffer, const uint16_t packetLength);
 
   // Writes multiple bytes to register from buffer uint8_t array.
   bool writeMultipleBytes(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, uint8_t *const buffer, const uint16_t packetLength);
 
   // Sets a single bit in a specific register. Bit position ranges from 0 (lsb) to 7 (msb).
-  void setRegisterBit(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, const uint8_t bitMask);
+  bool setRegisterBit(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, const uint8_t bitMask);
 
   // Clears a single bit in a specific register. Bit position ranges from 0 (lsb) to 7 (msb).
-  void clearRegisterBit(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, const uint8_t bitMask);
+  bool clearRegisterBit(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, const uint8_t bitMask);
 
   // Returns true if a specific bit is set in a register. Bit position ranges from 0 (lsb) to 7 (msb).
   bool isBitSet(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddress, const uint8_t bitMask);
