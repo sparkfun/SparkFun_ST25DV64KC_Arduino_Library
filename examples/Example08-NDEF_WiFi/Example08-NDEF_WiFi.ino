@@ -21,13 +21,13 @@
 
 /*
   The following resources are very useful:
-  
+
   ST Application Note AN4911:
   https://www.st.com/resource/en/application_note/an4911-ndef-management-with-st25dvi2c-series-and-st25tv16k-and-st25tv64k-products-stmicroelectronics.pdf
-  
+
   ST25PC-NFC software:
   https://www.st.com/en/embedded-software/stsw-st25pc001.html
-  
+
   ST25R3911B-DISCO:
   https://www.st.com/en/evaluation-tools/st25r3911b-disco.html
 
@@ -73,19 +73,23 @@
 /*
   To create a single NDEF WiFi short record:
 
-  0x03 0x6D 0xDA
-  0x17 0x52 0x00
-  application/vnd.wfa.wsc
-  0x10 0x0E 0x00 0x4E
-  
-  0xFE
+  00000 0x0000 E2 40 00 01 00 00 03 FF 03 72 DA 17 57 00 61 70 .@.......r..W.ap
+  00016 0x0010 70 6C 69 63 61 74 69 6F 6E 2F 76 6E 64 2E 77 66 plication/vnd.wf
+  00032 0x0020 61 2E 77 73 63 10 0E 00 53 10 26 00 01 01 10 45 a.wsc...S.&....E
+  00048 0x0030 00 0C 67 75 65 73 74 4E 65 74 77 6F 72 6B 10 03 ..guestNetwork..
+  00064 0x0040 00 02 00 20 10 0F 00 02 00 08 10 27 00 10 67 75 ... .......'..gu
+  00080 0x0050 65 73 74 50 61 73 73 77 6F 72 64 31 32 33 10 20 estPassword123.
+  00096 0x0060 00 06 00 00 00 00 00 00 10 49 00 06 00 37 2A 02 .........I...7*.
+  00112 0x0070 01 01 10 49 00 06 00 37 2A 00 01 20 FE
+
+  Starting at memory location 0008:
 
   Byte 0: Type5 Tag TLV-Format: T (Type field)
           0x03 = NDEF Message TLV
   Byte 1: Type5 Tag TLV-Format: L (Length field) (1-Byte Format)
-          0x6D = 109 Bytes
-  Bytes 2-110: Type5 Tag TLV-Format: V (Value field)
-          Byte 2: Record Header
+          0x72 = 114 Bytes
+  Bytes 2-115: Type5 Tag TLV-Format: V (Value field)
+          Byte 2: Record Header = 0xDA
                   b7 = 0b1 MB (Message Begin)
                   b6 = 0b1 ME (Message End)
                   b5 = 0b0 CF (Chunk Flag)
@@ -95,40 +99,40 @@
           Byte 3: Type Length
                   0x17 = 23 Bytes
           Byte 4: Payload Length
-                  0x52 = 82 Bytes
+                  0x57 = 87 Bytes
           Byte 5: ID Length
                   0x00 = 0 Bytes
           Bytes 6-28: Type (23 bytes)
-                  application/vnd.wfa.wsc
-          Start of Payload
+                  "application/vnd.wfa.wsc"
+          Start of Payload:
           Bytes 29+30: 0x100E (WiFi Credential)
-          Bytes 31+32: 0x00 0x4E (Length = 78)
+          Bytes 31+32: 0x00 0x53 (Length = 83)
           Bytes 33+34: 0x1026 (Network Index)
           Bytes 35+36: 0x00 0x01 (Length = 1)
           Byte 37:     0x01
           Bytes 38+39: 0x1045 (SSID)
-          Bytes 40+41: 0x00 0x06 (length = 6)
-          Bytes 42-47: " T-Rex"
-          Bytes 48+49: 0x1003(Authentication Type)
-          Bytes 50+51: 0x00 0x02 (Length = 2)
-          Bytes 52+53: 0x00 0x20 (WPA2 Personal)
-          Bytes 54+55: 0x100F (Encryption Type)
+          Bytes 40+41: 0x00 0x0C (length = 12)
+          Bytes 42-53: "guestNetwork"
+          Bytes 54+55: 0x1003(Authentication Type)
           Bytes 56+57: 0x00 0x02 (Length = 2)
-          Bytes 58+59: 0x00 0x08 (AES)
-          Bytes 60+61: 0x1027 (Network Key)
-          Bytes 62+63: 0x00 0x11 (Length = 17)
-          Bytes 64-80: Has-Big-Teeth-123
-          Bytes 81+82: 0x1020 (MAC Address)
-          Bytes 83-84: 0x00 0x06 (Length = 6)
-          Bytes 85-90: 0x00 0x00 0x00 0x00 0x00 0x00
-          Bytes 91+92: 0x1049 (Vendor Extension)
-          Bytes 93+94: 0x00 0x06 (Length = 6)
-          Bytes 95-100: 0x00 0x37 0x2A (Vendor ID) 0x02 0x01 0x01 (Vendor Data)
-          Bytes 101+102: 0x1049 (Vendor Extension)
-          Bytes 103+104: 0x00 0x06 (Length = 6)
-          Bytes 105-110: 0x00 0x37 0x2A (Vendor ID) 0x00 0x01 0x20 (Vendor Data)
+          Bytes 58+59: 0x00 0x20 (WPA2 Personal)
+          Bytes 60+61: 0x100F (Encryption Type)
+          Bytes 62+63: 0x00 0x02 (Length = 2)
+          Bytes 64+65: 0x00 0x08 (AES)
+          Bytes 66+67: 0x1027 (Network Key)
+          Bytes 68+69: 0x00 0x10 (Length = 16)
+          Bytes 70-85: "guestPassword123"
+          Bytes 86+87: 0x1020 (MAC Address)
+          Bytes 88+89: 0x00 0x06 (Length = 6)
+          Bytes 90-95: 0x00 0x00 0x00 0x00 0x00 0x00
+          Bytes 96+97: 0x1049 (Vendor Extension)
+          Bytes 98+99: 0x00 0x06 (Length = 6)
+          Bytes 100-105: 0x00 0x37 0x2A (Vendor ID) 0x02 0x01 0x01 (Vendor Data)
+          Bytes 106+107: 0x1049 (Vendor Extension)
+          Bytes 108+109: 0x00 0x06 (Length = 6)
+          Bytes 110-115: 0x00 0x37 0x2A (Vendor ID) 0x00 0x01 0x20 (Vendor Data)
           End of Payload
-  Byte 111: Type5 Tag TLV-Format: T (Type field)
+  Byte 116: Type5 Tag TLV-Format: T (Type field)
           0xFE = Terminator TLV
 */
 
@@ -137,19 +141,54 @@
 SFE_ST25DV64KC tag;
 
 #define CC_Len 8
-const uint8_t CC_File[CC_Len] = { 0xE2, 0x40, 0x00, 0x01, 0x00, 0x00, 0x03, 0xFF };
+const uint8_t CC_File[CC_Len] = {0xE2, 0x40, 0x00, 0x01, 0x00, 0x00, 0x03, 0xFF};
 
-#define Type5_NDEF_Message_TLV  0x03
-#define Type5_Terminator_TLV    0xFE
-#define NDEF_MB                 (1 << 7)
-#define NDEF_ME                 (1 << 6)
-#define NDEF_CF                 (1 << 5)
-#define NDEF_SR                 (1 << 4)
-#define NDEF_TNF_WELL_KNOWN     0x01
-#define NDEF_URI_RECORD         0x55
-#define NDEF_PREFIX_HTTPS_WWW   0x02
+#define Type5_NDEF_Message_TLV 0x03
+#define Type5_Terminator_TLV 0xFE
 
-const char URI[] = "sparkfun.com";
+#define NDEF_MB (1 << 7)
+#define NDEF_ME (1 << 6)
+#define NDEF_CF (1 << 5)
+#define NDEF_SR (1 << 4)
+#define NDEF_IL (1 << 3)
+#define NDEF_TNF_MEDIA 0x02
+
+const uint8_t VERSION[2] = {0x10, 0x4A};
+const uint8_t CREDENTIAL[2] = {0x10, 0x0e};
+const uint8_t AUTH_TYPE[2] = {0x10, 0x03};
+const uint8_t CRYPT_TYPE[2] = {0x10, 0x0F};
+const uint8_t MAC_ADDRESS[2] = {0x10, 0x20};
+const uint8_t NETWORK_IDX[2] = {0x10, 0x26};
+const uint8_t NETWORK_KEY[2] = {0x10, 0x27};
+const uint8_t NETWORK_NAME[2] = {0x10, 0x45};
+const uint8_t OOB_PASSWORD[2] = {0x10, 0x2C};
+const uint8_t VENDOR_EXT[2] = {0x10, 0x49};
+const uint8_t VENDOR_WFA[3] = {0x00, 0x37, 0x2A};
+const uint8_t VERSION2 = {0x00};
+const uint8_t KEY_SHAREABLE = {0x02};
+
+const uint8_t AUTH_OPEN[2] = {0x00, 0x01};
+const uint8_t AUTH_WPA_PERSONAL[2] = {0x00, 0x02};
+const uint8_t AUTH_SHARED[2] = {0x00, 0x04};
+const uint8_t AUTH_WPA_ENTERPRISE[2] = {0x00, 0x08};
+const uint8_t AUTH_WPA2_ENTERPRISE[2] = {0x00, 0x10};
+const uint8_t AUTH_WPA2_PERSONAL[2] = {0x00, 0x20};
+const uint8_t AUTH_WPA_WPA2_PERSONAL[2] = {0x00, 0x22};
+
+const uint8_t CRYPT_NONE[2] = {0x00, 0x01};
+const uint8_t CRYPT_WEP[2] = {0x00, 0x02};
+const uint8_t CRYPT_TKIP[2] = {0x00, 0x04};
+const uint8_t CRYPT_AES[2] = {0x00, 0x08};
+const uint8_t CRYPT_AES_TKIP[2] = {0x00, 0x0C};
+
+const char MIME_Type[] = "application/vnd.wfa.wsc";
+
+const uint8_t MAC_Address[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+const uint8_t Vendor_Data_1[3] = {0x02, 0x01, 0x01};
+const uint8_t Vendor_Data_2[3] = {0x00, 0x01, 0x20};
+
+const char WiFi_SSID[] = "guestNetwork";
+const char WiFi_Password[] = "guestPassword123";
 
 void setup()
 {
@@ -184,7 +223,7 @@ void setup()
   }
   else
     Serial.println(F("Could not read device UID!"));
-  
+
   uint8_t rev;
   if (tag.getDeviceRevision(&rev))
   {
@@ -212,19 +251,55 @@ void setup()
   Serial.println(F("Writing CC_File"));
   tag.writeEEPROM(0x0, (uint8_t *)CC_File, CC_Len);
 
-  // Write the Type 5 NDEF URI 
+  // Write the Type 5 NDEF WiFi Record
   uint8_t tagWrite[256];
   memset(tagWrite, 0, 256);
-  tagWrite[0] = Type5_NDEF_Message_TLV; // Type5 Tag TLV-Format: T (Type field)
-  tagWrite[1] = strlen(URI) + 5; // Type5 Tag TLV-Format: L (Length field) (1-Byte Format)
-  tagWrite[2] = NDEF_MB | NDEF_ME | NDEF_SR | NDEF_TNF_WELL_KNOWN; // NDEF Record Header
-  tagWrite[3] = 0x01; // NDEF Type Length
-  tagWrite[4] = strlen(URI) + 1; // NDEF Payload Length
-  tagWrite[5] = NDEF_URI_RECORD; // NDEF Record Type
-  tagWrite[6] = NDEF_PREFIX_HTTPS_WWW; // NDEF URI Prefix Code
-  strcpy((char *)&tagWrite[7], URI); // Add the URI
-  tagWrite[7 + strlen(URI)] = Type5_Terminator_TLV; // Type5 Tag TLV-Format: T (Type field)
-  Serial.println(F("Writing the NDEF URI record"));
+  tagWrite[0] = Type5_NDEF_Message_TLV;                                 // Type5 Tag TLV-Format: T (Type field)
+  tagWrite[2] = NDEF_MB | NDEF_ME | NDEF_SR | NDEF_IL | NDEF_TNF_MEDIA; // NDEF Record Header
+  uint8_t mimeLen = strlen(MIME_Type);
+  tagWrite[3] = mimeLen;                              // NDEF Type Length
+  tagWrite[5] = 0x00;                                 // NDEF ID Length
+  strcpy((char *)&tagWrite[6], MIME_Type);            // Add MIME type
+  uint8_t *payloadStart = &tagWrite[6 + mimeLen];     // Record the start of the payload
+  uint8_t *target = payloadStart;                     // Point target at the start of the payload
+  target = addField(target, CREDENTIAL, 2);           // Add WiFi Credentials
+  target += 2;                                        // Skip over the credentials length for now
+  target = addField(target, NETWORK_IDX, 2);          // Add Network Index
+  target = addUint16t(target, 0x0001);                // Network Index Length
+  target = addUint8t(target, 0x01);                   // Network Index
+  target = addField(target, NETWORK_NAME, 2);         // Add SSID (Network Name)
+  target = addUint16t(target, strlen(WiFi_SSID));     // SSID Length
+  strcpy((char *)target, WiFi_SSID);                  // Copy the SSID
+  target += strlen(WiFi_SSID);                        // Increment target
+  target = addField(target, AUTH_TYPE, 2);            // Add the Authentication Type
+  target = addUint16t(target, 0x0002);                // Authentication Type Length
+  target = addField(target, AUTH_WPA2_PERSONAL, 2);   // Authentication Type
+  target = addField(target, CRYPT_TYPE, 2);           // Add the Encryption Type
+  target = addUint16t(target, 0x0002);                // Encryption Type Length
+  target = addField(target, CRYPT_AES, 2);            // Encryption Type
+  target = addField(target, NETWORK_KEY, 2);          // Add the Network Key (Password)
+  target = addUint16t(target, strlen(WiFi_Password)); // Password Length
+  strcpy((char *)target, WiFi_Password);              // Copy the password
+  target += strlen(WiFi_Password);                    // Increment target
+  target = addField(target, MAC_ADDRESS, 2);          // Add the MAC Address
+  target = addUint16t(target, 0x0006);                // MAC Address Length
+  memcpy(target, MAC_Address, 6);                     // Copy the MAC Address (could be full of zeros)
+  target += 6;                                        // Increment target
+  target = addField(target, VENDOR_EXT, 2);           // Add the first vendor extension
+  target = addUint16t(target, 0x0006);                // Vendor Extension Length
+  target = addField(target, VENDOR_WFA, 3);
+  target = addField(target, Vendor_Data_1, 3);
+  target = addField(target, VENDOR_EXT, 2); // Add the second vendor extension
+  target = addUint16t(target, 0x0006);      // Vendor Extension Length
+  target = addField(target, VENDOR_WFA, 3);
+  target = addField(target, Vendor_Data_2, 3);
+  addUint8t(target, Type5_Terminator_TLV); // Type5 Tag TLV-Format: T (Type field)
+  uint16_t payloadLen = target - payloadStart;
+  addUint16t((uint8_t *)(payloadStart + 2), payloadLen - 4); // WiFi Credentials Length
+  tagWrite[4] = (uint8_t)payloadLen;                         // NDEF Payload Length
+  tagWrite[1] = (uint8_t)payloadLen + strlen(MIME_Type) + 4; // Type5 Tag TLV-Format: L (Length field) (1-Byte Format)
+
+  Serial.println(F("Writing the NDEF WiFi record"));
   tag.writeEEPROM(CC_Len, tagWrite, 256);
 
   // Read back the memory contents
@@ -232,6 +307,29 @@ void setup()
   uint8_t tagRead[256];
   tag.readEEPROM(0x0, tagRead, 256);
   prettyPrintChars(tagRead, 256);
+}
+
+uint8_t *addField(uint8_t *target, const uint8_t *source, uint8_t len)
+{
+  for (uint8_t i = 0; i < len; i++)
+    *target++ = *source++;
+
+  return target;
+}
+
+uint8_t *addUint16t(uint8_t *target, const uint16_t source)
+{
+  *target++ = source >> 8;
+  *target++ = source & 0xFF;
+
+  return target;
+}
+
+uint8_t *addUint8t(uint8_t *target, const uint8_t source)
+{
+  *target++ = source;
+
+  return target;
 }
 
 void loop()
@@ -245,17 +343,24 @@ void prettyPrintChars(uint8_t *theData, int theLength) // Pretty-print char data
 
   for (int i = 0; i < theLength; i += 16)
   {
-    if (i < 10000) Serial.print(F("0"));
-    if (i < 1000) Serial.print(F("0"));
-    if (i < 100) Serial.print(F("0"));
-    if (i < 10) Serial.print(F("0"));
+    if (i < 10000)
+      Serial.print(F("0"));
+    if (i < 1000)
+      Serial.print(F("0"));
+    if (i < 100)
+      Serial.print(F("0"));
+    if (i < 10)
+      Serial.print(F("0"));
     Serial.print(i);
 
     Serial.print(F(" 0x"));
 
-    if (i < 0x1000) Serial.print(F("0"));
-    if (i < 0x100) Serial.print(F("0"));
-    if (i < 0x10) Serial.print(F("0"));
+    if (i < 0x1000)
+      Serial.print(F("0"));
+    if (i < 0x100)
+      Serial.print(F("0"));
+    if (i < 0x10)
+      Serial.print(F("0"));
     Serial.print(i, HEX);
 
     Serial.print(F(" "));
@@ -263,7 +368,8 @@ void prettyPrintChars(uint8_t *theData, int theLength) // Pretty-print char data
     int j;
     for (j = 0; ((i + j) < theLength) && (j < 16); j++)
     {
-      if (theData[i + j] < 0x10) Serial.print(F("0"));
+      if (theData[i + j] < 0x10)
+        Serial.print(F("0"));
       Serial.print(theData[i + j], HEX);
       Serial.print(F(" "));
     }
@@ -275,7 +381,7 @@ void prettyPrintChars(uint8_t *theData, int theLength) // Pretty-print char data
         Serial.print(F("   "));
       }
     }
-      
+
     for (j = 0; ((i + j) < theLength) && (j < 16); j++)
     {
       if ((theData[i + j] >= 0x20) && (theData[i + j] <= 0x7E))
