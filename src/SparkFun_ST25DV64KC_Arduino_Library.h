@@ -99,10 +99,10 @@ public:
   bool getEEPROMWriteProtectionBit(uint8_t memoryArea);
 
   // Reads block of data from EEPROM.
-  void readEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength);
+  bool readEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength);
 
   // Writes block of data to EEPROM.
-  void writeEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength);
+  bool writeEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength);
 
   // Sets memory area boundary. memoryNumber ranges from 1 to 4.
   // endAddressValue must comply with datasheet's area size specifications (page 14).
@@ -150,5 +150,7 @@ public:
   // Gets a specific EH_CTRL_DYN dynamic register bit
   bool getEH_CTRL_DYNBit(uint8_t bitMask);
 };
+
+#include "SparkFun_ST25DV64KC_NDEF.h"
 
 #endif

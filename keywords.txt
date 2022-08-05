@@ -13,6 +13,8 @@ END_REGISTERS	KEYWORD1
 
 SFE_ST2525DV64KC_IO	KEYWORD1
 
+SFE_ST2525DV64KC_NDEF	KEYWORD1
+
 #######################################
 # Methods and Functions 	KEYWORD2
 #######################################
@@ -55,6 +57,9 @@ writeMultipleBytes	KEYWORD2
 setRegisterBit	KEYWORD2
 clearRegisterBit	KEYWORD2
 isBitSet	KEYWORD2
+
+writeCCFile4Byte	KEYWORD2
+writeCCFile8Byte	KEYWORD2
 
 #######################################
 # Constants 	LITERAL1

@@ -45,7 +45,7 @@ bool SFE_ST2525DV64KC_IO::writeMultipleBytes(const SF_ST25DV64KC_ADDRESS address
   {
     uint8_t bytesToWrite; // Write the data in chunks of readWriteChunkSize max
     if ((packetLength - bytesWritten) > ((uint16_t)readWriteChunkSize))
-      bytesToWrite = readWriteChunkSize;
+      bytesToWrite = readWriteChunkSize - 2; // Write a maximum of readWriteChunkSize bytes total - including the register address
     else
       bytesToWrite = packetLength - bytesWritten;
 
