@@ -147,23 +147,28 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
 
   uint8_t *tagPtr = &tagWrite[0];
 
-  *tagPtr++ = SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV; // Type5 Tag TLV-Format: T (Type field)
-
   uint16_t payloadLength = strlen(uri) + 1; // Payload length is strlen(uri) + Record Type
 
   // Total field length is strlen(uri) + Prefix Code + Record Type + Payload Length + Type Length + Record Header
   uint16_t fieldLength = strlen(uri) + 1 + 1 + ((payloadLength <= 0xFF) ? 1 : 4) + 1 + 1;
 
-  if (fieldLength > 0xFE) // Is the total L greater than 0xFE?
+  // Only write the Type 5 T & L fields if the Message Begin bit is set
+  if (MB)
   {
-    *tagPtr++ = 0xFF; // Type5 Tag TLV-Format: L (Length field) (3-Byte Format)
-    *tagPtr++ = fieldLength >> 8;
-    *tagPtr++ = fieldLength & 0xFF;
+    *tagPtr++ = SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV; // Type5 Tag TLV-Format: T (Type field)
+
+    if (fieldLength > 0xFE) // Is the total L greater than 0xFE?
+    {
+      *tagPtr++ = 0xFF; // Type5 Tag TLV-Format: L (Length field) (3-Byte Format)
+      *tagPtr++ = fieldLength >> 8;
+      *tagPtr++ = fieldLength & 0xFF;
+    }
+    else
+    {
+      *tagPtr++ = fieldLength; // Type5 Tag TLV-Format: L (Length field) (1-Byte Format)
+    }
   }
-  else
-  {
-    *tagPtr++ = fieldLength; // Type5 Tag TLV-Format: L (Length field) (1-Byte Format)
-  }
+
   // NDEF Record Header
   *tagPtr++ = (MB ? SFE_ST25DV_NDEF_MB : 0) | (ME ? SFE_ST25DV_NDEF_ME : 0) | ((payloadLength <= 0xFF) ? SFE_ST25DV_NDEF_SR : 0) | SFE_ST25DV_NDEF_TNF_WELL_KNOWN;
   *tagPtr++ = 0x01; // NDEF Type Length
@@ -202,7 +207,51 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
 
   if ((address != NULL) && (result))
   {
-    *address = memLoc + numBytes;
+    *address = memLoc + numBytes; // Update address so the next writeNDEFURI can append to this one
+  }
+
+  // If Message Begin is not set, we need to go back and update the L field
+  if (!MB)
+  {
+    uint16_t baseAddress = _ccFileLen + 1; // Skip the SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV
+    uint8_t data[3];
+    result &= readEEPROM(baseAddress, &data[0], 0x03); // Read the possible three length bytes
+    if (!result)
+      return false;
+    if (data[0] == 0xFF) // Is the length already 3-byte?
+    {
+      uint16_t oldLen = ((uint16_t)data[1] << 8) | data[2];
+      oldLen += (ME ? numBytes - 1 : numBytes);
+      data[1] = oldLen >> 8;
+      data[2] = oldLen & 0xFF;
+      result &= writeEEPROM(baseAddress, &data[0], 0x03); // Update the existing 3-byte length
+    }
+    else
+    {
+      // Length is 1-byte
+      uint16_t newLen = data[0];
+      newLen += (ME ? numBytes - 1 : numBytes);
+      if (newLen <= 0xFE) // Is the new length still 1-byte?
+      {
+        data[0] = newLen;
+        result &= writeEEPROM(baseAddress, &data[0], 0x01); // Update the existing 1-byte length
+      }
+      else
+      {
+        // The length was 1-byte but needs to be changed to 3-byte
+        //delete[] tagWrite; // Delete tagWrite to save memory
+        uint8_t newTagWrite[newLen + 4];
+        newTagWrite[0] = 0xFF; // Change length to 3-byte
+        newTagWrite[1] = newLen >> 8;
+        newTagWrite[2] = newLen & 0xFF;
+        result &= readEEPROM(baseAddress + 1, &newTagWrite[3], (ME ? newLen + 1 : newLen)); // Copy in the old data
+        if (!result)
+          return false;
+        result &= writeEEPROM(baseAddress, &newTagWrite[0], (ME ? newLen + 4 : newLen + 3));
+        if (result)
+          *address = *address + 2; // Update address too
+      }
+    }
   }
 
   return result;

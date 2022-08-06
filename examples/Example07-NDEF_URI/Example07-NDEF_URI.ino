@@ -80,22 +80,32 @@ void setup()
   Serial.print(F("EEPROM area 1 write protection: "));
   Serial.println(tag.getEEPROMWriteProtectionBit(1) ? "protected." : "opened.");
 
-  /*
+  // -=-=-=-=-=-=-=-=-
+
   // Clear the first 512 bytes of user memory
   uint8_t tagWrite[512];
   memset(tagWrite, 0, 512);
 
   Serial.println("Writing 0x0 to the first 512 bytes of user memory using the opened session.");
   tag.writeEEPROM(0x0, tagWrite, 512);
-  */
+
+  // -=-=-=-=-=-=-=-=-
 
   // Write the Type 5 CC File - eight bytes - starting at address zero
   Serial.println(F("Writing CC_File"));
   tag.writeCCFile8Byte();
 
-  // Write the Type 5 NDEF URI 
-  Serial.println(F("Writing the NDEF URI record"));
+  // Write a single Type 5 NDEF URI 
+  Serial.println(F("Writing a single NDEF URI record"));
   tag.writeNDEFURI("sparkfun.com", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS_WWW); // Defaults to memory address 8, single record (Message Begin = 1, Message End = 1)
+
+  // Write multiple Type 5 NDEF URIs
+  // ** These will overwrite the single URI created above **
+  Serial.println(F("Writing multiple NDEF URI records"));
+  uint16_t memoryLocation = 8; // Start writing at memory location 8 - immediately after the 8-byte CC File
+  tag.writeNDEFURI("sparkfun.com", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS_WWW, &memoryLocation, true, false); // Message Begin = 1, Message End = 0
+  tag.writeNDEFURI("github.com/sparkfun", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS, &memoryLocation, false, false); // Message Begin = 0, Message End = 0
+  tag.writeNDEFURI("twitter.com/sparkfun", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS, &memoryLocation, false, true); // Message Begin = 0, Message End = 1
 
   // Read back the memory contents
   Serial.println(F("The first 512 bytes of user memory are:"));

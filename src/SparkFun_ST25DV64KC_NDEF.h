@@ -39,6 +39,9 @@ public:
   
   // Write an 8-byte CC File to user memory (ST25DV64K)
   bool writeCCFile8Byte(uint32_t val1 = 0xE2400001, uint32_t val2 = 0x000003FF);
+
+  // Update _ccFileLen
+  void setCCFileLen(uint16_t newLen) { _ccFileLen = newLen; }
   
   // Write an NDEF URI Record to user memory
   // If address is not NULL, start writing at *address, otherwise start at _ccFileLen
