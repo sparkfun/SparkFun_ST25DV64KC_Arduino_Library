@@ -20,9 +20,13 @@
 #define _SPARKFUN_ST25DV64KC_NDEF_
 
 #include "SparkFun_ST25DV64KC_Arduino_Library.h"
+#include "SparkFun_ST25DV64KC_Arduino_Library_Constants.h"
 
 class SFE_ST25DV64KC_NDEF : public SFE_ST25DV64KC
 {
+private:
+  uint16_t _ccFileLen = 8; // Record the length of the CC File - default to 8 bytes
+
 public:
   // Default constructor.
   SFE_ST25DV64KC_NDEF(){};
@@ -36,6 +40,15 @@ public:
   // Write an 8-byte CC File to user memory (ST25DV64K)
   bool writeCCFile8Byte(uint32_t val1 = 0xE2400001, uint32_t val2 = 0x000003FF);
   
+  // Write an NDEF URI Record to user memory
+  // If address is not NULL, start writing at *address, otherwise start at _ccFileLen
+  // MB = Message Begin, ME = Message End
+  // Default is a single message (MB=true, ME=true)
+  // To add multiple URIs:
+  //   First: MB=true, ME=false
+  //   Intermediate: MB=false, ME=false
+  //   Last: MB=false, ME=true
+  bool writeNDEFURI(const char *uri, uint8_t idCode = SFE_ST25DV_NDEF_URI_ID_CODE_NONE, uint16_t *address = NULL, bool MB = true, bool ME = true);
 };
 
 #endif
