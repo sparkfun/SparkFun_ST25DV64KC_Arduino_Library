@@ -304,23 +304,28 @@ bool SFE_ST25DV64KC::getEEPROMWriteProtectionBit(uint8_t memoryArea)
   return false;
 }
 
-void SFE_ST25DV64KC::writeEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength)
+bool SFE_ST25DV64KC::writeEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength)
 {
   // Disable FTM temporarily if enabled
   bool ftmEnabled = st25_io.isBitSet(SF_ST25DV64KC_ADDRESS::DATA, REG_FTM, BIT_FTM_MB_MODE);
-  if (ftmEnabled)
-    st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_FTM, BIT_FTM_MB_MODE);
 
-  st25_io.writeMultipleBytes(SF_ST25DV64KC_ADDRESS::DATA, baseAddress, data, dataLength);
+  bool success = true;
+
+  if (ftmEnabled)
+    success &= st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_FTM, BIT_FTM_MB_MODE);
+
+  success &= st25_io.writeMultipleBytes(SF_ST25DV64KC_ADDRESS::DATA, baseAddress, data, dataLength);
 
   // Restore FTM if previously enabled
   if (ftmEnabled)
-    st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_FTM, BIT_FTM_MB_MODE);
+    success &= st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_FTM, BIT_FTM_MB_MODE);
+
+  return success;
 }
 
-void SFE_ST25DV64KC::readEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength)
+bool SFE_ST25DV64KC::readEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength)
 {
-  st25_io.readMultipleBytes(SF_ST25DV64KC_ADDRESS::DATA, baseAddress, data, dataLength);
+  return st25_io.readMultipleBytes(SF_ST25DV64KC_ADDRESS::DATA, baseAddress, data, dataLength);
 }
 
 bool SFE_ST25DV64KC::setMemoryAreaEndAddress(uint8_t memoryArea, uint8_t endAddressValue)
