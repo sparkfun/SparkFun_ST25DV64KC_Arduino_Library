@@ -42,6 +42,7 @@ public:
 
   // Update _ccFileLen
   void setCCFileLen(uint16_t newLen) { _ccFileLen = newLen; }
+  uint16_t getCCFileLen() { return _ccFileLen; }
   
   // Write an NDEF URI Record to user memory
   // If address is not NULL, start writing at *address, otherwise start at _ccFileLen
@@ -52,6 +53,17 @@ public:
   //   Intermediate: MB=false, ME=false
   //   Last: MB=false, ME=true
   bool writeNDEFURI(const char *uri, uint8_t idCode = SFE_ST25DV_NDEF_URI_ID_CODE_NONE, uint16_t *address = NULL, bool MB = true, bool ME = true);
+
+  // Write an NDEF WiFi Record to user memory
+  // If address is not NULL, start writing at *address, otherwise start at _ccFileLen
+  // MB = Message Begin, ME = Message End
+  // Default is a single message (MB=true, ME=true)
+  // To add multiple URIs:
+  //   First: MB=true, ME=false
+  //   Intermediate: MB=false, ME=false
+  //   Last: MB=false, ME=true
+  bool writeNDEFWiFi(const char *ssid, const char *passwd, uint16_t *address = NULL, bool MB = true, bool ME = true,
+                     const uint8_t auth[2] = SFE_ST25DV_WIFI_AUTH_WPA2_PERSONAL, const uint8_t encrypt[2] = SFE_ST25DV_WIFI_ENCRYPT_AES);
 };
 
 #endif

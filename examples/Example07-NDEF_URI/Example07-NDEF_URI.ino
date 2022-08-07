@@ -99,6 +99,8 @@ void setup()
   Serial.println(F("Writing a single NDEF URI record"));
   tag.writeNDEFURI("sparkfun.com", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS_WWW); // Defaults to memory address 8, single record (Message Begin = 1, Message End = 1)
 
+  // -=-=-=-=-=-=-=-=-
+
   // Write multiple Type 5 NDEF URIs
   // ** These will overwrite the single URI created above **
   Serial.println(F("Writing multiple NDEF URI records"));
@@ -106,6 +108,8 @@ void setup()
   tag.writeNDEFURI("sparkfun.com", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS_WWW, &memoryLocation, true, false); // Message Begin = 1, Message End = 0
   tag.writeNDEFURI("github.com/sparkfun", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS, &memoryLocation, false, false); // Message Begin = 0, Message End = 0
   tag.writeNDEFURI("twitter.com/sparkfun", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS, &memoryLocation, false, true); // Message Begin = 0, Message End = 1
+
+  // -=-=-=-=-=-=-=-=-
 
   // Read back the memory contents
   Serial.println(F("The first 512 bytes of user memory are:"));
