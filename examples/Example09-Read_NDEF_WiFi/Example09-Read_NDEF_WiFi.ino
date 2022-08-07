@@ -6,8 +6,7 @@
   License: MIT. Please see the license file for more information but you can
   basically do whatever you want with this code.
 
-  This example shows how to set up the ST25DV64KC's Capability Container (CC)
-  and create a NDEF URI record for https://www.sparkfun.com
+  This example shows how to read a NDEF WiFi record from the tag's memory.
 
   Feel like supporting open source hardware?
   Buy a board from SparkFun!
@@ -56,7 +55,7 @@ void setup()
   }
   else
     Serial.println(F("Could not read device UID!"));
-  
+
   uint8_t rev;
   if (tag.getDeviceRevision(&rev))
   {
@@ -66,56 +65,26 @@ void setup()
   else
     Serial.println(F("Could not read device revision!"));
 
-  Serial.println("Opening I2C session with default password.");
-  uint8_t password[8] = {0x0}; // Default password is all zeros
+  Serial.println("Opening I2C session with password.");
+  uint8_t password[8] = {0x0};
   tag.openI2CSession(password);
 
   Serial.print(F("I2C session is "));
   Serial.println(tag.isI2CSessionOpen() ? "opened." : "closed.");
 
-  // Allow writing to User Memory Area 1
-  Serial.println(F("Unprotecting area 1 for write operation."));
-  tag.programEEPROMWriteProtectionBit(1, false);
-
-  Serial.print(F("EEPROM area 1 write protection: "));
-  Serial.println(tag.getEEPROMWriteProtectionBit(1) ? "protected." : "opened.");
-
-  // -=-=-=-=-=-=-=-=-
-
-  // Clear the first 512 bytes of user memory
-  uint8_t tagWrite[512];
-  memset(tagWrite, 0, 512);
-
-  Serial.println("Writing 0x0 to the first 512 bytes of user memory using the opened session.");
-  tag.writeEEPROM(0x0, tagWrite, 512);
-
-  // -=-=-=-=-=-=-=-=-
-
-  // Write the Type 5 CC File - eight bytes - starting at address zero
-  Serial.println(F("Writing CC_File"));
-  tag.writeCCFile8Byte();
-
-  // Write a single Type 5 NDEF URI 
-  Serial.println(F("Writing a single NDEF URI record"));
-  tag.writeNDEFURI("sparkfun.com", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS_WWW); // Defaults to memory address 8, single record (Message Begin = 1, Message End = 1)
-
-  // -=-=-=-=-=-=-=-=-
-
-  // Write multiple Type 5 NDEF URIs
-  // ** These will overwrite the single URI created above **
-  Serial.println(F("Writing multiple NDEF URI records"));
-  uint16_t memoryLocation = tag.getCCFileLen(); // Start writing at the memory location immediately after the CC File
-  tag.writeNDEFURI("sparkfun.com", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS_WWW, &memoryLocation, true, false); // Message Begin = 1, Message End = 0
-  tag.writeNDEFURI("github.com/sparkfun", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS, &memoryLocation, false, false); // Message Begin = 0, Message End = 0
-  tag.writeNDEFURI("twitter.com/sparkfun", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS, &memoryLocation, false, true); // Message Begin = 0, Message End = 1
-
-  // -=-=-=-=-=-=-=-=-
-
-  // Read back the memory contents
-  Serial.println(F("The first 512 bytes of user memory are:"));
-  uint8_t tagRead[512];
-  tag.readEEPROM(0x0, tagRead, 512);
-  prettyPrintChars(tagRead, 512);
+  // Read the first NDEF WiFi record
+  char ssid[64]; // Create storage for the SSID
+  char passwd[64]; // Create storage for the password
+  Serial.println(F("Reading the first NDEF WiFi record:"));
+  if (tag.readNDEFWiFi(ssid, 64, passwd, 64))
+  {
+    Serial.print(F("    SSID:"));
+    Serial.println(ssid);
+    Serial.print(F("Password:"));
+    Serial.println(passwd);
+  }
+  else
+    Serial.println(F("Read failed!"));
 }
 
 void loop()
@@ -129,17 +98,24 @@ void prettyPrintChars(uint8_t *theData, int theLength) // Pretty-print char data
 
   for (int i = 0; i < theLength; i += 16)
   {
-    if (i < 10000) Serial.print(F("0"));
-    if (i < 1000) Serial.print(F("0"));
-    if (i < 100) Serial.print(F("0"));
-    if (i < 10) Serial.print(F("0"));
+    if (i < 10000)
+      Serial.print(F("0"));
+    if (i < 1000)
+      Serial.print(F("0"));
+    if (i < 100)
+      Serial.print(F("0"));
+    if (i < 10)
+      Serial.print(F("0"));
     Serial.print(i);
 
     Serial.print(F(" 0x"));
 
-    if (i < 0x1000) Serial.print(F("0"));
-    if (i < 0x100) Serial.print(F("0"));
-    if (i < 0x10) Serial.print(F("0"));
+    if (i < 0x1000)
+      Serial.print(F("0"));
+    if (i < 0x100)
+      Serial.print(F("0"));
+    if (i < 0x10)
+      Serial.print(F("0"));
     Serial.print(i, HEX);
 
     Serial.print(F(" "));
@@ -147,7 +123,8 @@ void prettyPrintChars(uint8_t *theData, int theLength) // Pretty-print char data
     int j;
     for (j = 0; ((i + j) < theLength) && (j < 16); j++)
     {
-      if (theData[i + j] < 0x10) Serial.print(F("0"));
+      if (theData[i + j] < 0x10)
+        Serial.print(F("0"));
       Serial.print(theData[i + j], HEX);
       Serial.print(F(" "));
     }
@@ -159,7 +136,7 @@ void prettyPrintChars(uint8_t *theData, int theLength) // Pretty-print char data
         Serial.print(F("   "));
       }
     }
-      
+
     for (j = 0; ((i + j) < theLength) && (j < 16); j++)
     {
       if ((theData[i + j] >= 0x20) && (theData[i + j] <= 0x7E))

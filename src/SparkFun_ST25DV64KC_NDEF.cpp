@@ -539,3 +539,281 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
 
   return result;
 }
+
+// Read an NDEF WiFi Record from memory
+bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *passwd, uint8_t maxPasswdLen, uint8_t recordNo)
+{
+  uint8_t tlv[4];
+
+  if (!readEEPROM(_ccFileLen, tlv, 4)) // Read the TLV T and L Fields
+    return false; // readEEPROM failed
+
+  if (tlv[0] != SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV) // Check for 0x03
+    return false;
+
+  uint16_t lengthField, eepromAddress;
+
+  if (tlv[1] == 0xFF) // Check for 3-byte length
+  {
+    lengthField = ((uint16_t)tlv[2]) << 8; // 3-byte length
+    lengthField |= tlv[3];
+    eepromAddress = _ccFileLen + 4;
+  }
+  else
+  {
+    lengthField = tlv[1]; // 1-byte length
+    eepromAddress = _ccFileLen + 2;
+  }
+  
+  enum {
+    readRecordHeader,
+    readTypeLength,
+    readPayloadLength,
+    readIDLength,
+    readType,
+    matchFoundCheckRecordNo,
+    readAndIgnoreID,
+    readAndIgnorePayload,
+    readPayload,
+    checkEntry,
+    terminatorFound,
+    allDone
+  } loopState = readRecordHeader; // TO DO: handle chunks!
+
+  bool shortRecord;
+  bool hasIDLength;
+  uint8_t typeLength;
+  uint8_t idLength;
+  uint32_t payloadLength;
+  uint8_t thisRecord = 0;
+  uint8_t *payload = NULL;
+  uint16_t payloadPtr;
+  bool ssidFound = false;
+  bool passwdFound = false;
+  bool credentialSeen = false;
+  uint8_t tnf;
+
+  while (1)
+  {
+    switch(loopState)
+    {
+      case readRecordHeader:
+      {
+        uint8_t header[1];
+        if (!readEEPROM(eepromAddress, header, 1)) // Read the header
+        {
+          if (payload != NULL)
+            delete[] payload;
+          return false;
+        }
+        eepromAddress++; // Point to the Type Length
+        shortRecord = (header[0] & SFE_ST25DV_NDEF_SR) == SFE_ST25DV_NDEF_SR; // Is this a short record?
+        hasIDLength = (header[0] & SFE_ST25DV_NDEF_IL) == SFE_ST25DV_NDEF_IL; // Is there an ID length?
+        tnf = header[0] & 0x7; // Extract the TNF
+        // Check for a terminator
+        // Also sanity check that eepromAddress is within bounds
+        if ((tnf == SFE_ST25DV_TYPE5_TERMINATOR_TLV) || (eepromAddress > (_ccFileLen + 4 + lengthField)))
+          loopState = terminatorFound;
+        else
+          loopState = readTypeLength;
+      }
+      break;
+      case readTypeLength:
+      {
+        uint8_t typeLen[1];
+        if (!readEEPROM(eepromAddress, typeLen, 1)) // Read the Type Length
+        {
+          if (payload != NULL)
+            delete[] payload;
+          return false;
+        }
+        typeLength = typeLen[0];
+        eepromAddress++; // Point to the Payload Length
+        loopState = readPayloadLength;
+      }
+      break;
+      case readPayloadLength:
+      {
+        uint8_t payloadLenBytes[4];
+        if (shortRecord)
+        {
+          if (!readEEPROM(eepromAddress, payloadLenBytes, 1)) // Read the Payload Length
+          {
+            if (payload != NULL)
+              delete[] payload;
+            return false;
+          }
+          eepromAddress++; // Point to the ID Length
+          payloadLength = payloadLenBytes[0];
+        }
+        else
+        {
+          if (!readEEPROM(eepromAddress, payloadLenBytes, 4)) // Read the Payload Length
+          {
+            if (payload != NULL)
+              delete[] payload;
+            return false;
+          }
+          eepromAddress += 4; // Point to the ID Length
+          payloadLength = ((uint32_t)payloadLenBytes[0]) << 24;
+          payloadLength |= ((uint32_t)payloadLenBytes[1]) << 16;
+          payloadLength |= ((uint32_t)payloadLenBytes[2]) << 8;
+          payloadLength |= payloadLenBytes[3];
+        }
+        loopState = readIDLength;
+      }
+      break;
+      case readIDLength:
+      {
+        if (hasIDLength)
+        {
+          uint8_t idLen[1];
+          if (!readEEPROM(eepromAddress, idLen, 1)) // Read the ID Length
+          {
+            if (payload != NULL)
+              delete[] payload;
+            return false;
+          }
+          idLength = idLen[0];
+          eepromAddress++; // Point to the Type
+        }
+        else
+          idLength = 0;
+        if (typeLength == 0)
+          loopState = readAndIgnoreID;
+        else
+          loopState = readType;
+      }
+      break;
+      case readType:
+      {
+        uint8_t theType[typeLength + 1]; // Add 1 extra for a NULL
+        if (!readEEPROM(eepromAddress, theType, typeLength)) // Read the Type
+        {
+          if (payload != NULL)
+            delete[] payload;
+          return false;
+        }
+        theType[typeLength] = 0; // Null-terminate the Type
+        eepromAddress += typeLength; // Point to the ID
+        if ((typeLength == strlen(SFE_ST25DV_WIFI_MIME_TYPE)) && (strcmp((const char *)theType, SFE_ST25DV_WIFI_MIME_TYPE) == 0)) // Check for a Type match
+          loopState = matchFoundCheckRecordNo;
+        else
+          loopState = readAndIgnoreID;
+      }
+      break;
+      case readAndIgnoreID:
+      {
+        if (hasIDLength && (idLength > 0))
+        {
+          eepromAddress += idLength; // Skip over the ID Length
+        }
+        loopState = readAndIgnorePayload;
+      }
+      break;
+      case readAndIgnorePayload:
+      {
+        if (payloadLength > 0)
+        {
+          eepromAddress += payloadLength; // Skip over the Payload. No need to read it.
+        }
+        loopState = readRecordHeader; // Move on to the next record
+      }
+      break;
+      case matchFoundCheckRecordNo:
+      {
+        if (hasIDLength && (idLength > 0))
+        {
+          eepromAddress += idLength; // Skip over the ID Length. Point to the payload
+        }
+        thisRecord++; // Increment the record number
+        if (thisRecord == recordNo)
+          loopState = readPayload;
+        else
+          loopState = readAndIgnorePayload;
+      }
+      break;
+      case readPayload:
+      {
+        if (payload != NULL) // Delete any existing payload
+          delete[] payload;
+        payload = new uint8_t[payloadLength]; // Create storage for the payload
+        if (payload == NULL)
+          return false; // Memory allocation failed
+        if (!readEEPROM(eepromAddress, payload, payloadLength)) // Read the Payload
+        {
+          if (payload != NULL)
+            delete[] payload;
+          return false;
+        }
+        eepromAddress += payloadLength;
+        payloadPtr = 0;
+        loopState = checkEntry;
+      }
+      break;
+      case checkEntry:
+      {
+        // Check for Credential
+        if ((payload[payloadPtr] == SFE_ST25DV_WIFI_CREDENTIAL[0]) && (payload[payloadPtr + 1] == SFE_ST25DV_WIFI_CREDENTIAL[1]))
+        {
+          credentialSeen = true;
+          payloadPtr += 4;
+        }
+        // Check for the SSID
+        else if ((payload[payloadPtr] == SFE_ST25DV_WIFI_SSID[0]) && (payload[payloadPtr + 1] == SFE_ST25DV_WIFI_SSID[1]))
+        {
+          uint16_t ssidLen = (((uint16_t)payload[payloadPtr + 2]) << 8) | payload[payloadPtr + 3];
+          if (ssidLen >= (maxSsidLen - 1))
+            loopState = terminatorFound;
+          else
+          {
+            memcpy(ssid, &payload[payloadPtr + 4], ssidLen);
+            ssid[ssidLen] = 0; // NULL_terminate the SSID
+            payloadPtr += 4 + ssidLen;
+            ssidFound = true;
+            if ((passwdFound) && (credentialSeen))
+              loopState = allDone;
+          }
+        }
+        // Check for the Password
+        else if ((payload[payloadPtr] == SFE_ST25DV_WIFI_NETWORK_KEY[0]) && (payload[payloadPtr + 1] == SFE_ST25DV_WIFI_NETWORK_KEY[1]))
+        {
+          uint16_t pswdLen = (((uint16_t)payload[payloadPtr + 2]) << 8) | payload[payloadPtr + 3];
+          if (pswdLen >= (maxPasswdLen - 1))
+            loopState = terminatorFound;
+          else
+          {
+            memcpy(passwd, &payload[payloadPtr + 4], pswdLen);
+            passwd[pswdLen] = 0; // NULL_terminate the Password
+            payloadPtr += 4 + pswdLen;
+            passwdFound = true;
+            if ((ssidFound) && (credentialSeen))
+              loopState = allDone;
+          }
+        }
+        else
+        {
+          uint16_t thingLen = (((uint16_t)payload[payloadPtr + 2]) << 8) | payload[payloadPtr + 3];
+          payloadPtr += 4 + thingLen;
+          if (payloadPtr >= payloadLength)
+            loopState = terminatorFound;
+        }
+      }
+      break;
+      case terminatorFound:
+      {
+        if (payload != NULL)
+          delete[] payload;
+        return false;
+      }
+      break;
+      case allDone:
+      {
+        if (payload != NULL)
+          delete[] payload;
+        return true;
+      }
+      break;
+    }
+  }
+}
