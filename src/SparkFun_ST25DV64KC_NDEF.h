@@ -84,8 +84,9 @@ public:
   //   First: MB=true, ME=false
   //   Intermediate: MB=false, ME=false
   //   Last: MB=false, ME=true
+  // If language is not NULL, language is copied into the Text Record, otherwise "en" is used
   // Returns true if successful, otherwise false
-  bool writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char language[] = "en");
+  bool writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char *language = NULL);
 
   // Read an NDEF UTF-8 Text Record from memory
   // Default is to read the first Text record (recordNo = 1). Increase recordNo to read later entries

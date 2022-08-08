@@ -245,4 +245,6 @@ static const uint8_t SFE_ST25DV_WIFI_MAC_ADDR[6] = {0x00, 0x00, 0x00, 0x00, 0x00
 
 #define SFE_ST25DV_NDEF_TEXT_RECORD 0x54 // "T"
 
+static const char SFE_ST25DV_NDEF_TEXT_DEF_LANG[] = "en"; // Default to english language for Text Records
+
 #endif

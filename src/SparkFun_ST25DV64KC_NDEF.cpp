@@ -851,7 +851,7 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
 //   First: MB=true, ME=false
 //   Intermediate: MB=false, ME=false
 //   Last: MB=false, ME=true
-bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char language[])
+bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char *language)
 {
   // Total length could be: strlen(theText) + strlen(language) + 1 (Text Data Header) + 1 (Record Type)
   //                        + 1 (Payload Length) + 3 (if PAYLOAD LENGTH > 255) + 1 (Type Length) + 1 (Record Header)
@@ -860,7 +860,11 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
   // To save allocating memory twice, theText is copied directly to EEPROM without being copied into tagWrite first
 
   uint16_t textLength = strlen(theText);
-  uint16_t languageLength = strlen(language); // 6-bit only!
+  uint16_t languageLength; // 6-bit only!
+  if (language != NULL)
+    languageLength = strlen(language);
+  else
+    languageLength = strlen(SFE_ST25DV_NDEF_TEXT_DEF_LANG);
   uint16_t payloadLength = textLength + languageLength + 1; // Include the Text Data Header
 
   // Total field length is: payloadLength + Record Type + Payload Length + Type Length + Record Header
@@ -905,7 +909,10 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
   *tagPtr++ = SFE_ST25DV_NDEF_TEXT_RECORD; // NDEF Record Type
   *tagPtr++ = (uint8_t)(languageLength & 0x3F); // Text Data Header. The UTF 8/16 bit is always clear
 
-  strcpy((char *)tagPtr, language); // Add the Language Code
+  if (language != NULL)
+    strcpy((char *)tagPtr, language); // Add the Language Code
+  else
+    strcpy((char *)tagPtr, SFE_ST25DV_NDEF_TEXT_DEF_LANG);
   tagPtr += languageLength;
 
   uint16_t memLoc = _ccFileLen; // Write to this memory location

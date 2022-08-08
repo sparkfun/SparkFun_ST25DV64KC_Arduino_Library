@@ -307,7 +307,7 @@ bool SFE_ST25DV64KC::getEEPROMWriteProtectionBit(uint8_t memoryArea)
 bool SFE_ST25DV64KC::writeEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength)
 {
   // Disable FTM temporarily if enabled
-  bool ftmEnabled = st25_io.isBitSet(SF_ST25DV64KC_ADDRESS::DATA, REG_FTM, BIT_FTM_MB_MODE);
+  bool ftmEnabled = st25_io.isBitSet(SF_ST25DV64KC_ADDRESS::DATA, REG_MB_CTRL_DYN, BIT_FTM_MB_MODE);
 
   bool success = true;
 
