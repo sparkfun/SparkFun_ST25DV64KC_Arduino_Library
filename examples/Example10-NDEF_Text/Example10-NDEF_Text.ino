@@ -7,7 +7,7 @@
   basically do whatever you want with this code.
 
   This example shows how to set up the ST25DV64KC's Capability Container (CC)
-  and create a NDEF URI record for https://www.sparkfun.com
+  and create a NDEF UTF-8 Text record
 
   Feel like supporting open source hardware?
   Buy a board from SparkFun!
@@ -56,7 +56,7 @@ void setup()
   }
   else
     Serial.println(F("Could not read device UID!"));
-  
+
   uint8_t rev;
   if (tag.getDeviceRevision(&rev))
   {
@@ -66,8 +66,8 @@ void setup()
   else
     Serial.println(F("Could not read device revision!"));
 
-  Serial.println("Opening I2C session with default password.");
-  uint8_t password[8] = {0x0}; // Default password is all zeros
+  Serial.println("Opening I2C session with password.");
+  uint8_t password[8] = {0x0};
   tag.openI2CSession(password);
 
   Serial.print(F("I2C session is "));
@@ -91,23 +91,30 @@ void setup()
 
   // -=-=-=-=-=-=-=-=-
 
-  // Write the Type 5 CC File - eight bytes - starting at address zero
+  // Write the Type 5 CC File - starting at address zero
   Serial.println(F("Writing CC_File"));
   tag.writeCCFile8Byte();
 
-  // Write a single Type 5 NDEF URI 
-  Serial.println(F("Writing a single NDEF URI record"));
-  tag.writeNDEFURI("sparkfun.com", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS_WWW); // Defaults to memory address 8, single record (Message Begin = 1, Message End = 1)
+  // -=-=-=-=-=-=-=-=-
+
+  // Write two NDEF UTF-8 Text records
+  uint16_t memLoc = tag.getCCFileLen();
+
+  Serial.println(F("Writing the first NDEF Text record"));
+  tag.writeNDEFText("Hello, World!", &memLoc, true, false); // MB=1, ME=0
+  
+  Serial.println(F("Writing the second NDEF Text record"));
+  tag.writeNDEFText("All your base are belong to us", &memLoc, false, true); // MB=0, ME=1
 
   // -=-=-=-=-=-=-=-=-
 
-  // Write multiple Type 5 NDEF URIs
-  // ** These will overwrite the single URI created above **
-  Serial.println(F("Writing multiple NDEF URI records"));
-  uint16_t memoryLocation = tag.getCCFileLen(); // Start writing at the memory location immediately after the CC File
-  tag.writeNDEFURI("sparkfun.com", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS_WWW, &memoryLocation, true, false); // Message Begin = 1, Message End = 0
-  tag.writeNDEFURI("github.com/sparkfun", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS, &memoryLocation, false, false); // Message Begin = 0, Message End = 0
-  tag.writeNDEFURI("twitter.com/sparkfun", SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS, &memoryLocation, false, true); // Message Begin = 0, Message End = 1
+  // Read back the second NDEF UTF-8 Text record
+  Serial.println(F("Reading the second NDEF Text record:"));
+  char theText[64];
+  if (tag.readNDEFText(theText, 64, 2))
+    Serial.println(theText);
+  else
+    Serial.println(F("Read failed!"));
 
   // -=-=-=-=-=-=-=-=-
 
@@ -129,17 +136,24 @@ void prettyPrintChars(uint8_t *theData, int theLength) // Pretty-print char data
 
   for (int i = 0; i < theLength; i += 16)
   {
-    if (i < 10000) Serial.print(F("0"));
-    if (i < 1000) Serial.print(F("0"));
-    if (i < 100) Serial.print(F("0"));
-    if (i < 10) Serial.print(F("0"));
+    if (i < 10000)
+      Serial.print(F("0"));
+    if (i < 1000)
+      Serial.print(F("0"));
+    if (i < 100)
+      Serial.print(F("0"));
+    if (i < 10)
+      Serial.print(F("0"));
     Serial.print(i);
 
     Serial.print(F(" 0x"));
 
-    if (i < 0x1000) Serial.print(F("0"));
-    if (i < 0x100) Serial.print(F("0"));
-    if (i < 0x10) Serial.print(F("0"));
+    if (i < 0x1000)
+      Serial.print(F("0"));
+    if (i < 0x100)
+      Serial.print(F("0"));
+    if (i < 0x10)
+      Serial.print(F("0"));
     Serial.print(i, HEX);
 
     Serial.print(F(" "));
@@ -147,7 +161,8 @@ void prettyPrintChars(uint8_t *theData, int theLength) // Pretty-print char data
     int j;
     for (j = 0; ((i + j) < theLength) && (j < 16); j++)
     {
-      if (theData[i + j] < 0x10) Serial.print(F("0"));
+      if (theData[i + j] < 0x10)
+        Serial.print(F("0"));
       Serial.print(theData[i + j], HEX);
       Serial.print(F(" "));
     }
@@ -159,7 +174,7 @@ void prettyPrintChars(uint8_t *theData, int theLength) // Pretty-print char data
         Serial.print(F("   "));
       }
     }
-      
+
     for (j = 0; ((i + j) < theLength) && (j < 16); j++)
     {
       if ((theData[i + j] >= 0x20) && (theData[i + j] <= 0x7E))

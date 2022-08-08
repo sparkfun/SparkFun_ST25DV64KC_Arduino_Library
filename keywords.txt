@@ -60,7 +60,13 @@ isBitSet	KEYWORD2
 
 writeCCFile4Byte	KEYWORD2
 writeCCFile8Byte	KEYWORD2
+setCCFileLen	KEYWORD2
+getCCFileLen	KEYWORD2
 writeNDEFURI	KEYWORD2
+writeNDEFWiFi	KEYWORD2
+readNDEFWiFi	KEYWORD2
+writeNDEFText	KEYWORD2
+readNDEFText	KEYWORD2
 
 #######################################
 # Constants 	LITERAL1
