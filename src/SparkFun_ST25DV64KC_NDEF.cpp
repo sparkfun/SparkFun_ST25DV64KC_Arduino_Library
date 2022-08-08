@@ -145,7 +145,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
   uint8_t tagWrite[strlen(uri) + 13];
   memset(tagWrite, 0, strlen(uri) + 13);
 
-  uint8_t *tagPtr = &tagWrite[0];
+  uint8_t *tagPtr = tagWrite;
 
   uint16_t payloadLength = strlen(uri) + 1; // Payload length is strlen(uri) + Record Type
 
@@ -196,7 +196,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
   }
 
   uint16_t memLoc = _ccFileLen; // Write to this memory location
-  uint16_t numBytes = tagPtr - &tagWrite[0];
+  uint16_t numBytes = tagPtr - tagWrite;
 
   if (address != NULL)
   {
@@ -215,7 +215,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
   {
     uint16_t baseAddress = _ccFileLen + 1; // Skip the SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV
     uint8_t data[3];
-    result &= readEEPROM(baseAddress, &data[0], 0x03); // Read the possible three length bytes
+    result &= readEEPROM(baseAddress, data, 0x03); // Read the possible three length bytes
     if (!result)
       return false;
     if (data[0] == 0xFF) // Is the length already 3-byte?
@@ -224,7 +224,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
       oldLen += (ME ? numBytes - 1 : numBytes);
       data[1] = oldLen >> 8;
       data[2] = oldLen & 0xFF;
-      result &= writeEEPROM(baseAddress, &data[0], 0x03); // Update the existing 3-byte length
+      result &= writeEEPROM(baseAddress, data, 0x03); // Update the existing 3-byte length
     }
     else
     {
@@ -234,7 +234,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
       if (newLen <= 0xFE) // Is the new length still 1-byte?
       {
         data[0] = newLen;
-        result &= writeEEPROM(baseAddress, &data[0], 0x01); // Update the existing 1-byte length
+        result &= writeEEPROM(baseAddress, data, 0x01); // Update the existing 1-byte length
       }
       else
       {
@@ -247,7 +247,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
         result &= readEEPROM(baseAddress + 1, &newTagWrite[3], (ME ? newLen + 1 : newLen)); // Copy in the old data
         if (!result)
           return false;
-        result &= writeEEPROM(baseAddress, &newTagWrite[0], (ME ? newLen + 4 : newLen + 3));
+        result &= writeEEPROM(baseAddress, newTagWrite, (ME ? newLen + 4 : newLen + 3));
         if (result)
           *address = *address + 2; // Update address too
       }
@@ -336,7 +336,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
   uint8_t tagWrite[strlen(ssid) + strlen(passwd) + 94];
   memset(tagWrite, 0, strlen(ssid) + strlen(passwd) + 94);
 
-  uint8_t *tagPtr = &tagWrite[0];
+  uint8_t *tagPtr = tagWrite;
 
   // WiFi Credential length is: 5 (Network Index) + 4 + strlen(ssid) + 6 (Auth) + 6 (Encrypt) + 4 + strlen(passwd) + 10 (MAC address) + 10 (Vendor Ext) + 10 (Vendor Ext)
   uint16_t credentialLength = 5 + 4 + strlen(ssid) + 6 + 6 + 4 + strlen(passwd) + 10 + 10 + 10;
@@ -479,7 +479,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
   }
 
   uint16_t memLoc = _ccFileLen; // Write to this memory location
-  uint16_t numBytes = tagPtr - &tagWrite[0];
+  uint16_t numBytes = tagPtr - tagWrite;
 
   if (address != NULL)
   {
@@ -498,7 +498,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
   {
     uint16_t baseAddress = _ccFileLen + 1; // Skip the SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV
     uint8_t data[3];
-    result &= readEEPROM(baseAddress, &data[0], 0x03); // Read the possible three length bytes
+    result &= readEEPROM(baseAddress, data, 0x03); // Read the possible three length bytes
     if (!result)
       return false;
     if (data[0] == 0xFF) // Is the length already 3-byte?
@@ -507,7 +507,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
       oldLen += (ME ? numBytes - 1 : numBytes);
       data[1] = oldLen >> 8;
       data[2] = oldLen & 0xFF;
-      result &= writeEEPROM(baseAddress, &data[0], 0x03); // Update the existing 3-byte length
+      result &= writeEEPROM(baseAddress, data, 0x03); // Update the existing 3-byte length
     }
     else
     {
@@ -517,7 +517,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
       if (newLen <= 0xFE) // Is the new length still 1-byte?
       {
         data[0] = newLen;
-        result &= writeEEPROM(baseAddress, &data[0], 0x01); // Update the existing 1-byte length
+        result &= writeEEPROM(baseAddress, data, 0x01); // Update the existing 1-byte length
       }
       else
       {
@@ -530,7 +530,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
         result &= readEEPROM(baseAddress + 1, &newTagWrite[3], (ME ? newLen + 1 : newLen)); // Copy in the old data
         if (!result)
           return false;
-        result &= writeEEPROM(baseAddress, &newTagWrite[0], (ME ? newLen + 4 : newLen + 3));
+        result &= writeEEPROM(baseAddress, newTagWrite, (ME ? newLen + 4 : newLen + 3));
         if (result)
           *address = *address + 2; // Update address too
       }
@@ -851,7 +851,7 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
 //   First: MB=true, ME=false
 //   Intermediate: MB=false, ME=false
 //   Last: MB=false, ME=true
-bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char *language)
+bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char *languageCode)
 {
   // Total length could be: strlen(theText) + strlen(language) + 1 (Text Data Header) + 1 (Record Type)
   //                        + 1 (Payload Length) + 3 (if PAYLOAD LENGTH > 255) + 1 (Type Length) + 1 (Record Header)
@@ -861,8 +861,8 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
 
   uint16_t textLength = strlen(theText);
   uint16_t languageLength; // 6-bit only!
-  if (language != NULL)
-    languageLength = strlen(language);
+  if (languageCode != NULL)
+    languageLength = strlen(languageCode);
   else
     languageLength = strlen(SFE_ST25DV_NDEF_TEXT_DEF_LANG);
   uint16_t payloadLength = textLength + languageLength + 1; // Include the Text Data Header
@@ -873,7 +873,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
   uint8_t tagWrite[fieldLength - textLength];
   memset(tagWrite, 0, fieldLength - textLength);
 
-  uint8_t *tagPtr = &tagWrite[0];
+  uint8_t *tagPtr = tagWrite;
 
   // Only write the Type 5 T & L fields if the Message Begin bit is set
   if (MB)
@@ -909,14 +909,14 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
   *tagPtr++ = SFE_ST25DV_NDEF_TEXT_RECORD; // NDEF Record Type
   *tagPtr++ = (uint8_t)(languageLength & 0x3F); // Text Data Header. The UTF 8/16 bit is always clear
 
-  if (language != NULL)
-    strcpy((char *)tagPtr, language); // Add the Language Code
+  if (languageCode != NULL)
+    strcpy((char *)tagPtr, languageCode); // Add the Language Code
   else
     strcpy((char *)tagPtr, SFE_ST25DV_NDEF_TEXT_DEF_LANG);
   tagPtr += languageLength;
 
   uint16_t memLoc = _ccFileLen; // Write to this memory location
-  uint16_t numBytes = tagPtr - &tagWrite[0];
+  uint16_t numBytes = tagPtr - tagWrite;
 
   if (address != NULL)
   {
@@ -936,7 +936,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
   {
     uint16_t baseAddress = _ccFileLen + 1; // Skip the SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV
     uint8_t data[3];
-    result &= readEEPROM(baseAddress, &data[0], 0x03); // Read the possible three length bytes
+    result &= readEEPROM(baseAddress, data, 0x03); // Read the possible three length bytes
     if (!result)
       return false;
     if (data[0] == 0xFF) // Is the length already 3-byte?
@@ -945,7 +945,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
       oldLen += numBytes + textLength; // Add the text length to numBytes so the L field is updated correctly
       data[1] = oldLen >> 8;
       data[2] = oldLen & 0xFF;
-      result &= writeEEPROM(baseAddress, &data[0], 0x03); // Update the existing 3-byte length
+      result &= writeEEPROM(baseAddress, data, 0x03); // Update the existing 3-byte length
     }
     else
     {
@@ -955,7 +955,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
       if (newLen <= 0xFE) // Is the new length still 1-byte?
       {
         data[0] = newLen;
-        result &= writeEEPROM(baseAddress, &data[0], 0x01); // Update the existing 1-byte length
+        result &= writeEEPROM(baseAddress, data, 0x01); // Update the existing 1-byte length
       }
       else
       {
@@ -968,7 +968,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
         result &= readEEPROM(baseAddress + 1, &newTagWrite[3], newLen - textLength); // Copy in the old data
         if (!result)
           return false;
-        result &= writeEEPROM(baseAddress, &newTagWrite[0], newLen + 3 - textLength);
+        result &= writeEEPROM(baseAddress, newTagWrite, newLen + 3 - textLength);
         memLoc += 2; // Update memLoc so theText is written to the correct location
       }
     }
