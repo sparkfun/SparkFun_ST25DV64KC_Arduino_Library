@@ -1222,7 +1222,7 @@ bool SFE_ST25DV64KC_NDEF::readNDEFText(char *theText, uint16_t maxTextLen, uint8
             }
             else
             {
-              *language = 0; // Not enough room top store language. Set language to NULL
+              *language = 0; // Not enough room to store language. Set language to NULL
             }
           }
           uint16_t theTextLen = payloadLength - (1 + languageLength);
