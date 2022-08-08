@@ -207,7 +207,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
 
   if ((address != NULL) && (result))
   {
-    *address = memLoc + numBytes; // Update address so the next writeNDEFURI can append to this one
+    *address = memLoc + numBytes - (ME ? 1 : 0); // Update address so the next writeNDEFURI can append to this one
   }
 
   // If Message Begin is not set, we need to go back and update the L field
@@ -490,7 +490,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
 
   if ((address != NULL) && (result))
   {
-    *address = memLoc + numBytes; // Update address so the next writeNDEFURI can append to this one
+    *address = memLoc + numBytes - (ME ? 1 : 0); // Update address so the next writeNDEFURI can append to this one
   }
 
   // If Message Begin is not set, we need to go back and update the L field
@@ -679,7 +679,7 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
         }
         else
           idLength = 0;
-        if (typeLength == 0)
+        if ((typeLength == 0) || (tnf != SFE_ST25DV_NDEF_TNF_MEDIA))
           loopState = readAndIgnoreID;
         else
           loopState = readType;
@@ -763,7 +763,7 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
         else if ((payload[payloadPtr] == SFE_ST25DV_WIFI_SSID[0]) && (payload[payloadPtr + 1] == SFE_ST25DV_WIFI_SSID[1]))
         {
           uint16_t ssidLen = (((uint16_t)payload[payloadPtr + 2]) << 8) | payload[payloadPtr + 3];
-          if (ssidLen >= (maxSsidLen - 1))
+          if (ssidLen > (maxSsidLen - 1))
             loopState = terminatorFound;
           else
           {
@@ -779,7 +779,7 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
         else if ((payload[payloadPtr] == SFE_ST25DV_WIFI_NETWORK_KEY[0]) && (payload[payloadPtr + 1] == SFE_ST25DV_WIFI_NETWORK_KEY[1]))
         {
           uint16_t pswdLen = (((uint16_t)payload[payloadPtr + 2]) << 8) | payload[payloadPtr + 3];
-          if (pswdLen >= (maxPasswdLen - 1))
+          if (pswdLen > (maxPasswdLen - 1))
             loopState = terminatorFound;
           else
           {
@@ -797,6 +797,445 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
           payloadPtr += 4 + thingLen;
           if (payloadPtr >= payloadLength)
             loopState = terminatorFound;
+        }
+      }
+      break;
+      case terminatorFound:
+      {
+        if (payload != NULL)
+          delete[] payload;
+        return false;
+      }
+      break;
+      case allDone:
+      {
+        if (payload != NULL)
+          delete[] payload;
+        return true;
+      }
+      break;
+    }
+  }
+}
+
+/*
+  To create a NDEF Text record:
+
+  (See above for TLV formatting)
+
+  Byte 0: Record Header
+          b7 = MB (Message Begin)
+          b6 = ME (Message End)
+          b5 = CF (Chunk Flag)
+          b4 = SR (Short Record)
+          b3 = IL (ID Length)
+          b2 b1 b0 = 0b001 TNF (Type Name Format): NFC Forum Well-Known Type
+  Byte 3: Type Length
+          0x01 = 1 Byte
+  Byte(s) 4: Payload Length (1-Byte or 4-Byte format)
+  Byte n: Record Type
+          0x54 = "T" Text Record
+  Byte n+1: Text Data header
+          b7 = UTF 8/16 (0 = UTF 8 encoding)
+          b6 = reserved
+          b5-b0 = Language Code Length
+  Bytes n+2: Language Code ("en" = English)
+  Bytes n+2+LCL: Text Data
+*/
+
+// Write an NDEF UTF-8 Text Record to user memory
+// If address is not NULL, start writing at *address, otherwise start at _ccFileLen
+// MB = Message Begin, ME = Message End
+// Default is a single message (MB=true, ME=true)
+// To add multiple URIs:
+//   First: MB=true, ME=false
+//   Intermediate: MB=false, ME=false
+//   Last: MB=false, ME=true
+bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char language[])
+{
+  // Total length could be: strlen(theText) + strlen(language) + 1 (Text Data Header) + 1 (Record Type)
+  //                        + 1 (Payload Length) + 3 (if PAYLOAD LENGTH > 255) + 1 (Type Length) + 1 (Record Header)
+  //                        + 1 (L Field) + 2 (if L field > 0xFE) + 1 (T Field)
+
+  // To save allocating memory twice, theText is copied directly to EEPROM without being copied into tagWrite first
+
+  uint16_t textLength = strlen(theText);
+  uint16_t languageLength = strlen(language); // 6-bit only!
+  uint16_t payloadLength = textLength + languageLength + 1; // Include the Text Data Header
+
+  // Total field length is: payloadLength + Record Type + Payload Length + Type Length + Record Header
+  uint16_t fieldLength = payloadLength + 1 + ((payloadLength <= 0xFF) ? 1 : 4) + 1 + 1;
+
+  uint8_t tagWrite[fieldLength - textLength];
+  memset(tagWrite, 0, fieldLength - textLength);
+
+  uint8_t *tagPtr = &tagWrite[0];
+
+  // Only write the Type 5 T & L fields if the Message Begin bit is set
+  if (MB)
+  {
+    *tagPtr++ = SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV; // Type5 Tag TLV-Format: T (Type field)
+
+    if (fieldLength > 0xFE) // Is the total L greater than 0xFE?
+    {
+      *tagPtr++ = 0xFF; // Type5 Tag TLV-Format: L (Length field) (3-Byte Format)
+      *tagPtr++ = fieldLength >> 8;
+      *tagPtr++ = fieldLength & 0xFF;
+    }
+    else
+    {
+      *tagPtr++ = fieldLength; // Type5 Tag TLV-Format: L (Length field) (1-Byte Format)
+    }
+  }
+
+  // NDEF Record Header
+  *tagPtr++ = (MB ? SFE_ST25DV_NDEF_MB : 0) | (ME ? SFE_ST25DV_NDEF_ME : 0) | ((payloadLength <= 0xFF) ? SFE_ST25DV_NDEF_SR : 0) | SFE_ST25DV_NDEF_TNF_WELL_KNOWN;
+  *tagPtr++ = 0x01; // NDEF Type Length
+  if (payloadLength <= 0xFF)
+  {
+    *tagPtr++ = payloadLength; // NDEF Payload Length (1-Byte)
+  }
+  else
+  {
+    *tagPtr++ = payloadLength >> 24; // NDEF Payload Length (4-Byte)
+    *tagPtr++ = (payloadLength >> 16) & 0xFF;
+    *tagPtr++ = (payloadLength >> 8) & 0xFF;
+    *tagPtr++ = payloadLength & 0xFF;
+  }
+  *tagPtr++ = SFE_ST25DV_NDEF_TEXT_RECORD; // NDEF Record Type
+  *tagPtr++ = (uint8_t)(languageLength & 0x3F); // Text Data Header. The UTF 8/16 bit is always clear
+
+  strcpy((char *)tagPtr, language); // Add the Language Code
+  tagPtr += languageLength;
+
+  uint16_t memLoc = _ccFileLen; // Write to this memory location
+  uint16_t numBytes = tagPtr - &tagWrite[0];
+
+  if (address != NULL)
+  {
+    memLoc = *address;
+  }
+
+  // Write everything except theText
+  bool result = writeEEPROM(memLoc, tagWrite, numBytes);
+  if (!result)
+    return false;
+
+  // Add numBytes to memLoc. theText will be written to memLoc. memLoc will be adjusted if the L field changes length
+  memLoc += numBytes;
+
+  // If Message Begin is not set, we need to go back and update the L field
+  if (!MB)
+  {
+    uint16_t baseAddress = _ccFileLen + 1; // Skip the SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV
+    uint8_t data[3];
+    result &= readEEPROM(baseAddress, &data[0], 0x03); // Read the possible three length bytes
+    if (!result)
+      return false;
+    if (data[0] == 0xFF) // Is the length already 3-byte?
+    {
+      uint16_t oldLen = ((uint16_t)data[1] << 8) | data[2];
+      oldLen += numBytes + textLength; // Add the text length to numBytes so the L field is updated correctly
+      data[1] = oldLen >> 8;
+      data[2] = oldLen & 0xFF;
+      result &= writeEEPROM(baseAddress, &data[0], 0x03); // Update the existing 3-byte length
+    }
+    else
+    {
+      // Length is 1-byte
+      uint16_t newLen = data[0];
+      newLen += numBytes + textLength; // Add the text length to numBytes so the L field is updated correctly
+      if (newLen <= 0xFE) // Is the new length still 1-byte?
+      {
+        data[0] = newLen;
+        result &= writeEEPROM(baseAddress, &data[0], 0x01); // Update the existing 1-byte length
+      }
+      else
+      {
+        // The length was 1-byte but needs to be changed to 3-byte
+        //delete[] tagWrite; // Delete tagWrite to save memory
+        uint8_t newTagWrite[newLen + 4 - textLength]; // Deduct textLength because theText has not yet been written
+        newTagWrite[0] = 0xFF; // Change length to 3-byte
+        newTagWrite[1] = newLen >> 8;
+        newTagWrite[2] = newLen & 0xFF;
+        result &= readEEPROM(baseAddress + 1, &newTagWrite[3], newLen - textLength); // Copy in the old data
+        if (!result)
+          return false;
+        result &= writeEEPROM(baseAddress, &newTagWrite[0], newLen + 3 - textLength);
+        memLoc += 2; // Update memLoc so theText is written to the correct location
+      }
+    }
+  }
+
+  if (!result)
+    return false;
+
+  // Now write theText to memLoc
+  result &= writeEEPROM(memLoc, (uint8_t *)theText, textLength);
+  if (!result)
+    return false;
+
+  memLoc += textLength;
+
+  if (ME)
+  {
+    uint8_t term[1];
+    term[0] = SFE_ST25DV_TYPE5_TERMINATOR_TLV;
+    result &= writeEEPROM(memLoc, term, 1); // Type5 Tag TLV-Format: T (Type field)
+    // Don't update memLoc. Leave it pointing to the terminator
+  }
+
+  if ((address != NULL) && (result))
+  {
+    *address = memLoc; // Update address so the next write can append to this one
+  }
+
+  return result;
+}
+
+// Read an NDEF UTF-8 Text Record from memory
+// Default is to read the first Text record (recordNo = 1). Increase recordNo to read later entries
+// maxTextLen is the maximum number of chars which theText can hold
+// If language is not NULL, the Language Code will be copied into language
+// maxLanguageLen is the maximum number of chars which language can hold
+// Returns true if successful, otherwise false
+bool SFE_ST25DV64KC_NDEF::readNDEFText(char *theText, uint16_t maxTextLen, uint8_t recordNo, char *language, uint16_t maxLanguageLen)
+{
+  uint8_t tlv[4];
+
+  if (!readEEPROM(_ccFileLen, tlv, 4)) // Read the TLV T and L Fields
+    return false; // readEEPROM failed
+
+  if (tlv[0] != SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV) // Check for 0x03
+    return false;
+
+  uint16_t lengthField, eepromAddress;
+
+  if (tlv[1] == 0xFF) // Check for 3-byte length
+  {
+    lengthField = ((uint16_t)tlv[2]) << 8; // 3-byte length
+    lengthField |= tlv[3];
+    eepromAddress = _ccFileLen + 4;
+  }
+  else
+  {
+    lengthField = tlv[1]; // 1-byte length
+    eepromAddress = _ccFileLen + 2;
+  }
+  
+  enum {
+    readRecordHeader,
+    readTypeLength,
+    readPayloadLength,
+    readIDLength,
+    readType,
+    matchFoundCheckRecordNo,
+    readAndIgnoreID,
+    readAndIgnorePayload,
+    readPayload,
+    checkEntry,
+    terminatorFound,
+    allDone
+  } loopState = readRecordHeader; // TO DO: handle chunks!
+
+  bool shortRecord;
+  bool hasIDLength;
+  uint8_t typeLength;
+  uint8_t idLength;
+  uint32_t payloadLength;
+  uint8_t thisRecord = 0;
+  uint8_t *payload = NULL;
+  uint8_t tnf;
+
+  while (1)
+  {
+    switch(loopState)
+    {
+      case readRecordHeader:
+      {
+        uint8_t header[1];
+        if (!readEEPROM(eepromAddress, header, 1)) // Read the header
+        {
+          if (payload != NULL)
+            delete[] payload;
+          return false;
+        }
+        eepromAddress++; // Point to the Type Length
+        shortRecord = (header[0] & SFE_ST25DV_NDEF_SR) == SFE_ST25DV_NDEF_SR; // Is this a short record?
+        hasIDLength = (header[0] & SFE_ST25DV_NDEF_IL) == SFE_ST25DV_NDEF_IL; // Is there an ID length?
+        tnf = header[0] & 0x7; // Extract the TNF
+        // Check for a terminator
+        // Also sanity check that eepromAddress is within bounds
+        if ((tnf == SFE_ST25DV_TYPE5_TERMINATOR_TLV) || (eepromAddress > (_ccFileLen + 4 + lengthField)))
+          loopState = terminatorFound;
+        else
+          loopState = readTypeLength;
+      }
+      break;
+      case readTypeLength:
+      {
+        uint8_t typeLen[1];
+        if (!readEEPROM(eepromAddress, typeLen, 1)) // Read the Type Length
+        {
+          if (payload != NULL)
+            delete[] payload;
+          return false;
+        }
+        typeLength = typeLen[0];
+        eepromAddress++; // Point to the Payload Length
+        loopState = readPayloadLength;
+      }
+      break;
+      case readPayloadLength:
+      {
+        uint8_t payloadLenBytes[4];
+        if (shortRecord)
+        {
+          if (!readEEPROM(eepromAddress, payloadLenBytes, 1)) // Read the Payload Length
+          {
+            if (payload != NULL)
+              delete[] payload;
+            return false;
+          }
+          eepromAddress++; // Point to the ID Length
+          payloadLength = payloadLenBytes[0];
+        }
+        else
+        {
+          if (!readEEPROM(eepromAddress, payloadLenBytes, 4)) // Read the Payload Length
+          {
+            if (payload != NULL)
+              delete[] payload;
+            return false;
+          }
+          eepromAddress += 4; // Point to the ID Length
+          payloadLength = ((uint32_t)payloadLenBytes[0]) << 24;
+          payloadLength |= ((uint32_t)payloadLenBytes[1]) << 16;
+          payloadLength |= ((uint32_t)payloadLenBytes[2]) << 8;
+          payloadLength |= payloadLenBytes[3];
+        }
+        loopState = readIDLength;
+      }
+      break;
+      case readIDLength:
+      {
+        if (hasIDLength)
+        {
+          uint8_t idLen[1];
+          if (!readEEPROM(eepromAddress, idLen, 1)) // Read the ID Length
+          {
+            if (payload != NULL)
+              delete[] payload;
+            return false;
+          }
+          idLength = idLen[0];
+          eepromAddress++; // Point to the Type
+        }
+        else
+          idLength = 0;
+        if ((typeLength != 1) || (tnf != SFE_ST25DV_NDEF_TNF_WELL_KNOWN))
+          loopState = readAndIgnoreID;
+        else
+          loopState = readType;
+      }
+      break;
+      case readType:
+      {
+        uint8_t theType[typeLength + 1]; // Add 1 extra for a NULL
+        if (!readEEPROM(eepromAddress, theType, typeLength)) // Read the Type
+        {
+          if (payload != NULL)
+            delete[] payload;
+          return false;
+        }
+        theType[typeLength] = 0; // Null-terminate the Type
+        eepromAddress += typeLength; // Point to the ID
+        if (theType[0] == SFE_ST25DV_NDEF_TEXT_RECORD) // Check for a Type match
+          loopState = matchFoundCheckRecordNo;
+        else
+          loopState = readAndIgnoreID;
+      }
+      break;
+      case readAndIgnoreID:
+      {
+        if (hasIDLength && (idLength > 0))
+        {
+          eepromAddress += idLength; // Skip over the ID Length
+        }
+        loopState = readAndIgnorePayload;
+      }
+      break;
+      case readAndIgnorePayload:
+      {
+        if (payloadLength > 0)
+        {
+          eepromAddress += payloadLength; // Skip over the Payload. No need to read it.
+        }
+        loopState = readRecordHeader; // Move on to the next record
+      }
+      break;
+      case matchFoundCheckRecordNo:
+      {
+        if (hasIDLength && (idLength > 0))
+        {
+          eepromAddress += idLength; // Skip over the ID Length. Point to the payload
+        }
+        thisRecord++; // Increment the record number
+        if (thisRecord == recordNo)
+          loopState = readPayload;
+        else
+          loopState = readAndIgnorePayload;
+      }
+      break;
+      case readPayload:
+      {
+        if (payload != NULL) // Delete any existing payload
+          delete[] payload;
+        payload = new uint8_t[payloadLength]; // Create storage for the payload
+        if (payload == NULL)
+          return false; // Memory allocation failed
+        if (!readEEPROM(eepromAddress, payload, payloadLength)) // Read the Payload
+        {
+          if (payload != NULL)
+            delete[] payload;
+          return false;
+        }
+        eepromAddress += payloadLength;
+        loopState = checkEntry;
+      }
+      break;
+      case checkEntry:
+      {
+        if (payload[0] >> 7) // If the UTF-16 bit is set
+        {
+          loopState = terminatorFound; // Bail...
+        }
+        else
+        {
+          uint16_t languageLength = payload[0] & 0x3F;
+          if ((languageLength > 0) && (language != NULL) && (maxLanguageLen > 0))
+          {
+            if (languageLength <= (maxLanguageLen - 1))
+            {
+              memcpy(language, &payload[1], languageLength);
+              language[languageLength] = 0; // NULL-terminate the language
+            }
+            else
+            {
+              *language = 0; // Not enough room top store language. Set language to NULL
+            }
+          }
+          uint16_t theTextLen = payloadLength - (1 + languageLength);
+          if (theTextLen <= (maxTextLen - 1))
+          {
+            memcpy(theText, &payload[1 + languageLength], theTextLen);
+            theText[theTextLen] = 0; // NULL-terminate the text
+            loopState = allDone;
+          }
+          else
+          {
+            loopState = terminatorFound; // Not enough room to store theText. Bail...
+          }
         }
       }
       break;

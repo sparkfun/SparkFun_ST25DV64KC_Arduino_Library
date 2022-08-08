@@ -75,6 +75,25 @@ public:
   // maxPasswdLen is the maximum number of chars which passwd can hold
   // Returns true if successful, otherwise false
   bool readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *passwd, uint8_t maxPasswdLen, uint8_t recordNo = 1);
+
+  // Write an NDEF UTF-8 Text Record to user memory
+  // If address is not NULL, start writing at *address, otherwise start at _ccFileLen
+  // MB = Message Begin, ME = Message End
+  // Default is a single message (MB=true, ME=true)
+  // To add multiple URIs:
+  //   First: MB=true, ME=false
+  //   Intermediate: MB=false, ME=false
+  //   Last: MB=false, ME=true
+  // Returns true if successful, otherwise false
+  bool writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char language[] = "en");
+
+  // Read an NDEF UTF-8 Text Record from memory
+  // Default is to read the first Text record (recordNo = 1). Increase recordNo to read later entries
+  // maxTextLen is the maximum number of chars which theText can hold
+  // If language is not NULL, the Language Code will be copied into language
+  // maxLanguageLen is the maximum number of chars which language can hold
+  // Returns true if successful, otherwise false
+  bool readNDEFText(char *theText, uint16_t maxTextLen, uint8_t recordNo = 1, char *language = NULL, uint16_t maxLanguageLen = 0);
 };
 
 #endif

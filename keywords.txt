@@ -65,6 +65,8 @@ getCCFileLen	KEYWORD2
 writeNDEFURI	KEYWORD2
 writeNDEFWiFi	KEYWORD2
 readNDEFWiFi	KEYWORD2
+writeNDEFText	KEYWORD2
+readNDEFText	KEYWORD2
 
 #######################################
 # Constants 	LITERAL1
