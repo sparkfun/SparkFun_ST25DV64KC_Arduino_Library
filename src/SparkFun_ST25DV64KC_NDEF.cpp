@@ -178,8 +178,8 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
   }
   else
   {
-    *tagPtr++ = payloadLength >> 24; // NDEF Payload Length (4-Byte)
-    *tagPtr++ = (payloadLength >> 16) & 0xFF;
+    *tagPtr++ = 0; //payloadLength >> 24; // NDEF Payload Length (4-Byte)
+    *tagPtr++ = 0; //(payloadLength >> 16) & 0xFF;
     *tagPtr++ = (payloadLength >> 8) & 0xFF;
     *tagPtr++ = payloadLength & 0xFF;
   }
@@ -379,8 +379,8 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
   }
   else
   {
-    *tagPtr++ = payloadLength >> 24; // NDEF Payload Length (4-Byte)
-    *tagPtr++ = (payloadLength >> 16) & 0xFF;
+    *tagPtr++ = 0; //payloadLength >> 24; // NDEF Payload Length (4-Byte)
+    *tagPtr++ = 0; //(payloadLength >> 16) & 0xFF;
     *tagPtr++ = (payloadLength >> 8) & 0xFF;
     *tagPtr++ = payloadLength & 0xFF;
   }
@@ -901,8 +901,8 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
   }
   else
   {
-    *tagPtr++ = payloadLength >> 24; // NDEF Payload Length (4-Byte)
-    *tagPtr++ = (payloadLength >> 16) & 0xFF;
+    *tagPtr++ = 0; //payloadLength >> 24; // NDEF Payload Length (4-Byte)
+    *tagPtr++ = 0; //(payloadLength >> 16) & 0xFF;
     *tagPtr++ = (payloadLength >> 8) & 0xFF;
     *tagPtr++ = payloadLength & 0xFF;
   }
