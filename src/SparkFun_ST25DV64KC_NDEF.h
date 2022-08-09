@@ -58,6 +58,15 @@ public:
   // Returns true if successful, otherwise false
   bool writeNDEFURI(const char *uri, uint8_t idCode = SFE_ST25DV_NDEF_URI_ID_CODE_NONE, uint16_t *address = NULL, bool MB = true, bool ME = true);
 
+  // Read an NDEF URI Record from memory
+  // Default is to read the first record (recordNo = 1). Increase recordNo to read later entries
+  // maxURILen is the maximum number of chars which theURI can hold
+  // Returns true if successful, otherwise false
+  bool readNDEFURI(char *theURI, uint16_t maxURILen, uint8_t recordNo = 1);
+
+  // Return the URI Prefix Code as text
+  const char *getURIPrefix(uint8_t prefixCode);
+
   // Write an NDEF WiFi Record to user memory
   // If address is not NULL, start writing at *address, otherwise start at _ccFileLen
   // MB = Message Begin, ME = Message End
@@ -87,7 +96,8 @@ public:
   //   Last: MB=false, ME=true
   // If language is not NULL, language is copied into the Text Record, otherwise "en" is used
   // Returns true if successful, otherwise false
-  bool writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char *languageCode = NULL);
+  bool writeNDEFText(const char *theText, uint16_t *address, bool MB = true, bool ME = true, const char *languageCode = NULL);
+  bool writeNDEFText(const uint8_t *theText, uint16_t textLength, uint16_t *address, bool MB = true, bool ME = true, const char *languageCode = NULL);
 
   // Read an NDEF UTF-8 Text Record from memory
   // Default is to read the first Text record (recordNo = 1). Increase recordNo to read later entries

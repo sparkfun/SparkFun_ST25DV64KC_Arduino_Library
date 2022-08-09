@@ -276,6 +276,387 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
   return result;
 }
 
+// Read an NDEF URI Record from memory
+// Default is to read the first record (recordNo = 1). Increase recordNo to read later entries
+// maxURILen is the maximum number of chars which theURI can hold
+// Returns true if successful, otherwise false
+bool SFE_ST25DV64KC_NDEF::readNDEFURI(char *theURI, uint16_t maxURILen, uint8_t recordNo)
+{
+  uint8_t tlv[4];
+
+  if (!readEEPROM(_ccFileLen, tlv, 4)) // Read the TLV T and L Fields
+    return false; // readEEPROM failed
+
+  if (tlv[0] != SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV) // Check for 0x03
+    return false;
+
+  uint16_t lengthField, eepromAddress;
+
+  if (tlv[1] == 0xFF) // Check for 3-byte length
+  {
+    lengthField = ((uint16_t)tlv[2]) << 8; // 3-byte length
+    lengthField |= tlv[3];
+    eepromAddress = _ccFileLen + 4;
+  }
+  else
+  {
+    lengthField = tlv[1]; // 1-byte length
+    eepromAddress = _ccFileLen + 2;
+  }
+  
+  enum {
+    readRecordHeader,
+    readTypeLength,
+    readPayloadLength,
+    readIDLength,
+    readType,
+    matchFoundCheckRecordNo,
+    readAndIgnoreID,
+    readAndIgnorePayload,
+    readPayload,
+    checkEntry,
+    terminatorFound,
+    allDone
+  } loopState = readRecordHeader; // TO DO: handle chunks!
+
+  bool shortRecord;
+  bool hasIDLength;
+  uint8_t typeLength;
+  uint8_t idLength;
+  uint32_t payloadLength;
+  uint8_t thisRecord = 0;
+  uint8_t *payload = NULL;
+  uint8_t tnf;
+
+  while (1)
+  {
+    switch(loopState)
+    {
+      case readRecordHeader:
+      {
+        uint8_t header[1];
+        if (!readEEPROM(eepromAddress, header, 1)) // Read the header
+        {
+          if (payload != NULL)
+            delete[] payload;
+          return false;
+        }
+        eepromAddress++; // Point to the Type Length
+        shortRecord = (header[0] & SFE_ST25DV_NDEF_SR) == SFE_ST25DV_NDEF_SR; // Is this a short record?
+        hasIDLength = (header[0] & SFE_ST25DV_NDEF_IL) == SFE_ST25DV_NDEF_IL; // Is there an ID length?
+        tnf = header[0] & 0x7; // Extract the TNF
+        // Check for a terminator
+        // Also sanity check that eepromAddress is within bounds
+        if ((tnf == SFE_ST25DV_TYPE5_TERMINATOR_TLV) || (eepromAddress > (_ccFileLen + 4 + lengthField)))
+          loopState = terminatorFound;
+        else
+          loopState = readTypeLength;
+      }
+      break;
+      case readTypeLength:
+      {
+        uint8_t typeLen[1];
+        if (!readEEPROM(eepromAddress, typeLen, 1)) // Read the Type Length
+        {
+          if (payload != NULL)
+            delete[] payload;
+          return false;
+        }
+        typeLength = typeLen[0];
+        eepromAddress++; // Point to the Payload Length
+        loopState = readPayloadLength;
+      }
+      break;
+      case readPayloadLength:
+      {
+        uint8_t payloadLenBytes[4];
+        if (shortRecord)
+        {
+          if (!readEEPROM(eepromAddress, payloadLenBytes, 1)) // Read the Payload Length
+          {
+            if (payload != NULL)
+              delete[] payload;
+            return false;
+          }
+          eepromAddress++; // Point to the ID Length
+          payloadLength = payloadLenBytes[0];
+        }
+        else
+        {
+          if (!readEEPROM(eepromAddress, payloadLenBytes, 4)) // Read the Payload Length
+          {
+            if (payload != NULL)
+              delete[] payload;
+            return false;
+          }
+          eepromAddress += 4; // Point to the ID Length
+          payloadLength = ((uint32_t)payloadLenBytes[0]) << 24;
+          payloadLength |= ((uint32_t)payloadLenBytes[1]) << 16;
+          payloadLength |= ((uint32_t)payloadLenBytes[2]) << 8;
+          payloadLength |= payloadLenBytes[3];
+        }
+        loopState = readIDLength;
+      }
+      break;
+      case readIDLength:
+      {
+        if (hasIDLength)
+        {
+          uint8_t idLen[1];
+          if (!readEEPROM(eepromAddress, idLen, 1)) // Read the ID Length
+          {
+            if (payload != NULL)
+              delete[] payload;
+            return false;
+          }
+          idLength = idLen[0];
+          eepromAddress++; // Point to the Type
+        }
+        else
+          idLength = 0;
+        if (typeLength == 0) // If typeLength is zero, this cannot be a Text Record
+          loopState = readAndIgnoreID;
+        else
+          loopState = readType;
+      }
+      break;
+      case readType:
+      {
+        uint8_t theType[typeLength + 1]; // Add 1 extra for a NULL
+        if (!readEEPROM(eepromAddress, theType, typeLength)) // Read the Type
+        {
+          if (payload != NULL)
+            delete[] payload;
+          return false;
+        }
+        theType[typeLength] = 0; // Null-terminate the Type
+        eepromAddress += typeLength; // Point to the ID
+        if ((theType[0] == SFE_ST25DV_NDEF_URI_RECORD) && (tnf == SFE_ST25DV_NDEF_TNF_WELL_KNOWN)) // Check for a Type match
+          loopState = matchFoundCheckRecordNo;
+        else
+          loopState = readAndIgnoreID;
+      }
+      break;
+      case readAndIgnoreID:
+      {
+        if (hasIDLength && (idLength > 0))
+        {
+          eepromAddress += idLength; // Skip over the ID Length
+        }
+        loopState = readAndIgnorePayload;
+      }
+      break;
+      case readAndIgnorePayload:
+      {
+        if (payloadLength > 0)
+        {
+          eepromAddress += payloadLength; // Skip over the Payload. No need to read it.
+        }
+        loopState = readRecordHeader; // Move on to the next record
+      }
+      break;
+      case matchFoundCheckRecordNo:
+      {
+        if (hasIDLength && (idLength > 0))
+        {
+          eepromAddress += idLength; // Skip over the ID Length. Point to the payload
+        }
+        thisRecord++; // Increment the record number
+        if (thisRecord == recordNo)
+          loopState = readPayload;
+        else
+          loopState = readAndIgnorePayload;
+      }
+      break;
+      case readPayload:
+      {
+        if (payload != NULL) // Delete any existing payload
+          delete[] payload;
+        payload = new uint8_t[payloadLength]; // Create storage for the payload
+        if (payload == NULL)
+        {
+          SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::OUT_OF_MEMORY);
+          return false; // Memory allocation failed
+        }
+
+        if (!readEEPROM(eepromAddress, payload, payloadLength)) // Read the Payload
+        {
+          if (payload != NULL)
+            delete[] payload;
+          return false;
+        }
+        eepromAddress += payloadLength;
+        loopState = checkEntry;
+      }
+      break;
+      case checkEntry:
+      {
+        if ((*payload) > SFE_ST25DV_NDEF_URI_ID_CODE_URN_NFC) // If the UTF-16 bit is set
+        {
+          loopState = terminatorFound; // Bail...
+        }
+        else
+        {
+          if (maxURILen > strlen(getURIPrefix(*payload))) // Is there enough room to hold the prefix?
+          {
+            strcpy(theURI, getURIPrefix(*payload)); // Copy the prefix
+            maxURILen -= strlen(getURIPrefix(*payload)); // Reduce maxURILen
+
+            uint16_t theTextLen = payloadLength - 1;
+            if (theTextLen <= (maxURILen - 1)) // Is there enough space left to store the URI?
+            {
+              memcpy(&theURI[strlen(getURIPrefix(*payload))], payload + 1, theTextLen);
+              theURI[strlen(getURIPrefix(*payload)) + theTextLen] = 0; // NULL-terminate the text
+              loopState = allDone;
+            }
+            else
+            {
+              loopState = terminatorFound; // Not enough room to store theText. Bail...
+            }
+          }
+          else
+          {
+            loopState = terminatorFound; // Not enough room to store theText. Bail...
+          }
+        }
+      }
+      break;
+      case terminatorFound:
+      {
+        if (payload != NULL)
+          delete[] payload;
+        return false;
+      }
+      break;
+      case allDone:
+      {
+        if (payload != NULL)
+          delete[] payload;
+        return true;
+      }
+      break;
+    }
+  }
+}
+
+const char *SFE_ST25DV64KC_NDEF::getURIPrefix(uint8_t prefixCode)
+{
+  switch (prefixCode)
+  {
+    case SFE_ST25DV_NDEF_URI_ID_CODE_NONE:
+      return "";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_HTTP_WWW:
+      return "http://www.";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS_WWW:
+      return "https://www.";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_HTTP:
+      return "http://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_HTTPS:
+      return "https://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_TEL:
+      return "tel:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_MAILTO:
+      return "mailto:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_FTP_ANON_ANON:
+      return "ftp://anonymous:anonymous@";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_FTP_FTP:
+      return "ftp://ftp.";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_FTPS:
+      return "ftps://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_SFTP:
+      return "sftp://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_SMB:
+      return "smb://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_NFS:
+      return "nfs://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_FTP:
+      return "ftp://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_DAV:
+      return "dav://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_NEWS:
+      return "news:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_TELNET:
+      return "telnet://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_IMAP:
+      return "imap:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_RTSP:
+      return "rtsp://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_URN:
+      return "urn:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_POP:
+      return "pop:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_SIP:
+      return "sip:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_SIPS:
+      return "sips:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_TFTP:
+      return "tftp:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_BTSPP:
+      return "btspp://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_BTL2CAP:
+      return "btl2cap://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_BTGOEP:
+      return "btgoep://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_TCPOBEX:
+      return "tcpobex://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_IRDAOBEX:
+      return "irdaobex://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_FILE:
+      return "file://";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_URN_EPC_ID:
+      return "urn:epc:id:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_URN_EPC_TAG:
+      return "urn:epc:tag:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_URN_EPC_PAT:
+      return "urn:epc:pat:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_URN_EPC_RAW:
+      return "urn:epc:raw:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_URN_EPC:
+      return "urn:epc:";
+      break;
+    case SFE_ST25DV_NDEF_URI_ID_CODE_URN_NFC:
+      return "urn:nfc:";
+      break;
+    default:
+      return "";
+      break;
+  }
+}
+
 /*
   To create a single NDEF WiFi short record:
 
@@ -905,11 +1286,15 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint16_t maxSsidLen, char *pa
 //   Last: MB=false, ME=true
 bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char *languageCode)
 {
+  return (writeNDEFText((const uint8_t *)theText, (uint16_t)strlen(theText), address, MB, ME, languageCode));
+}
+
+bool SFE_ST25DV64KC_NDEF::writeNDEFText(const uint8_t *theText, uint16_t textLength, uint16_t *address, bool MB, bool ME, const char *languageCode)
+{
   // Total length could be: strlen(theText) + strlen(language) + 1 (Text Data Header) + 1 (Record Type)
   //                        + 1 (Payload Length) + 3 (if PAYLOAD LENGTH > 255) + 1 (Type Length) + 1 (Record Header)
   //                        + 1 (L Field) + 2 (if L field > 0xFE) + 1 (T Field)
 
-  uint16_t textLength = strlen(theText);
   uint16_t languageLength; // 6-bit only!
   if (languageCode != NULL)
     languageLength = strlen(languageCode);

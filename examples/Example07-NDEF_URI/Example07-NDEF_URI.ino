@@ -111,6 +111,16 @@ void setup()
 
   // -=-=-=-=-=-=-=-=-
 
+  // Read back the third URI
+  char theURI[30];
+  Serial.println(F("Reading the third NDEF URI record:"));
+  if (tag.readNDEFURI(theURI, 30, 3))
+    Serial.println(theURI);
+  else
+    Serial.println(F("Read failed!"));
+
+  // -=-=-=-=-=-=-=-=-
+
   // Read back the memory contents
   Serial.println(F("The first 512 bytes of user memory are:"));
   uint8_t tagRead[512];
