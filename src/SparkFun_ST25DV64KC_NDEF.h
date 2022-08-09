@@ -20,6 +20,7 @@
 #define _SPARKFUN_ST25DV64KC_NDEF_
 
 #include "SparkFun_ST25DV64KC_Arduino_Library.h"
+#include "SparkFun_ST25DV64KC_IO.h"
 #include "SparkFun_ST25DV64KC_Arduino_Library_Constants.h"
 
 class SFE_ST25DV64KC_NDEF : public SFE_ST25DV64KC
@@ -74,7 +75,7 @@ public:
   // maxSsidLen is the maximum number of chars which ssid can hold
   // maxPasswdLen is the maximum number of chars which passwd can hold
   // Returns true if successful, otherwise false
-  bool readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *passwd, uint8_t maxPasswdLen, uint8_t recordNo = 1);
+  bool readNDEFWiFi(char *ssid, uint16_t maxSsidLen, char *passwd, uint16_t maxPasswdLen, uint8_t recordNo = 1);
 
   // Write an NDEF UTF-8 Text Record to user memory
   // If address is not NULL, start writing at *address, otherwise start at _ccFileLen
@@ -84,8 +85,9 @@ public:
   //   First: MB=true, ME=false
   //   Intermediate: MB=false, ME=false
   //   Last: MB=false, ME=true
+  // If language is not NULL, language is copied into the Text Record, otherwise "en" is used
   // Returns true if successful, otherwise false
-  bool writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char language[] = "en");
+  bool writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char *languageCode = NULL);
 
   // Read an NDEF UTF-8 Text Record from memory
   // Default is to read the first Text record (recordNo = 1). Increase recordNo to read later entries

@@ -142,10 +142,17 @@ bool SFE_ST25DV64KC_NDEF::writeCCFile8Byte(uint32_t val1, uint32_t val2)
 bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t *address, bool MB, bool ME)
 {
   // Total length could be: strlen(uri) + 8 (see above) + 2 (if L field > 0xFE) + 3 (if PAYLOAD LENGTH > 255)
-  uint8_t tagWrite[strlen(uri) + 13];
+  uint8_t *tagWrite = new uint8_t[strlen(uri) + 13];
+
+  if (tagWrite == NULL)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::OUT_OF_MEMORY);
+    return false; // Memory allocation failed
+  }
+
   memset(tagWrite, 0, strlen(uri) + 13);
 
-  uint8_t *tagPtr = &tagWrite[0];
+  uint8_t *tagPtr = tagWrite;
 
   uint16_t payloadLength = strlen(uri) + 1; // Payload length is strlen(uri) + Record Type
 
@@ -178,8 +185,8 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
   }
   else
   {
-    *tagPtr++ = payloadLength >> 24; // NDEF Payload Length (4-Byte)
-    *tagPtr++ = (payloadLength >> 16) & 0xFF;
+    *tagPtr++ = 0; //payloadLength >> 24; // NDEF Payload Length (4-Byte)
+    *tagPtr++ = 0; //(payloadLength >> 16) & 0xFF;
     *tagPtr++ = (payloadLength >> 8) & 0xFF;
     *tagPtr++ = payloadLength & 0xFF;
   }
@@ -196,7 +203,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
   }
 
   uint16_t memLoc = _ccFileLen; // Write to this memory location
-  uint16_t numBytes = tagPtr - &tagWrite[0];
+  uint16_t numBytes = tagPtr - tagWrite;
 
   if (address != NULL)
   {
@@ -215,7 +222,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
   {
     uint16_t baseAddress = _ccFileLen + 1; // Skip the SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV
     uint8_t data[3];
-    result &= readEEPROM(baseAddress, &data[0], 0x03); // Read the possible three length bytes
+    result &= readEEPROM(baseAddress, data, 0x03); // Read the possible three length bytes
     if (!result)
       return false;
     if (data[0] == 0xFF) // Is the length already 3-byte?
@@ -224,7 +231,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
       oldLen += (ME ? numBytes - 1 : numBytes);
       data[1] = oldLen >> 8;
       data[2] = oldLen & 0xFF;
-      result &= writeEEPROM(baseAddress, &data[0], 0x03); // Update the existing 3-byte length
+      result &= writeEEPROM(baseAddress, data, 0x03); // Update the existing 3-byte length
     }
     else
     {
@@ -234,25 +241,37 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFURI(const char *uri, uint8_t idCode, uint16_t
       if (newLen <= 0xFE) // Is the new length still 1-byte?
       {
         data[0] = newLen;
-        result &= writeEEPROM(baseAddress, &data[0], 0x01); // Update the existing 1-byte length
+        result &= writeEEPROM(baseAddress, data, 0x01); // Update the existing 1-byte length
       }
       else
       {
         // The length was 1-byte but needs to be changed to 3-byte
-        //delete[] tagWrite; // Delete tagWrite to save memory
-        uint8_t newTagWrite[newLen + 4];
-        newTagWrite[0] = 0xFF; // Change length to 3-byte
-        newTagWrite[1] = newLen >> 8;
-        newTagWrite[2] = newLen & 0xFF;
-        result &= readEEPROM(baseAddress + 1, &newTagWrite[3], (ME ? newLen + 1 : newLen)); // Copy in the old data
+        delete[] tagWrite; // Resize tagWrite
+        tagWrite = new uint8_t[newLen + 4];
+        if (tagWrite == NULL)
+        {
+          SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::OUT_OF_MEMORY);
+          return false; // Memory allocation failed
+        }
+        tagPtr = tagWrite; // Reset tagPtr
+
+        *tagPtr++ = 0xFF; // Change length to 3-byte
+        *tagPtr++ = newLen >> 8;
+        *tagPtr++ = newLen & 0xFF;
+        result &= readEEPROM(baseAddress + 1, tagPtr, (ME ? newLen + 1 : newLen)); // Copy in the old data
         if (!result)
+        {
+          delete[] tagWrite;
           return false;
-        result &= writeEEPROM(baseAddress, &newTagWrite[0], (ME ? newLen + 4 : newLen + 3));
+        }
+        result &= writeEEPROM(baseAddress, tagWrite, (ME ? newLen + 4 : newLen + 3));
         if (result)
           *address = *address + 2; // Update address too
       }
     }
   }
+
+  delete[] tagWrite; // Release the memory
 
   return result;
 }
@@ -333,10 +352,17 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
                                         const uint8_t authType[2], const uint8_t encryptType[2])
 {
   // Total length could be: strlen(ssid) + strlen(passwd) + 89 (see above) + 2 (if L field > 0xFE) + 3 (if PAYLOAD LENGTH > 255)
-  uint8_t tagWrite[strlen(ssid) + strlen(passwd) + 94];
+  uint8_t *tagWrite = new uint8_t[strlen(ssid) + strlen(passwd) + 94];
+
+  if (tagWrite == NULL)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::OUT_OF_MEMORY);
+    return false; // Memory allocation failed
+  }
+
   memset(tagWrite, 0, strlen(ssid) + strlen(passwd) + 94);
 
-  uint8_t *tagPtr = &tagWrite[0];
+  uint8_t *tagPtr = tagWrite;
 
   // WiFi Credential length is: 5 (Network Index) + 4 + strlen(ssid) + 6 (Auth) + 6 (Encrypt) + 4 + strlen(passwd) + 10 (MAC address) + 10 (Vendor Ext) + 10 (Vendor Ext)
   uint16_t credentialLength = 5 + 4 + strlen(ssid) + 6 + 6 + 4 + strlen(passwd) + 10 + 10 + 10;
@@ -379,8 +405,8 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
   }
   else
   {
-    *tagPtr++ = payloadLength >> 24; // NDEF Payload Length (4-Byte)
-    *tagPtr++ = (payloadLength >> 16) & 0xFF;
+    *tagPtr++ = 0; //payloadLength >> 24; // NDEF Payload Length (4-Byte)
+    *tagPtr++ = 0; //(payloadLength >> 16) & 0xFF;
     *tagPtr++ = (payloadLength >> 8) & 0xFF;
     *tagPtr++ = payloadLength & 0xFF;
   }
@@ -479,7 +505,7 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
   }
 
   uint16_t memLoc = _ccFileLen; // Write to this memory location
-  uint16_t numBytes = tagPtr - &tagWrite[0];
+  uint16_t numBytes = tagPtr - tagWrite;
 
   if (address != NULL)
   {
@@ -487,6 +513,12 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
   }
 
   bool result = writeEEPROM(memLoc, tagWrite, numBytes);
+
+  if (!result)
+  {
+    delete[] tagWrite;
+    return false;
+  }
 
   if ((address != NULL) && (result))
   {
@@ -498,16 +530,19 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
   {
     uint16_t baseAddress = _ccFileLen + 1; // Skip the SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV
     uint8_t data[3];
-    result &= readEEPROM(baseAddress, &data[0], 0x03); // Read the possible three length bytes
+    result &= readEEPROM(baseAddress, data, 0x03); // Read the possible three length bytes
     if (!result)
+    {
+      delete[] tagWrite;
       return false;
+    }
     if (data[0] == 0xFF) // Is the length already 3-byte?
     {
       uint16_t oldLen = ((uint16_t)data[1] << 8) | data[2];
       oldLen += (ME ? numBytes - 1 : numBytes);
       data[1] = oldLen >> 8;
       data[2] = oldLen & 0xFF;
-      result &= writeEEPROM(baseAddress, &data[0], 0x03); // Update the existing 3-byte length
+      result &= writeEEPROM(baseAddress, data, 0x03); // Update the existing 3-byte length
     }
     else
     {
@@ -517,31 +552,43 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFWiFi(const char *ssid, const char *passwd, ui
       if (newLen <= 0xFE) // Is the new length still 1-byte?
       {
         data[0] = newLen;
-        result &= writeEEPROM(baseAddress, &data[0], 0x01); // Update the existing 1-byte length
+        result &= writeEEPROM(baseAddress, data, 0x01); // Update the existing 1-byte length
       }
       else
       {
         // The length was 1-byte but needs to be changed to 3-byte
-        //delete[] tagWrite; // Delete tagWrite to save memory
-        uint8_t newTagWrite[newLen + 4];
-        newTagWrite[0] = 0xFF; // Change length to 3-byte
-        newTagWrite[1] = newLen >> 8;
-        newTagWrite[2] = newLen & 0xFF;
-        result &= readEEPROM(baseAddress + 1, &newTagWrite[3], (ME ? newLen + 1 : newLen)); // Copy in the old data
+        delete[] tagWrite; // Resize tagWrite
+        tagWrite = new uint8_t[newLen + 4];
+        if (tagWrite == NULL)
+        {
+          SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::OUT_OF_MEMORY);
+          return false; // Memory allocation failed
+        }
+        tagPtr = tagWrite; // Reset tagPtr
+
+        *tagPtr++ = 0xFF; // Change length to 3-byte
+        *tagPtr++ = newLen >> 8;
+        *tagPtr++ = newLen & 0xFF;
+        result &= readEEPROM(baseAddress + 1, tagPtr, (ME ? newLen + 1 : newLen)); // Copy in the old data
         if (!result)
+        {
+          delete[] tagWrite;
           return false;
-        result &= writeEEPROM(baseAddress, &newTagWrite[0], (ME ? newLen + 4 : newLen + 3));
+        }
+        result &= writeEEPROM(baseAddress, tagWrite, (ME ? newLen + 4 : newLen + 3));
         if (result)
           *address = *address + 2; // Update address too
       }
     }
   }
 
+  delete[] tagWrite; // Release the memory
+
   return result;
 }
 
 // Read an NDEF WiFi Record from memory
-bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *passwd, uint8_t maxPasswdLen, uint8_t recordNo)
+bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint16_t maxSsidLen, char *passwd, uint16_t maxPasswdLen, uint8_t recordNo)
 {
   uint8_t tlv[4];
 
@@ -587,7 +634,7 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
   uint32_t payloadLength;
   uint8_t thisRecord = 0;
   uint8_t *payload = NULL;
-  uint16_t payloadPtr;
+  uint8_t *payloadPtr;
   bool ssidFound = false;
   bool passwdFound = false;
   bool credentialSeen = false;
@@ -679,7 +726,7 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
         }
         else
           idLength = 0;
-        if ((typeLength == 0) || (tnf != SFE_ST25DV_NDEF_TNF_MEDIA))
+        if (typeLength == 0) // If type length is zero, this cannot be a WiFi record
           loopState = readAndIgnoreID;
         else
           loopState = readType;
@@ -696,7 +743,8 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
         }
         theType[typeLength] = 0; // Null-terminate the Type
         eepromAddress += typeLength; // Point to the ID
-        if ((typeLength == strlen(SFE_ST25DV_WIFI_MIME_TYPE)) && (strcmp((const char *)theType, SFE_ST25DV_WIFI_MIME_TYPE) == 0)) // Check for a Type match
+        if ((tnf == SFE_ST25DV_NDEF_TNF_MEDIA) && (typeLength == strlen(SFE_ST25DV_WIFI_MIME_TYPE))
+            && (strcmp((const char *)theType, SFE_ST25DV_WIFI_MIME_TYPE) == 0)) // Check for a Type match
           loopState = matchFoundCheckRecordNo;
         else
           loopState = readAndIgnoreID;
@@ -739,7 +787,11 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
           delete[] payload;
         payload = new uint8_t[payloadLength]; // Create storage for the payload
         if (payload == NULL)
+        {
+          SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::OUT_OF_MEMORY);
           return false; // Memory allocation failed
+        }
+
         if (!readEEPROM(eepromAddress, payload, payloadLength)) // Read the Payload
         {
           if (payload != NULL)
@@ -747,27 +799,27 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
           return false;
         }
         eepromAddress += payloadLength;
-        payloadPtr = 0;
+        payloadPtr = payload;
         loopState = checkEntry;
       }
       break;
       case checkEntry:
       {
         // Check for Credential
-        if ((payload[payloadPtr] == SFE_ST25DV_WIFI_CREDENTIAL[0]) && (payload[payloadPtr + 1] == SFE_ST25DV_WIFI_CREDENTIAL[1]))
+        if ((*payloadPtr == SFE_ST25DV_WIFI_CREDENTIAL[0]) && (*(payloadPtr + 1) == SFE_ST25DV_WIFI_CREDENTIAL[1]))
         {
           credentialSeen = true;
           payloadPtr += 4;
         }
         // Check for the SSID
-        else if ((payload[payloadPtr] == SFE_ST25DV_WIFI_SSID[0]) && (payload[payloadPtr + 1] == SFE_ST25DV_WIFI_SSID[1]))
+        else if ((*payloadPtr == SFE_ST25DV_WIFI_SSID[0]) && (*(payloadPtr + 1) == SFE_ST25DV_WIFI_SSID[1]))
         {
-          uint16_t ssidLen = (((uint16_t)payload[payloadPtr + 2]) << 8) | payload[payloadPtr + 3];
+          uint16_t ssidLen = (((uint16_t)*(payloadPtr + 2)) << 8) | *(payloadPtr + 3);
           if (ssidLen > (maxSsidLen - 1))
             loopState = terminatorFound;
           else
           {
-            memcpy(ssid, &payload[payloadPtr + 4], ssidLen);
+            memcpy(ssid, payloadPtr + 4, ssidLen);
             ssid[ssidLen] = 0; // NULL_terminate the SSID
             payloadPtr += 4 + ssidLen;
             ssidFound = true;
@@ -776,14 +828,14 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
           }
         }
         // Check for the Password
-        else if ((payload[payloadPtr] == SFE_ST25DV_WIFI_NETWORK_KEY[0]) && (payload[payloadPtr + 1] == SFE_ST25DV_WIFI_NETWORK_KEY[1]))
+        else if ((*payloadPtr == SFE_ST25DV_WIFI_NETWORK_KEY[0]) && (*(payloadPtr + 1) == SFE_ST25DV_WIFI_NETWORK_KEY[1]))
         {
-          uint16_t pswdLen = (((uint16_t)payload[payloadPtr + 2]) << 8) | payload[payloadPtr + 3];
+          uint16_t pswdLen = (((uint16_t)*(payloadPtr + 2)) << 8) | *(payloadPtr + 3);
           if (pswdLen > (maxPasswdLen - 1))
             loopState = terminatorFound;
           else
           {
-            memcpy(passwd, &payload[payloadPtr + 4], pswdLen);
+            memcpy(passwd, payloadPtr + 4, pswdLen);
             passwd[pswdLen] = 0; // NULL_terminate the Password
             payloadPtr += 4 + pswdLen;
             passwdFound = true;
@@ -793,9 +845,9 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
         }
         else
         {
-          uint16_t thingLen = (((uint16_t)payload[payloadPtr + 2]) << 8) | payload[payloadPtr + 3];
+          uint16_t thingLen = (((uint16_t)*(payloadPtr + 2)) << 8) | *(payloadPtr + 3);
           payloadPtr += 4 + thingLen;
-          if (payloadPtr >= payloadLength)
+          if (payloadPtr >= payload + payloadLength)
             loopState = terminatorFound;
         }
       }
@@ -851,25 +903,35 @@ bool SFE_ST25DV64KC_NDEF::readNDEFWiFi(char *ssid, uint8_t maxSsidLen, char *pas
 //   First: MB=true, ME=false
 //   Intermediate: MB=false, ME=false
 //   Last: MB=false, ME=true
-bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char language[])
+bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, bool MB, bool ME, const char *languageCode)
 {
   // Total length could be: strlen(theText) + strlen(language) + 1 (Text Data Header) + 1 (Record Type)
   //                        + 1 (Payload Length) + 3 (if PAYLOAD LENGTH > 255) + 1 (Type Length) + 1 (Record Header)
   //                        + 1 (L Field) + 2 (if L field > 0xFE) + 1 (T Field)
 
-  // To save allocating memory twice, theText is copied directly to EEPROM without being copied into tagWrite first
-
   uint16_t textLength = strlen(theText);
-  uint16_t languageLength = strlen(language); // 6-bit only!
+  uint16_t languageLength; // 6-bit only!
+  if (languageCode != NULL)
+    languageLength = strlen(languageCode);
+  else
+    languageLength = strlen(SFE_ST25DV_NDEF_TEXT_DEF_LANG);
   uint16_t payloadLength = textLength + languageLength + 1; // Include the Text Data Header
 
   // Total field length is: payloadLength + Record Type + Payload Length + Type Length + Record Header
   uint16_t fieldLength = payloadLength + 1 + ((payloadLength <= 0xFF) ? 1 : 4) + 1 + 1;
 
-  uint8_t tagWrite[fieldLength - textLength];
+  // To save allocating memory twice, theText is copied directly to EEPROM without being copied into tagWrite first
+  uint8_t *tagWrite = new uint8_t[fieldLength + 3 - textLength]; // Always include 4 bytes for Payload Length
+
+  if (tagWrite == NULL)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::OUT_OF_MEMORY);
+    return false; // Memory allocation failed
+  }
+
   memset(tagWrite, 0, fieldLength - textLength);
 
-  uint8_t *tagPtr = &tagWrite[0];
+  uint8_t *tagPtr = tagWrite;
 
   // Only write the Type 5 T & L fields if the Message Begin bit is set
   if (MB)
@@ -897,19 +959,22 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
   }
   else
   {
-    *tagPtr++ = payloadLength >> 24; // NDEF Payload Length (4-Byte)
-    *tagPtr++ = (payloadLength >> 16) & 0xFF;
+    *tagPtr++ = 0; //payloadLength >> 24; // NDEF Payload Length (4-Byte)
+    *tagPtr++ = 0; //(payloadLength >> 16) & 0xFF;
     *tagPtr++ = (payloadLength >> 8) & 0xFF;
     *tagPtr++ = payloadLength & 0xFF;
   }
   *tagPtr++ = SFE_ST25DV_NDEF_TEXT_RECORD; // NDEF Record Type
   *tagPtr++ = (uint8_t)(languageLength & 0x3F); // Text Data Header. The UTF 8/16 bit is always clear
 
-  strcpy((char *)tagPtr, language); // Add the Language Code
+  if (languageCode != NULL)
+    strcpy((char *)tagPtr, languageCode); // Add the Language Code
+  else
+    strcpy((char *)tagPtr, SFE_ST25DV_NDEF_TEXT_DEF_LANG);
   tagPtr += languageLength;
 
   uint16_t memLoc = _ccFileLen; // Write to this memory location
-  uint16_t numBytes = tagPtr - &tagWrite[0];
+  uint16_t numBytes = tagPtr - tagWrite;
 
   if (address != NULL)
   {
@@ -918,8 +983,12 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
 
   // Write everything except theText
   bool result = writeEEPROM(memLoc, tagWrite, numBytes);
+
   if (!result)
+  {
+    delete[] tagWrite;
     return false;
+  }
 
   // Add numBytes to memLoc. theText will be written to memLoc. memLoc will be adjusted if the L field changes length
   memLoc += numBytes;
@@ -929,16 +998,19 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
   {
     uint16_t baseAddress = _ccFileLen + 1; // Skip the SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV
     uint8_t data[3];
-    result &= readEEPROM(baseAddress, &data[0], 0x03); // Read the possible three length bytes
+    result &= readEEPROM(baseAddress, data, 0x03); // Read the possible three length bytes
     if (!result)
+    {
+      delete[] tagWrite;
       return false;
+    }
     if (data[0] == 0xFF) // Is the length already 3-byte?
     {
       uint16_t oldLen = ((uint16_t)data[1] << 8) | data[2];
       oldLen += numBytes + textLength; // Add the text length to numBytes so the L field is updated correctly
       data[1] = oldLen >> 8;
       data[2] = oldLen & 0xFF;
-      result &= writeEEPROM(baseAddress, &data[0], 0x03); // Update the existing 3-byte length
+      result &= writeEEPROM(baseAddress, data, 0x03); // Update the existing 3-byte length
     }
     else
     {
@@ -948,32 +1020,48 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
       if (newLen <= 0xFE) // Is the new length still 1-byte?
       {
         data[0] = newLen;
-        result &= writeEEPROM(baseAddress, &data[0], 0x01); // Update the existing 1-byte length
+        result &= writeEEPROM(baseAddress, data, 0x01); // Update the existing 1-byte length
       }
       else
       {
         // The length was 1-byte but needs to be changed to 3-byte
-        //delete[] tagWrite; // Delete tagWrite to save memory
-        uint8_t newTagWrite[newLen + 4 - textLength]; // Deduct textLength because theText has not yet been written
-        newTagWrite[0] = 0xFF; // Change length to 3-byte
-        newTagWrite[1] = newLen >> 8;
-        newTagWrite[2] = newLen & 0xFF;
-        result &= readEEPROM(baseAddress + 1, &newTagWrite[3], newLen - textLength); // Copy in the old data
+        delete[] tagWrite; // Resize tagWrite
+        tagWrite = new uint8_t[newLen + 4 - textLength]; // Deduct textLength because theText has not yet been written
+        if (tagWrite == NULL)
+        {
+          SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::OUT_OF_MEMORY);
+          return false; // Memory allocation failed
+        }
+        tagPtr = tagWrite; // Reset tagPtr
+
+        *tagPtr++ = 0xFF; // Change length to 3-byte
+        *tagPtr++ = newLen >> 8;
+        *tagPtr++ = newLen & 0xFF;
+        result &= readEEPROM(baseAddress + 1, tagPtr, newLen - textLength); // Copy in the old data
         if (!result)
+        {
+          delete[] tagWrite;
           return false;
-        result &= writeEEPROM(baseAddress, &newTagWrite[0], newLen + 3 - textLength);
+        }
+        result &= writeEEPROM(baseAddress, tagWrite, newLen + 3 - textLength);
         memLoc += 2; // Update memLoc so theText is written to the correct location
       }
     }
   }
 
   if (!result)
+  {
+    delete[] tagWrite;
     return false;
+  }
 
   // Now write theText to memLoc
   result &= writeEEPROM(memLoc, (uint8_t *)theText, textLength);
   if (!result)
+  {
+    delete[] tagWrite;
     return false;
+  }
 
   memLoc += textLength;
 
@@ -989,6 +1077,8 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const char *theText, uint16_t *address, 
   {
     *address = memLoc; // Update address so the next write can append to this one
   }
+
+  delete[] tagWrite; // Release the memory
 
   return result;
 }
@@ -1133,7 +1223,7 @@ bool SFE_ST25DV64KC_NDEF::readNDEFText(char *theText, uint16_t maxTextLen, uint8
         }
         else
           idLength = 0;
-        if ((typeLength != 1) || (tnf != SFE_ST25DV_NDEF_TNF_WELL_KNOWN))
+        if (typeLength == 0) // If typeLength is zero, this cannot be a Text Record
           loopState = readAndIgnoreID;
         else
           loopState = readType;
@@ -1150,7 +1240,7 @@ bool SFE_ST25DV64KC_NDEF::readNDEFText(char *theText, uint16_t maxTextLen, uint8
         }
         theType[typeLength] = 0; // Null-terminate the Type
         eepromAddress += typeLength; // Point to the ID
-        if (theType[0] == SFE_ST25DV_NDEF_TEXT_RECORD) // Check for a Type match
+        if ((theType[0] == SFE_ST25DV_NDEF_TEXT_RECORD) && (tnf == SFE_ST25DV_NDEF_TNF_WELL_KNOWN)) // Check for a Type match
           loopState = matchFoundCheckRecordNo;
         else
           loopState = readAndIgnoreID;
@@ -1193,7 +1283,11 @@ bool SFE_ST25DV64KC_NDEF::readNDEFText(char *theText, uint16_t maxTextLen, uint8
           delete[] payload;
         payload = new uint8_t[payloadLength]; // Create storage for the payload
         if (payload == NULL)
+        {
+          SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::OUT_OF_MEMORY);
           return false; // Memory allocation failed
+        }
+
         if (!readEEPROM(eepromAddress, payload, payloadLength)) // Read the Payload
         {
           if (payload != NULL)
@@ -1206,18 +1300,18 @@ bool SFE_ST25DV64KC_NDEF::readNDEFText(char *theText, uint16_t maxTextLen, uint8
       break;
       case checkEntry:
       {
-        if (payload[0] >> 7) // If the UTF-16 bit is set
+        if ((*payload) >> 7) // If the UTF-16 bit is set
         {
           loopState = terminatorFound; // Bail...
         }
         else
         {
-          uint16_t languageLength = payload[0] & 0x3F;
+          uint16_t languageLength = (*payload) & 0x3F;
           if ((languageLength > 0) && (language != NULL) && (maxLanguageLen > 0))
           {
             if (languageLength <= (maxLanguageLen - 1))
             {
-              memcpy(language, &payload[1], languageLength);
+              memcpy(language, payload + 1, languageLength);
               language[languageLength] = 0; // NULL-terminate the language
             }
             else
@@ -1228,7 +1322,7 @@ bool SFE_ST25DV64KC_NDEF::readNDEFText(char *theText, uint16_t maxTextLen, uint8
           uint16_t theTextLen = payloadLength - (1 + languageLength);
           if (theTextLen <= (maxTextLen - 1))
           {
-            memcpy(theText, &payload[1 + languageLength], theTextLen);
+            memcpy(theText, payload + 1 + languageLength, theTextLen);
             theText[theTextLen] = 0; // NULL-terminate the text
             loopState = allDone;
           }
