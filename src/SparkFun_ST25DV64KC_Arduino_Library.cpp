@@ -25,6 +25,48 @@ bool SFE_ST25DV64KC::begin(TwoWire &i2cPort)
   return isConnected();
 }
 
+void SFE_ST25DV64KC::setErrorCallback(void (*errorCallback)(SF_ST25DV64KC_ERROR errorCode))
+{
+  _errorCallback = errorCallback;
+}
+
+const char *SFE_ST25DV64KC::errorCodeString(SF_ST25DV64KC_ERROR errorCode)
+{
+  switch (errorCode)
+  {
+  case SF_ST25DV64KC_ERROR::NONE:
+    return "NONE";
+    break;
+  case SF_ST25DV64KC_ERROR::I2C_INITIALIZATION_ERROR:
+    return "I2C_INITIALIZATION_ERROR";
+    break;
+  case SF_ST25DV64KC_ERROR::INVALID_DEVICE:
+    return "INVALID_DEVICE";
+    break;
+  case SF_ST25DV64KC_ERROR::I2C_SESSION_NOT_OPENED:
+    return "I2C_SESSION_NOT_OPENED";
+    break;
+  case SF_ST25DV64KC_ERROR::I2CSS_MEMORY_AREA_INVALID:
+    return "I2CSS_MEMORY_AREA_INVALID";
+    break;
+  case SF_ST25DV64KC_ERROR::INVALID_WATCHDOG_VALUE:
+    return "INVALID_WATCHDOG_VALUE";
+    break;
+  case SF_ST25DV64KC_ERROR::INVALID_MEMORY_AREA_PASSED:
+    return "INVALID_MEMORY_AREA_PASSED";
+    break;
+  case SF_ST25DV64KC_ERROR::INVALID_MEMORY_AREA_SIZE:
+    return "INVALID_MEMORY_AREA_SIZE";
+    break;
+  case SF_ST25DV64KC_ERROR::OUT_OF_MEMORY:
+    return "OUT_OF_MEMORY";
+    break;
+  default:
+    return "UNDEFINED";
+    break;
+  }
+};
+
 bool SFE_ST25DV64KC::isConnected()
 {
   bool connected = st25_io.isConnected();
@@ -91,7 +133,7 @@ bool SFE_ST25DV64KC::writeI2CPassword(uint8_t *password)
 {
   if (!isI2CSessionOpen())
   {
-    SAFE_CALLBACK(errorCallback, SF_ST25DV64KC_ERROR::I2C_SESSION_NOT_OPENED);
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_SESSION_NOT_OPENED);
     return false;
   }
 
@@ -126,7 +168,7 @@ void SFE_ST25DV64KC::programEEPROMReadProtectionBit(uint8_t memoryArea, bool rea
 {
   if (memoryArea < 1 || memoryArea > 4)
   {
-    SAFE_CALLBACK(errorCallback, SF_ST25DV64KC_ERROR::I2CSS_MEMORY_AREA_INVALID);
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2CSS_MEMORY_AREA_INVALID);
     return;
   }
 
@@ -177,7 +219,7 @@ void SFE_ST25DV64KC::programEEPROMWriteProtectionBit(uint8_t memoryArea, bool wr
 {
   if (memoryArea < 1 || memoryArea > 4)
   {
-    SAFE_CALLBACK(errorCallback, SF_ST25DV64KC_ERROR::I2CSS_MEMORY_AREA_INVALID);
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2CSS_MEMORY_AREA_INVALID);
     return;
   }
 
@@ -228,7 +270,7 @@ bool SFE_ST25DV64KC::getEEPROMReadProtectionBit(uint8_t memoryArea)
 {
   if (memoryArea < 1 || memoryArea > 4)
   {
-    SAFE_CALLBACK(errorCallback, SF_ST25DV64KC_ERROR::I2CSS_MEMORY_AREA_INVALID);
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2CSS_MEMORY_AREA_INVALID);
     return false;
   }
 
@@ -268,7 +310,7 @@ bool SFE_ST25DV64KC::getEEPROMWriteProtectionBit(uint8_t memoryArea)
 {
   if (memoryArea < 1 || memoryArea > 4)
   {
-    SAFE_CALLBACK(errorCallback, SF_ST25DV64KC_ERROR::I2CSS_MEMORY_AREA_INVALID);
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2CSS_MEMORY_AREA_INVALID);
     return false;
   }
 
@@ -332,7 +374,7 @@ bool SFE_ST25DV64KC::setMemoryAreaEndAddress(uint8_t memoryArea, uint8_t endAddr
 {
   if (memoryArea < 1 || memoryArea > 3)
   {
-    SAFE_CALLBACK(errorCallback, SF_ST25DV64KC_ERROR::INVALID_MEMORY_AREA_PASSED);
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::INVALID_MEMORY_AREA_PASSED);
     return false;
   }
 
@@ -357,7 +399,7 @@ bool SFE_ST25DV64KC::setMemoryAreaEndAddress(uint8_t memoryArea, uint8_t endAddr
 
   if (!success)
   {
-    SAFE_CALLBACK(errorCallback, SF_ST25DV64KC_ERROR::INVALID_MEMORY_AREA_SIZE);
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::INVALID_MEMORY_AREA_SIZE);
     return false;
   }
 
@@ -368,7 +410,7 @@ uint16_t SFE_ST25DV64KC::getMemoryAreaEndAddress(uint8_t memoryArea)
 {
   if (memoryArea < 1 || memoryArea > 3)
   {
-    SAFE_CALLBACK(errorCallback, SF_ST25DV64KC_ERROR::INVALID_MEMORY_AREA_PASSED);
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::INVALID_MEMORY_AREA_PASSED);
     return 0;
   }
 

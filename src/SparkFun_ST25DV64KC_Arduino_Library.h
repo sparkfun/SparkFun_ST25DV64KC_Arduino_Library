@@ -26,12 +26,14 @@
 
 class SFE_ST25DV64KC
 {
-private:
+public:
   // Error callback function pointer.
   // Function must accept a SF_ST25DV64KC_ERROR as errorCode.
-  void (*errorCallback)(SF_ST25DV64KC_ERROR errorCode) = nullptr;
+  void (*_errorCallback)(SF_ST25DV64KC_ERROR errorCode) = nullptr;
 
-public:
+  // Convert errorCode to text
+  const char *errorCodeString(SF_ST25DV64KC_ERROR errorCode);
+
   // I2C communication object instance - can be used to access the
   // ST25 registers through the IO layer functions.
   SFE_ST2525DV64KC_IO st25_io;
