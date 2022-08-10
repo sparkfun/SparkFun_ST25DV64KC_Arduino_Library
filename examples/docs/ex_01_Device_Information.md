@@ -76,7 +76,7 @@ The ```begin``` method returns **true** if the ST25DV is connected. If it return
 
 Each tag is pre-programmed with a unique 8-byte (64-bit) identifier which conforms to ISO/IEC 15693.
 
-Not all platforms support the printing of 64-bit numbers so we: create an array of eight bytes to hold the UID; read the UID; and print it one byte at a time in hexadecimal format.
+Not all platforms support the printing of 64-bit numbers so we: create an array of eight bytes to hold the UID; read the UID using ```getDeviceUID```; and print it one byte at a time in hexadecimal format.
 
 ```C++
   uint8_t values[8] = {0};
@@ -103,7 +103,7 @@ It is fun to read the tag's identifier using ST's "NFC Tap" App on your smart ph
 
 ## Reading the Tag Revision
 
-Each tag is also programmed with a version number, indicating what version of hardware is inside the tag IC. We can read that as follows:
+Each tag is also programmed with a version number, indicating what version of hardware is inside the tag IC. We can read that using ```getDeviceRevision``` as follows:
 
 ```C++
   uint8_t rev;
