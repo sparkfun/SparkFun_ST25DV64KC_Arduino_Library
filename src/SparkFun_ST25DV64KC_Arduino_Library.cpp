@@ -61,6 +61,9 @@ const char *SFE_ST25DV64KC::errorCodeString(SF_ST25DV64KC_ERROR errorCode)
   case SF_ST25DV64KC_ERROR::OUT_OF_MEMORY:
     return "OUT_OF_MEMORY";
     break;
+  case SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR:
+    return "I2C_TRANSMISSION_ERROR";
+    break;
   default:
     return "UNDEFINED";
     break;
@@ -378,7 +381,8 @@ bool SFE_ST25DV64KC::setMemoryAreaEndAddress(uint8_t memoryArea, uint8_t endAddr
     return false;
   }
 
-  bool success = true;
+  bool success = false;
+
   switch (memoryArea)
   {
   case 1:
@@ -399,7 +403,7 @@ bool SFE_ST25DV64KC::setMemoryAreaEndAddress(uint8_t memoryArea, uint8_t endAddr
 
   if (!success)
   {
-    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::INVALID_MEMORY_AREA_SIZE);
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
     return false;
   }
 
@@ -415,26 +419,245 @@ uint16_t SFE_ST25DV64KC::getMemoryAreaEndAddress(uint8_t memoryArea)
   }
 
   uint8_t value = 0;
+  bool result = false;
 
   switch (memoryArea)
   {
   case 1:
-    st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_ENDA1, &value);
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_ENDA1, &value);
     break;
 
   case 2:
-    st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_ENDA2, &value);
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_ENDA2, &value);
     break;
 
   case 3:
-    st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_ENDA3, &value);
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_ENDA3, &value);
     break;
 
   default:
     break;
   }
 
+  if (!result)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+    return 0;
+  }
+
   return ((uint16_t)value * 32 + 31);
+}
+
+bool SFE_ST25DV64KC::setAreaRfRwProtection(uint8_t memoryArea, SF_ST25DV_RF_RW_PROTECTION rw)
+{
+  if (memoryArea < 1 || memoryArea > 4)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::INVALID_MEMORY_AREA_PASSED);
+    return 0;
+  }
+
+  uint8_t value = 0;
+  bool result = false;
+
+  switch (memoryArea)
+  {
+  case 1:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA1SS, &value);
+    break;
+
+  case 2:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA2SS, &value);
+    break;
+
+  case 3:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA3SS, &value);
+    break;
+
+  case 4:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA4SS, &value);
+    break;
+
+  default:
+    break;
+  }
+
+  value &= ~0x0C; // Clear the two RW bits
+  value |= ((uint8_t)rw) << 2; // Or in the new RW bits
+
+  switch (memoryArea)
+  {
+  case 1:
+    result &= st25_io.writeSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA1SS, value);
+    break;
+
+  case 2:
+    result &= st25_io.writeSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA2SS, value);
+    break;
+
+  case 3:
+    result &= st25_io.writeSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA3SS, value);
+    break;
+
+  case 4:
+    result &= st25_io.writeSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA4SS, value);
+    break;
+
+  default:
+    break;
+  }
+
+  if (!result)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return result;
+}
+
+SF_ST25DV_RF_RW_PROTECTION SFE_ST25DV64KC::getAreaRfRwProtection(uint8_t memoryArea)
+{
+  if (memoryArea < 1 || memoryArea > 4)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::INVALID_MEMORY_AREA_PASSED);
+    return SF_ST25DV_RF_RW_PROTECTION::RF_RW_READ_ALWAYS_WRITE_ALWAYS; // Return the default
+  }
+
+  uint8_t value = 0;
+  bool result = false;
+
+  switch (memoryArea)
+  {
+  case 1:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA1SS, &value);
+    break;
+
+  case 2:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA2SS, &value);
+    break;
+
+  case 3:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA3SS, &value);
+    break;
+
+  default:
+    break;
+  }
+
+  if (!result)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+    return SF_ST25DV_RF_RW_PROTECTION::RF_RW_READ_ALWAYS_WRITE_ALWAYS; // Return the default
+  }
+
+  return ((SF_ST25DV_RF_RW_PROTECTION)((value >> 2) & 0x03));
+}
+
+bool SFE_ST25DV64KC::setAreaRfPwdCtrl(uint8_t memoryArea, SF_ST25DV_RF_PWD_CTRL pwdCtrl)
+{
+  if (memoryArea < 1 || memoryArea > 4)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::INVALID_MEMORY_AREA_PASSED);
+    return 0;
+  }
+
+  uint8_t value = 0;
+  bool result = false;
+
+  switch (memoryArea)
+  {
+  case 1:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA1SS, &value);
+    break;
+
+  case 2:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA2SS, &value);
+    break;
+
+  case 3:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA3SS, &value);
+    break;
+
+  case 4:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA4SS, &value);
+    break;
+
+  default:
+    break;
+  }
+
+  value &= ~0x03; // Clear the two pwd ctrl bits
+  value |= (uint8_t)pwdCtrl; // Or in the new pwd ctrl bits
+
+  switch (memoryArea)
+  {
+  case 1:
+    result &= st25_io.writeSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA1SS, value);
+    break;
+
+  case 2:
+    result &= st25_io.writeSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA2SS, value);
+    break;
+
+  case 3:
+    result &= st25_io.writeSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA3SS, value);
+    break;
+
+  case 4:
+    result &= st25_io.writeSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA4SS, value);
+    break;
+
+  default:
+    break;
+  }
+
+  if (!result)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return result;
+}
+
+SF_ST25DV_RF_PWD_CTRL SFE_ST25DV64KC::getAreaRfPwdCtrl(uint8_t memoryArea)
+{
+  if (memoryArea < 1 || memoryArea > 4)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::INVALID_MEMORY_AREA_PASSED);
+    return SF_ST25DV_RF_PWD_CTRL::RF_PWD_NEVER; // Return the default
+  }
+
+  uint8_t value = 0;
+  bool result = false;
+
+  switch (memoryArea)
+  {
+  case 1:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA1SS, &value);
+    break;
+
+  case 2:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA2SS, &value);
+    break;
+
+  case 3:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA3SS, &value);
+    break;
+
+  case 4:
+    result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_RFA4SS, &value);
+    break;
+
+  default:
+    break;
+  }
+
+  if (!result)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+    return SF_ST25DV_RF_PWD_CTRL::RF_PWD_NEVER; // Return the default
+  }
+
+  return ((SF_ST25DV_RF_PWD_CTRL)(value & 0x03));
 }
 
 bool SFE_ST25DV64KC::RFFieldDetected()
