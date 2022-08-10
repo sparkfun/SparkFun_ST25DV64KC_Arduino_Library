@@ -1,0 +1,15 @@
+site_name: SparkFun Qwiic Universal Auto-Detect - Examples
+
+nav:
+  - Example 1 - Device Information: "ex_01_Device_Information.md"
+  - Example 2 - Memory Read Write Operations: "ex_02_Memory_Read_Write.md"
+  - Example 3 - I2C Password: "ex_03_I2C_Password.md"
+  - Example 4 - Memory End Address Programming: "ex_04_Memory_End_Address.md"
+  - Example 5 - Detect RF Field - Polling: "ex_05_RF_Field_Poll.md"
+  - Example 6 - Detect RF Field - Interrupt: "ex_06_RF_Field_Interrupt.md"
+  - Example 7 - Energy Harvesting: "ex_07_Energy_Harvesting.md"
+  - Example 8 - NDEF URI Records: "ex_08_NDEF_URI.md"
+  - Example 9 - NDEF WiFi Records: "ex_09_NDEF_WiFi.md"
+  - Example 10 - NDEF Text Records: "ex_10_NDEF_Text.md"
+  - Example 11 - Memory Leak Test: "ex_11_Memory_Leak_Test.md"
+  - Example 12 - Production Test: "ex_12_Production_Test.md"
