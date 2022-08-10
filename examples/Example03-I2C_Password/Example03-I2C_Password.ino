@@ -6,9 +6,7 @@
   License: MIT. Please see the license file for more information but you can
   basically do whatever you want with this code.
 
-  This example demonstrates how to write data to Area 1 of the Tag's EEPROM User Memory.
-  The user memory can be divided up into (up to) four areas.
-  Area 1 is always readable - but can be write-protected.
+  This example demonstrates how to change the password protecting Area 1 of the Tag's EEPROM User Memory.
   
   Feel like supporting open source hardware?
   Buy a board from SparkFun!
@@ -71,9 +69,24 @@ void setup()
 
   // -=-=-=-=-=-=-=-=-
 
+  Serial.println(F("Changing the I2C password to 0x0123456789ABCDEF."));
+  uint8_t newPassword[8] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF };
+  tag.writeI2CPassword(newPassword);
+  Serial.print(F("I2C session is "));
+  Serial.println(tag.isI2CSessionOpen() ? "opened." : "closed.");
+
+  // -=-=-=-=-=-=-=-=-
+
+  Serial.println(F("Entering the default password (all zeros)."));
+  tag.openI2CSession(password);
+  Serial.print(F("I2C session is "));
+  Serial.println(tag.isI2CSessionOpen() ? "opened." : "closed.");
+
+  // -=-=-=-=-=-=-=-=-
+
   // Read 16 bytes from EEPROM location 0x0
   uint8_t tagRead[16] = {0};
-  Serial.print(F("Reading values, starting at location 0x0, with opened security session:        "));
+  Serial.print(F("Reading values, starting at location 0x0, with closed security session:                "));
   tag.readEEPROM(0x0, tagRead, 16); // Read the EEPROM: start at address 0x0, read contents into tagRead; read 16 bytes
   for (auto value : tagRead) // Print the contents
   {
@@ -93,49 +106,6 @@ void setup()
   for (uint8_t i = 0; i < 16; i++)
     tagWrite[i] = (uint8_t)random(0, 0xff);
 
-  Serial.print(F("Writing random values, starting at location 0x0, with opened security session: "));
-  for (auto value : tagWrite)
-  {
-    Serial.print(F("0x"));
-    if (value < 0x10)
-      Serial.print(F("0"));
-    Serial.print(value, HEX);
-    Serial.print(F(" "));
-  }
-  Serial.println();
-  tag.writeEEPROM(0x0, tagWrite, 16);
-
-  // -=-=-=-=-=-=-=-=-
-
-  memset(tagRead, 0, 16);
-  Serial.print(F("Reading values, starting at location 0x0, with opened security session:        "));
-  tag.readEEPROM(0x0, tagRead, 16);
-  for (auto value : tagRead)
-  {
-    Serial.print(F("0x"));
-    if (value < 0x10)
-      Serial.print(F("0"));
-    Serial.print(value, HEX);
-    Serial.print(F(" "));
-  }
-  Serial.println();
-
-  // -=-=-=-=-=-=-=-=-
-
-  Serial.println(F("Closing I2C security session - by writing the wrong password."));
-  password[1] = {0x10}; // Change one byte of the password
-  tag.openI2CSession(password);
-
-  Serial.print(F("I2C session is "));
-  Serial.println(tag.isI2CSessionOpen() ? "opened." : "closed.");
-
-  // -=-=-=-=-=-=-=-=-
-
-  // Try to write 16 random bytes from EEPROM location 0x0
-  randomSeed(analogRead(A0));
-  for (uint8_t i = 0; i < 16; i++)
-    tagWrite[i] = (uint8_t)random(0, 0xff);
-
   Serial.print(F("Trying to write random values, starting at location 0x0, with closed security session: "));
   for (auto value : tagWrite)
   {
@@ -150,8 +120,8 @@ void setup()
 
   // -=-=-=-=-=-=-=-=-
 
-  Serial.print(F("Reading values, starting at location 0x0, with closed security session:                "));
   memset(tagRead, 0, 16);
+  Serial.print(F("Reading values, starting at location 0x0, with closed security session:                "));
   tag.readEEPROM(0x0, tagRead, 16);
   for (auto value : tagRead)
   {
@@ -165,9 +135,15 @@ void setup()
 
   // -=-=-=-=-=-=-=-=-
 
-  Serial.println(F("Re-opening I2C session - with the correct password."));
-  password[1] = {0x0}; // Reset the password
-  tag.openI2CSession(password);
+  Serial.println(F("Opening I2C session - using the new password."));
+  tag.openI2CSession(newPassword);
+  Serial.print(F("I2C session is "));
+  Serial.println(tag.isI2CSessionOpen() ? "opened." : "closed.");
+
+  // -=-=-=-=-=-=-=-=-
+
+  Serial.println(F("Changing the I2C password back to all zeros."));
+  tag.writeI2CPassword(password);
   Serial.print(F("I2C session is "));
   Serial.println(tag.isI2CSessionOpen() ? "opened." : "closed.");
 
@@ -187,7 +163,7 @@ void setup()
 
   // -=-=-=-=-=-=-=-=-
 
-  Serial.print(F("Writing zeros, starting at location 0x0, with closed session:  "));
+  Serial.print(F("Writing zeros starting on 0x0 with closed session:  "));
   memset(tagWrite, 0, 16);
   for (auto value : tagWrite)
   {
@@ -202,7 +178,7 @@ void setup()
   
   // -=-=-=-=-=-=-=-=-
 
-  Serial.print(F("Reading values, starting at location 0x0, with closed session: "));
+  Serial.print(F("Reading values starting on 0x0 with closed session: "));
   memset(tagRead, 0, 16);
   tag.readEEPROM(0x0, tagRead, 16);
   for (auto value : tagRead)

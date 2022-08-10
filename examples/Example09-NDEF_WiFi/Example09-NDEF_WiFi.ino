@@ -6,7 +6,8 @@
   License: MIT. Please see the license file for more information but you can
   basically do whatever you want with this code.
 
-  This example shows how to read a NDEF WiFi record from the tag's memory.
+  This example shows how to set up the ST25DV64KC's Capability Container (CC)
+  and create a NDEF WiFi record
 
   Feel like supporting open source hardware?
   Buy a board from SparkFun!
@@ -40,43 +41,47 @@ void setup()
 
   Serial.println(F("ST25 connected."));
 
-  uint8_t values[8] = {0};
-  if (tag.getDeviceUID(values))
-  {
-    Serial.print(F("Device UID: "));
-    for (uint8_t i = 0; i < 8; i++)
-    {
-      if (values[i] < 0x0a)
-        Serial.print(F("0"));
-      Serial.print(values[i], HEX);
-      Serial.print(F(" "));
-    }
-    Serial.println();
-  }
-  else
-    Serial.println(F("Could not read device UID!"));
+  // -=-=-=-=-=-=-=-=-
 
-  uint8_t rev;
-  if (tag.getDeviceRevision(&rev))
-  {
-    Serial.print(F("Revision: "));
-    Serial.println(rev);
-  }
-  else
-    Serial.println(F("Could not read device revision!"));
-
-  Serial.println("Opening I2C session with password.");
-  uint8_t password[8] = {0x0};
+  // The previous examples will have left the memory write-enabled.
+  // We should not need to open a security session here...
+  /*
+  Serial.println(F("Opening I2C security session with default password (all zeros)."));
+  uint8_t password[8] = {0x0}; // Default password is all zeros
   tag.openI2CSession(password);
 
   Serial.print(F("I2C session is "));
   Serial.println(tag.isI2CSessionOpen() ? "opened." : "closed.");
+  */
+
+  // -=-=-=-=-=-=-=-=-
+
+  // Clear the first 256 bytes of user memory
+  uint8_t tagMemory[256];
+  memset(tagMemory, 0, 256);
+
+  Serial.println("Writing 0x0 to the first 256 bytes of user memory.");
+  tag.writeEEPROM(0x0, tagMemory, 256);
+
+  // -=-=-=-=-=-=-=-=-
+
+  // Write the Type 5 CC File - starting at address zero
+  Serial.println(F("Writing CC_File"));
+  tag.writeCCFile8Byte();
+
+  // -=-=-=-=-=-=-=-=-
+
+  // Write a single NDEF WiFi record
+  Serial.println(F("Writing the NDEF WiFi record"));
+  tag.writeNDEFWiFi("guestNetwork", "guestPassword123");
+
+  // -=-=-=-=-=-=-=-=-
 
   // Read the first NDEF WiFi record
-  char ssid[64]; // Create storage for the SSID
-  char passwd[64]; // Create storage for the password
+  char ssid[20]; // Create storage for the SSID
+  char passwd[20]; // Create storage for the password
   Serial.println(F("Reading the first NDEF WiFi record:"));
-  if (tag.readNDEFWiFi(ssid, 64, passwd, 64))
+  if (tag.readNDEFWiFi(ssid, 20, passwd, 20))
   {
     Serial.print(F("    SSID:"));
     Serial.println(ssid);
@@ -85,6 +90,13 @@ void setup()
   }
   else
     Serial.println(F("Read failed!"));
+
+  // -=-=-=-=-=-=-=-=-
+
+  // Read back the memory contents
+  Serial.println(F("The first 256 bytes of user memory are:"));
+  tag.readEEPROM(0x0, tagMemory, 256);
+  prettyPrintChars(tagMemory, 256);
 }
 
 void loop()

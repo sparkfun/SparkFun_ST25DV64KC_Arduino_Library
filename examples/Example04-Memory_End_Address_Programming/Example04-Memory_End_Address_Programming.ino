@@ -43,110 +43,106 @@ void setup()
 
   Serial.println(F("ST25 connected."));
 
-  uint8_t values[8] = {0};
-  if (tag.getDeviceUID(values))
-  {
-    Serial.print(F("Device UID: "));
-    for (uint8_t i = 0; i < 8; i++)
-    {
-      if (values[i] < 0x0a)
-        Serial.print(F("0"));
-      Serial.print(values[i], HEX);
-      Serial.print(F(" "));
-    }
-    Serial.println();
-  }
-  else
-    Serial.println(F("Could not read device UID!"));
-  
-  uint8_t rev;
-  if (tag.getDeviceRevision(&rev))
-  {
-    Serial.print(F("Revision: "));
-    Serial.println(rev);
-  }
-  else
-    Serial.println(F("Could not read device revision!"));
+  // -=-=-=-=-=-=-=-=-
 
-  Serial.println(F("Opening I2C session with password."));
-  uint8_t password[8] = {0x0};
+  Serial.println(F("Opening I2C security session with default password (all zeros)."));
+  uint8_t password[8] = {0x0}; // Default password is all zeros
   tag.openI2CSession(password);
 
   Serial.print(F("I2C session is "));
   Serial.println(tag.isI2CSessionOpen() ? "opened." : "closed.");
 
+  Serial.println(F("The area end addresses can only be changed if the I2C security session is open."));
+
+  // -=-=-=-=-=-=-=-=-
+
   char endAddress[5] = {0};
 
-  Serial.println();
+  Serial.print(F("Area 1 end address is 0x"));
+  sprintf(endAddress, "%04x", tag.getMemoryAreaEndAddress(1)); // Get the area 1 end address. Print it into endAddress in HEX format
+  Serial.println(endAddress); // Print it
 
-  Serial.print(F("Area 1 ending address before: 0x"));
-  sprintf(endAddress, "%04x", tag.getMemoryAreaEndAddress(1));
-  Serial.println(endAddress);
+  // -=-=-=-=-=-=-=-=-
 
+  // Change the Area 1 end address:
   // This function will succeed if ENDA1 value is less than or equal to ENDA2 and ENDA3.
-  // Further information can be found on the datasheet on page 14.
+  // Further information can be found in the datasheet on page 14.
   // Memory address will be: 0x20 * ENDAi + 0x1f which in this case results
-  // in  0x20 * 0x10 + 0x1f = 0x021f
+  // in 0x20 * 0x10 + 0x1f = 0x021f
+  Serial.println(F("Trying to change the Area 1 end address to 0x021F."));
   if (tag.setMemoryAreaEndAddress(1, 0x10))
   {
-    Serial.println(F("Success setting Area 1 end memory address."));
+    Serial.println(F("Success setting Area 1 end address."));
   }
   else
   {
-    Serial.println(F("Error setting Area 1 end memory address."));
+    Serial.println(F("Error setting Area 1 end address."));
   }
-  memset(endAddress, 0, 5);
-  Serial.print(F("Area 1 ending address after: 0x"));
-  sprintf(endAddress, "%04x", tag.getMemoryAreaEndAddress(1));
-  Serial.println(endAddress);
-
-  Serial.println();
 
   memset(endAddress, 0, 5);
-  Serial.print(F("Area 2 ending address before: 0x"));
+  
+  Serial.print(F("Area 1 end address is now 0x"));
+  sprintf(endAddress, "%04x", tag.getMemoryAreaEndAddress(1)); // Get the area 1 end address. Print it into endAddress in HEX format
+  Serial.println(endAddress); // Print it
+
+  // -=-=-=-=-=-=-=-=-
+
+  memset(endAddress, 0, 5);
+  
+  Serial.print(F("Area 2 end address is 0x"));
   sprintf(endAddress, "%04x", tag.getMemoryAreaEndAddress(2));
   Serial.println(endAddress);
 
+  // -=-=-=-=-=-=-=-=-
+
+  // Change the Area 2 end address:
   // This function will fail since ENDA2 value is less than if ENDA1 programmed above.
   // Further information can be found on the datasheet on page 14.
   // Memory address will be: 0x20 * ENDAi + 0x1f which in this case results
   // in 0x20 * 0x03 + 0x1f = 0x007f
+  Serial.println(F("Trying to change the Area 2 end address to 0x007F. (This will fail!)"));
   if (tag.setMemoryAreaEndAddress(2, 0x03))
   {
-    Serial.println(F("Success setting Area 2 end memory address."));
+    Serial.println(F("Success setting Area 2 end address."));
   }
   else
   {
-    Serial.println(F("Error setting Area 2 end memory address."));
+    Serial.println(F("Error setting Area 2 end address."));
   }
 
   memset(endAddress, 0, 5);
-  Serial.print(F("Area 2 ending address after: 0x"));
+  
+  Serial.print(F("Area 2 end address is 0x"));
   sprintf(endAddress, "%04x", tag.getMemoryAreaEndAddress(2));
   Serial.println(endAddress);
 
-  Serial.println();
+  // -=-=-=-=-=-=-=-=-
 
   memset(endAddress, 0, 5);
-  Serial.print(F("Area 1 ending address before: 0x"));
+  Serial.print(F("Area 1 end address is 0x"));
   sprintf(endAddress, "%04x", tag.getMemoryAreaEndAddress(1));
   Serial.println(endAddress);
 
-  // Restore ENDA1
+  // -=-=-=-=-=-=-=-=-
+
+  // Restore ENDA1:
   // This function will succeed if ENDA1 value is less than or equal to ENDA2 and ENDA3.
   // Further information can be found on the datasheet on page 14.
   // Memory address will be: 0x20 * ENDAi + 0x1f which in this case results
   // in  0x20 * 0xff + 0x1f = 0x1fff
+  Serial.println(F("Trying to change the Area 1 end address to 0x1FFF."));
   if (tag.setMemoryAreaEndAddress(1, 0xFF))
   {
-    Serial.println(F("Success setting Area 1 end memory address."));
+    Serial.println(F("Success setting Area 1 end address."));
   }
   else
   {
-    Serial.println(F("Error setting Area 1 end memory address."));
+    Serial.println(F("Error setting Area 1 end address."));
   }
+  
   memset(endAddress, 0, 5);
-  Serial.print(F("Area 1 ending address after: 0x"));
+  
+  Serial.print(F("Area 1 end address is now 0x"));
   sprintf(endAddress, "%04x", tag.getMemoryAreaEndAddress(1));
   Serial.println(endAddress);
 }
