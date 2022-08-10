@@ -27,6 +27,11 @@ const uint8_t GPO_PIN = 2; // Change this to match the digital pin you have link
 
 static volatile bool interruptChanged = false;
 
+void myISR() // Interrupt Service Routine
+{
+  interruptChanged = true;
+}
+
 void setup()
 {
   delay(1000);
@@ -37,7 +42,7 @@ void setup()
   Serial.println(F("ST25DV64KC example."));
 
   pinMode(GPO_PIN, INPUT);
-  attachInterrupt(digitalPinToInterrupt(GPO_PIN), ISR, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(GPO_PIN), myISR, CHANGE);
 
   if (!tag.begin(Wire))
   {
@@ -48,22 +53,7 @@ void setup()
 
   Serial.println(F("ST25 connected."));
 
-  uint8_t values[8] = {0};
-  if (tag.getDeviceUID(values))
-  {
-    Serial.print(F("Device UID: "));
-    for (uint8_t i = 0; i < 8; i++)
-    {
-      if (values[i] < 0x0a)
-        Serial.print(F("0"));
-      Serial.print(values[i], HEX);
-      Serial.print(F(" "));
-    }
-    Serial.println();
-  }
-  else
-    Serial.println(F("Could not read device UID!"));
-  
+  // The GPO registers can only be changed during an open security session
   Serial.println(F("Opening I2C session with password."));
   uint8_t password[8] = {0x0};
   tag.openI2CSession(password);
@@ -80,13 +70,11 @@ void setup()
   tag.setGPO1Bit(BIT_GPO1_RF_PUT_MSG_EN, false);
   tag.setGPO1Bit(BIT_GPO1_RF_GET_MSG_EN, false);
   tag.setGPO1Bit(BIT_GPO1_RF_WRITE_EN, false);
+
   Serial.println(F("Enabling GPO_EN bit."));
   tag.setGPO1Bit(BIT_GPO1_GPO_EN, true);
-}
-
-void ISR()
-{
-  interruptChanged = true;
+  // Note: the GPO Control Dynamic Bit can be set or cleared at any time
+  //tag.setGPO_CTRL_DynBit(false); // This will disable GPO even when I2C security is closed
 }
 
 void loop()

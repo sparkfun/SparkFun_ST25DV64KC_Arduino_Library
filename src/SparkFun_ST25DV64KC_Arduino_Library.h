@@ -116,6 +116,19 @@ public:
   // Calls the error callback if the function pointer is set and the memory area value is invalid.
   uint16_t getMemoryAreaEndAddress(uint8_t memoryArea);
 
+  // Set/Get the memory area RF access Read/Write protection
+  // Note: read is always allowed for area 1.
+  //   For area 1: RF_RW_READ_SECURITY_WRITE_SECURITY is actually Read-Always-Write-Security
+  //   For area 1: RF_RW_READ_SECURITY_WRITE_NEVER is actually Read-Always-Write-Never
+  // Calls the error callback if the I2C transfer fails
+  bool setAreaRfRwProtection(uint8_t memoryArea, SF_ST25DV_RF_RW_PROTECTION rw);
+  SF_ST25DV_RF_RW_PROTECTION getAreaRfRwProtection(uint8_t memoryArea);
+
+  // Set/Get the memory area RF access password control
+  // Calls the error callback if the I2C transfer fails
+  bool setAreaRfPwdCtrl(uint8_t memoryArea, SF_ST25DV_RF_PWD_CTRL pwdCtrl);
+  SF_ST25DV_RF_PWD_CTRL getAreaRfPwdCtrl(uint8_t memoryArea);
+
   // Returns true if there's RF field on the sensor.
   bool RFFieldDetected();
 

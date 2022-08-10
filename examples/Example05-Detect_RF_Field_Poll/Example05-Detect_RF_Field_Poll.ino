@@ -39,29 +39,6 @@ void setup()
   }
 
   Serial.println(F("ST25 connected."));
-
-  uint8_t values[8] = {0};
-  if (tag.getDeviceUID(values))
-  {
-    Serial.print(F("Device UID: "));
-    for (uint8_t i = 0; i < 8; i++)
-    {
-      if (values[i] < 0x0a)
-        Serial.print(F("0"));
-      Serial.print(values[i], HEX);
-      Serial.print(F(" "));
-    }
-    Serial.println();
-  }
-  else
-    Serial.println(F("Could not read device UID!"));
-  
-  Serial.println(F("Opening I2C session with password."));
-  uint8_t password[8] = {0x0};
-  tag.openI2CSession(password);
-
-  Serial.print(F("I2C session is "));
-  Serial.println(tag.isI2CSessionOpen() ? "opened." : "closed.");
 }
 
 void loop()
