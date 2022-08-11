@@ -11,7 +11,7 @@ A simple example to show the basic setup and use of SparkFun ST25DV64KC Arduino 
 
 ## Setup
 
-After installing this library in your local Arduino environment, begin with a standard Arduino sketch and include the header file this library:
+After installing this library in your local Arduino environment, begin with a standard Arduino sketch and include the header file for this library:
 
 ```C++
 #include <SparkFun_ST25DV64KC_Arduino_Library.h> // Click here to get the library:  http://librarymanager/All#SparkFun_ST25DV64KC
@@ -50,12 +50,13 @@ void setup()
 {
   delay(1000);
 
-  Serial.begin(115200);
-  Wire.begin();
+  Serial.begin(115200); // Start Serial (UART) communication
+
+  Wire.begin(); // Start I2C communication
 
   Serial.println(F("ST25DV64KC example."));
 
-  if (!tag.begin(Wire))
+  if (!tag.begin(Wire)) // Begin communication with the tag using the Wire port
   {
     Serial.println(F("ST25 not detected. Freezing..."));
     while (1) // Do nothing more
@@ -81,12 +82,12 @@ Not all platforms support the printing of 64-bit numbers so we: create an array 
 ```C++
   uint8_t values[8] = {0};
 
-  if (tag.getDeviceUID(values))
+  if (tag.getDeviceUID(values)) // Read the Unique Identifier
   {
     Serial.print(F("Device UID: "));
-    for (uint8_t i = 0; i < 8; i++)
+    for (uint8_t i = 0; i < 8; i++) // Print the UID in HEX format
     {
-      if (values[i] < 0x0a)
+      if (values[i] < 0x0a) // Add a leading zero if required
         Serial.print(F("0"));
       Serial.print(values[i], HEX);
       Serial.print(F(" "));
@@ -97,9 +98,17 @@ Not all platforms support the printing of 64-bit numbers so we: create an array 
     Serial.println(F("Could not read device UID!"));
 ```
 
-Like ```begin```, ```getDeviceUID``` will return false if an error occurs. In this example, we print a warning message ("Could not read device UID!") if that happens.
+Like ```begin```, ```getDeviceUID``` will return **false** if an error occurs. In this example, we print a warning message ("Could not read device UID!") if that happens.
 
 It is fun to read the tag's identifier using ST's "NFC Tap" App on your smart phone and compare it to the UID printed by this example. You will find they are exactly the same.
+You can find "NFC Tap" in the App Store. Open the App, hit "Scan" and then "Read Tag". Hold your phone over the tag and the Tag Information will appear. On iPhones, the NFC reader is
+at the 'top' of the phone, near the cameras.
+
+![ST NFC Tag - Scan - Read Tag](img/ex_01_NFC_Tag_Scan.PNG "ST NFC Tag - Scan - Read Tag")
+
+![ST NFC Tag - Scan - Tag Information](img/ex_01_NFC_Tag_Device_Info.PNG "ST NFC Tag - Scan - Tag Information")
+
+![Arduino IDE - Serial Monitor - Example 1](img/ex_01_Serial_Monitor.png "Arduino IDE - Serial Monitor - Example 1")
 
 ## Reading the Tag Revision
 
@@ -107,10 +116,10 @@ Each tag is also programmed with a version number, indicating what version of ha
 
 ```C++
   uint8_t rev;
-  if (tag.getDeviceRevision(&rev))
+  if (tag.getDeviceRevision(&rev)) // Read the Device Revision
   {
     Serial.print(F("Revision: "));
-    Serial.println(rev);
+    Serial.println(rev); // Print it in decimal format
   }
   else
     Serial.println(F("Could not read device revision!"));
