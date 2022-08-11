@@ -1,4 +1,4 @@
-site_name: SparkFun Qwiic Universal Auto-Detect - Examples
+site_name: SparkFun ST25DV64KC Arduino Library - Examples
 
 nav:
   - Example 1 - Device Information: "ex_01_Device_Information.md"
