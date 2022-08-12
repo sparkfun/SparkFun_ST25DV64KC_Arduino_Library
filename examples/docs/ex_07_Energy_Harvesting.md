@@ -8,7 +8,7 @@ An example showing how to enable the ST25DV's energy harvesting feature using th
 
 ## Energy Harvesting
 
-The ST25DV can be used to harvest small amounts of power when an RF field is present.
+The ST25DV can harvest small amounts of power when an RF field is present.
 
 Only _small amounts_ of power can be generated. Perhaps enough to charge a small super capacitor to power a _very_ low-power microcontroller.
 

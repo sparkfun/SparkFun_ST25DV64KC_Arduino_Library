@@ -7,5 +7,5 @@ The example we use at SparkFun to test the Qwiic Dynamic Tag.
 - Waits for a tag to be connected
 - Writes a single URI ```https://www.sparkfun.com```
 - Waits for the tag to be disconnected
-- Repeat
+- Rinse and repeat
 

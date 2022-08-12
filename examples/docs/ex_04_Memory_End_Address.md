@@ -22,7 +22,7 @@ The size of the four areas can be changed by changing their end addresses. By de
 | `3` |  ENDA3 | 0x1FFF | 8191 |
 | `4` |  ENDA4 | 0x1FFF | 8191 |
 
-Area 1 always starts at location zero, so by having all four end addresses the same, Areas 2-4 are actually zero length. Area 2 starts where Area 1 ends. And so on.
+Area 1 always starts at location zero, so by having all four end addresses the same, Areas 2-4 are actually zero length. Area 2 starts where Area 1 ends and so on.
 
 This library will work with smaller ST25DV devices. For the ST25DV04KC, the memory is 4-kBits which is 512 Bytes. Its Area 1 end address (ENDA1) is 0x01FF.
 
@@ -73,7 +73,7 @@ ENDA2 must always be greater than or equal to ENDA1.
 
 ```C++
   // Change the Area 2 end address:
-  // This function will fail since ENDA2 value is less than if ENDA1 programmed above.
+  // This function will fail since ENDA2 value is less than the ENDA1 programmed above.
   // Further information can be found on the datasheet on page 14.
   // Memory address will be: 0x20 * ENDAi + 0x1f which in this case results
   // in 0x20 * 0x03 + 0x1f = 0x007f

@@ -38,10 +38,10 @@ This code creates ```interruptChanged``` as a static volatile boolean variable, 
 ```volatile``` means that ```interruptChanged``` could change at any moment - when an interrupt occurs - and so the compiler should always read ```interruptChanged``` directly
 and not use any kind of local copy for speed.
 
-```myISR()``` is our interrupt service routine. It is the small piece of code when is called when the interrupt takes place. There are some 'golden rules' when writing ISRs:
+```myISR()``` is our interrupt service routine. It is the small piece of code which is called when the interrupt takes place. There are some 'golden rules' when writing ISRs:
 
 - Always keep them short
-- Always use ```volatile``` variables if they need to be accessed by code in the ```loop()``` too
+- Always use ```volatile``` variables if they need to be accessed by code in the ```loop()```
 - Don't try to do anything time consuming inside them - always keep them short
 - Don't ever use Serial prints inside ISRs
 
@@ -52,7 +52,7 @@ In ```setup()```, GPO_PIN (Digital Pin 2) is configured to create the interrupt:
   attachInterrupt(digitalPinToInterrupt(GPO_PIN), myISR, CHANGE);
 ```
 
-Now ```myISR``` is called whenever pin 2 changes state.
+Now ```myISR``` will be called whenever pin 2 changes state.
 
 ## GPO Pin
 

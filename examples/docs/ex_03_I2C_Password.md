@@ -36,7 +36,7 @@ having first entered the correct password to open a security session.
 !!! note
     The password can be read back from the tag, _**but**_ only when a security session is open. If you change the password, close the security session and then forget the password, _**your tag is locked forever**_. There is no way to change or reset the pasword unless you know the password. If you change it, write it down somewhere!
 
-Like Example 2, Example 3 goes on to demonstrate that entering the wrong password (all zeros in this case) that the memory can not be changed - because write protection is enabled.
+Like Example 2, Example 3 goes on to demonstrate that by entering the wrong password (all zeros in this case) the memory can not then be changed - because write protection is enabled.
 
 The example cleans up after itself by:
 

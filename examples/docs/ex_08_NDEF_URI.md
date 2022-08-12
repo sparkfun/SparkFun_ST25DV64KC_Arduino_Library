@@ -171,7 +171,7 @@ To be able to use the extra NDEF methods, we need to use the ```SFE_ST25DV64KC_N
 
 If we want to write multiple records, we need to keep track of which address each URI is written to, so the URIs can be concatenated correctly.
 
-We also need to tell ```writeNDEFURI``` which is the first record (Message Begin == 1) and which is the last (Message End == 1).
+We also need to tell ```writeNDEFURI``` which is the first record (Message Begin = 1) and which is the last (Message End = 1).
 
 The code becomes:
 

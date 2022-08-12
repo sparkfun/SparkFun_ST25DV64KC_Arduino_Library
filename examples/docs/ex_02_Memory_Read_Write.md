@@ -120,7 +120,7 @@ The code creates an array of ```uint8_t``` (unsigned 8-bit bytes) to hold the me
 
 The code then reads the first 16 memory locations using ```readEEPROM```:
 
-- The ```0x00`` tells the method to start at address zero.
+- The ```0x00``` tells the method to start at address zero.
 - The contents will be written into the array ```tagRead```
 - Exactly ```16``` bytes will be read
 
@@ -161,9 +161,9 @@ Now the fun part! The example writes 16 random bytes to the first 16 memory loca
   tag.writeEEPROM(0x0, tagWrite, 16); // Write data to EEPROM: start at address 0x0; use the data in tagWrite; write 16 bytes
 ```
 
-The code creates 16 random values and puts them into an array called ```tagWrite```. The actuial writing is performed by ```writeEEPROM```:
+The code creates 16 random values and puts them into an array called ```tagWrite```. The actual writing is performed by ```writeEEPROM```:
 
-- The ```0x00`` tells the method to start at address zero.
+- The ```0x00``` tells the method to start at address zero.
 - Write the data in the array ```tagWrite```
 - Exactly ```16``` bytes will be written
 
@@ -206,5 +206,5 @@ The example concludes by doing the following:
 
 This leaves the tag in its default state: write protection is not enabled; and the first 16 memory locations are all zero
 
-![Arduino IDE - Serial Monitor - Example 2](img/ex_02_Serial_Monitor_2.png "Arduino IDE - Serial Monitor - Example 2")
+![Arduino IDE - Serial Monitor - Example 2](img/ex_02_Serial_Monitor_3.png "Arduino IDE - Serial Monitor - Example 2")
 
