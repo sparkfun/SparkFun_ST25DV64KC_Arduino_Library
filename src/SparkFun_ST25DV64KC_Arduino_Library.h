@@ -106,7 +106,7 @@ public:
   // Writes block of data to EEPROM.
   bool writeEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength);
 
-  // Sets memory area boundary. memoryNumber ranges from 1 to 4.
+  // Sets memory area boundary. memoryNumber ranges from 1 to 3.
   // endAddressValue must comply with datasheet's area size specifications (page 14).
   // Returns true if memory was correctly programmed and passed all checks, false otherwise.
   // Calls the error callback if the function pointer is set and the returned value is false.
@@ -150,8 +150,9 @@ public:
   // Gets GPO_CTRL dynamic register bit
   bool getGPO_CTRL_DynBit();
 
-  // Gets IT_STS dynamic register bit value
-  bool getIT_STS_DynBit(uint8_t bitMask);
+  // Gets IT_STS dynamic register value
+  // Once read the ITSTS_Dyn register is cleared (set to 00h)
+  uint8_t getIT_STS_Dyn();
 
   // Sets EH_MODE bit
   void setEH_MODEBit(bool value);

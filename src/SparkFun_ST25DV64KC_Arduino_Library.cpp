@@ -704,9 +704,18 @@ bool SFE_ST25DV64KC::getGPO_CTRL_DynBit()
   return st25_io.isBitSet(SF_ST25DV64KC_ADDRESS::DATA, DYN_REG_GPO_CTRL_DYN, BIT_GPO_CTRL_DYN_GPO_EN);
 }
 
-bool SFE_ST25DV64KC::getIT_STS_DynBit(uint8_t bitMask)
+uint8_t SFE_ST25DV64KC::getIT_STS_DynBit()
 {
-  return st25_io.isBitSet(SF_ST25DV64KC_ADDRESS::DATA, REG_IT_STS_DYN, bitMask);
+  uint8_t value = 0;
+  
+  bool result = st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::DATA, REG_IT_STS_DYN, &value);
+
+  if (!result)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return value;
 }
 
 void SFE_ST25DV64KC::setEH_MODEBit(bool value)
