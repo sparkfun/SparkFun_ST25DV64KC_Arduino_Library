@@ -704,7 +704,7 @@ bool SFE_ST25DV64KC::getGPO_CTRL_DynBit()
   return st25_io.isBitSet(SF_ST25DV64KC_ADDRESS::DATA, DYN_REG_GPO_CTRL_DYN, BIT_GPO_CTRL_DYN_GPO_EN);
 }
 
-uint8_t SFE_ST25DV64KC::getIT_STS_DynBit()
+uint8_t SFE_ST25DV64KC::getIT_STS_Dyn()
 {
   uint8_t value = 0;
   
