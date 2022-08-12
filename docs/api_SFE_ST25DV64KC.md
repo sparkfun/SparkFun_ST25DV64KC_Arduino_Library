@@ -1,407 +1,675 @@
-# API Reference for the SFE_QUAD_Menu class
+# API Reference for the SFE_ST25DV64KC class
 
 ## Brief Overview
 
-The ```SFE_QUAD_Menu``` class allows the user to create a menu as a linked-list of ```SFE_QUAD_Menu_Item``` objects.
+The ```SFE_ST25DV64KC``` class provides all of the necessary methods to exchange data with the ST25DV tag.
 
-The ```SFE_QUAD_Menu``` ```_head``` points to the head (start) of the linked list.
+Communication with the tag is started by calling ```begin``` and providing the address of a ```TwoWire``` (I2C) Port. ```begin``` will default to ```Wire``` if no ```wirePort``` is provided.
 
-```_next``` points to the next ```SFE_QUAD_Menu_Item``` in the list.
+The tag's unique identifier (UID) can be read with ```getDeviceUID```. The hardware version can be checked with ```getDeviceRevision```.
 
-The ```_next``` of the final ```SFE_QUAD_Menu_Item``` in the list is ```NULL```.
+By default, the user memory can be both read and written to via both I2C and RF (NFC). But, to change any of the IC's settings, a security session needs to be opened
+by entering the correct password. The default password is eight zeros ( 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ) and - for I2C - can be entered by calling
+```openI2CSession```. The status of the security session can be checked with ```isI2CSessionOpen```. The I2C password can be changed with ```writeI2CPassword```.
 
-```_head``` is initially ```NULL```. It is set to the address of the first ```SFE_QUAD_Menu_Item``` when ```addMenuItem``` is called.
+!!! note
+    The password can be read back from the tag with ```readRegisterValues```, _**but**_ only when a security session is open. If you change the password, close the security session and then forget the password, _**your tag is locked forever**_. There is no way to change or reset the pasword unless you know the password. If you change it, write it down somewhere.
 
-There are several different types of menu item, as defined by the ```SFE_QUAD_Menu_Variable_Type_e``` enum:
+The memory can be divided up into four areas, each of which can have different security levels applied. ```setMemoryAreaEndAddress``` and ```getMemoryAreaEndAddress```
+can change and read the end address for each area.
 
-- ```SFE_QUAD_MENU_VARIABLE_TYPE_NONE``` contains only the ```_itemName``` as text
-    - The name of the menu and perhaps some underscoring can be defined using this type
-    - This can be used to include 'empty' lines to separate parts of the menu
-- ```SFE_QUAD_MENU_VARIABLE_TYPE_SUB_MENU_START``` is a special type which defines the start of a sub-menu
-    - Only this line is printed when the parent menu is displayed
-    - The menu items within the sub-menu are only printed when the sub-menu is opened
-    - ```openMenu``` is called recursively to enter the sub-menus
-- ```SFE_QUAD_MENU_VARIABLE_TYPE_SUB_MENU_END``` marks the end of a sub-menu
-- ```SFE_QUAD_MENU_VARIABLE_TYPE_CODE``` contains a pointer to a method which is called when this menu item is selected
-- ```SFE_QUAD_MENU_VARIABLE_TYPE_TEXT``` contains ASCII text
-    - e.g. a WiFi SSID or password
-- ```SFE_QUAD_MENU_VARIABLE_TYPE_BOOL``` is a ```bool``` which is toggled when the menu item is selected
-- ```SFE_QUAD_MENU_VARIABLE_TYPE_FLOAT``` contains a ```float```
-    - There is an equivalent type for ```double```
-- ```SFE_QUAD_MENU_VARIABLE_TYPE_INT``` contains a signed integer ```int```
-    - There are equivalent types for ```uint8_t```, ```uint16_t```, ```uint32_t```, ```unsigned long``` and ```long```
+With an open security session, the I2C read and write permissions for each area can be changed and read with ```programEEPROMReadProtectionBit```, ```programEEPROMWriteProtectionBit```,
+```getEEPROMReadProtectionBit``` and ```getEEPROMWriteProtectionBit```.
 
-Menu items are added with ```addMenuItem```. An overloaded method allows ```CODE``` items to be added.
+With an open security session, the RF read and write permissions for each area can be changed and read with ```setAreaRfRwProtection``` and ```getAreaRfRwProtection```.
+RF password control and be set and read with ```setAreaRfPwdCtrl``` and ```getAreaRfPwdCtrl```.
 
-The menu variable can be read with ```getMenuItemVariable```. The value is returned in a ```SFE_QUAD_Menu_Every_Type_t```.
-An overloaded method allows ```TEXT``` values to be read.
+The EEPROM memory can be read and written with ```readEEPROM``` and ```writeEEPROM```.
 
-The menu variable can be set with ```setMenuItemVariable```, typically to set its default or initial value.
-An overloaded method allows ```TEXT``` to be set with a ```const char *```.
+The behaviour of the GPO pin can be set and read with ```setGPO1Bit```, ```getGPO1Bit```, ```setGPO2Bit``` and ```getGPO2Bit```.
 
-Numeric menu items can have minimum and maximum values assigned using ```setMenuItemVariableMin``` and ```setMenuItemVariableMax```.
-The built-in ```getValueDouble``` method will then only allow values between the min and max to be entered.
-
-```setMenuPort``` defines which ```Stream``` (Serial port) will be used for the menu.
-
-Debug messages can be displayed if required. ```setDebugPort``` sets the ```Stream``` (Serial port) for those.
-
-The ```SFE_QUAD_Menu``` is not aware of what storage medium is being used by ```SFE_QUAD_Sensors```.
-The menu variables can be extracted as CSV text using ```getMenuVariableAsCSV```. Higher methods are then
-responsible for writing that text to storage. Likewise, higher methods will read the menu variables from
-storage as CSV text. ```updateMenuVariableFromCSV``` will update the variable of the appropriate menu item using that text.
+Energy harvesting can be controlled with ```setEH_MODEBit``` and ```getEH_MODEBit```.
 
 ## Initialization / Configuration
 
-### setMenuPort()
+### setErrorCallback()
 
-This method sets the ```Stream``` (Serial port) for the menu.
-
-The ```supportsBackspace``` parameter can be set to ```true``` if the user is using a terminal emulator, like Tera Term,
-which supports backspace. Existing ```TEXT``` items can then be _edited_ instead of having to be entered in full each time.
+This method sets the address of the error callback. Once set, a callback is triggered if an error occurs within a method.
 
 ```c++
-void setMenuPort(Stream &port, bool supportsBackspace)
+void setErrorCallback(void (*errorCallback)(SF_ST25DV64KC_ERROR errorCode))
+```
+
+An example error handler - if ```tag``` is global - is:
+
+```C++
+void errorHandler(SF_ST25DV64KC_ERROR errorCode)
+{
+    Serial.print(F("Error Callback: "));
+    Serial.println(tag.errorCodeString(errorCode));
+}
+```
+
+```errorCodeString``` converts the ```SF_ST25DV64KC_ERROR``` enum into readable text.
+
+The callback is set with:
+
+```C++
+tag.setErrorCallback(&errorHandler);
+```
+
+| Parameter | Description |
+| :-------- | :---------- |
+| `errorCallback` | The address of the callback |
+
+### errorCodeString()
+
+This method converts an SF_ST25DV64KC_ERROR error code into readable text.
+
+```C++
+const char *errorCodeString(SF_ST25DV64KC_ERROR errorCode)
+```
+
+| Parameter | Description |
+| :-------- | :---------- |
+| `errorCode` | The ```enum class SF_ST25DV64KC_ERROR``` error code |
+| return value | `const char *` | A pointer to the readable text |
+
+### begin()
+
+This method configures I2C communication with the tag and confirms the tag is connected.
+
+```c++
+bool begin(TwoWire &wirePort)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `port` | `Stream &` | The address of the ```Stream``` (Serial port) |
-| `supportsBackspace` | `bool` | Default is ```false```. If ```true```, existing ```TEXT``` items can be _edited_ |
+| `wirePort` | `TwoWire &` | The address of the TwoWire port. Default is Wire |
+| return value | `bool` | ```true``` if communication is begun successfully, otherwise ```false``` |
 
-### setDebugPort()
+### isConnected()
 
-This method sets the ```Stream``` (Serial port) for menu debug messages - if desired.
+This method confirms if a device is connected at the expected I2C address.
+This method can only be called after ```begin```, as ```begin``` configures which TwoWire port will be used.
+```begin``` calls ```isConnected``` internally to establish if a tag is connected.
 
 ```c++
-void setDebugPort(Stream &port)
+bool isConnected()
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `port` | `Stream &` | The address of the ```Stream``` (Serial port) |
+| return value | `bool` | ```true``` if the tag is connected, otherwise ```false``` |
 
-### addMenuItem()
+## Device Properties
 
-This method adds a menu item of the specified type to the linked-list.
+### getDeviceUID()
+
+This method reads the tag's 64-bit unique identifier as uint8_t[8].
 
 ```c++
-bool addMenuItem(const char *itemName, SFE_QUAD_Menu_Variable_Type_e variableType)
+bool getDeviceUID(uint8_t *values)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `itemName` | `const char *` | The name of the menu item - the text that will be printed when this menu item is shown |
-| `variableType` | `SFE_QUAD_Menu_Variable_Type_e` | The variable type associated with this menu item |
-| return value | `bool` | ```true``` if the item is added successfully, otherwise ```false``` |
+| `values` | `uint8_t *` | A pointer to the array of uint8_t that will contain the UID. values must be uint8_t[8] |
+| return value | `bool` | ```true``` if the read is successful, otherwise ```false``` |
 
-### addMenuItem()
+### getDeviceRevision()
 
-This method allows ```CODE``` menu items to be added.
+This method reads the tag's hardware revision.
 
 ```c++
-bool addMenuItem(const char *itemName, void (*codePointer)())
+bool getDeviceRevision(uint8_t *value)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `itemName` | `const char *` | The name of the menu item - the text that will be printed when this menu item is shown |
-| `codePointer` | `void (*)()` | The address of the method to be called when this menu item is selected |
-| return value | `bool` | ```true``` if the item is added successfully, otherwise ```false``` |
+| `value` | `uint8_t *` | A pointer to uint8_t that will contain the revision |
+| return value | `bool` | ```true``` if the read is successful, otherwise ```false``` |
 
-### getMenuItemVariableType()
+## Security Session Password Control
 
-This method returns the variable type of this menu item.
+### openI2CSession()
+
+This method enters the I2C security session 64-bit password. password is uint8_t[8].
+This method returns true if the password is written to the tag successfully - but that does not confirm that the password is valid/invalid.
+The password validity must be confirmed with ```isI2CSessionOpen```.
 
 ```c++
-SFE_QUAD_Menu_Variable_Type_e getMenuItemVariableType(const char *itemName)
+bool openI2CSession(uint8_t *password)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `itemName` | `const char *` | The name of the menu item |
-| return value | `SFE_QUAD_Menu_Variable_Type_e` | The enum value representing the type |
+| `password` | `uint8_t *` | A pointer to the array of uint8_t that contains the password. password must be uint8_t[8] |
+| return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
-### getMenuItemVariable()
+### isI2CSessionOpen()
 
-This method returns the value of the menu item variable.
+This method checks if the I2C security session is open, i.e. that the password has been entered correctly.
 
 ```c++
-bool getMenuItemVariable(const char *itemName, SFE_QUAD_Menu_Every_Type_t *theValue)
+bool isI2CSessionOpen()
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `itemName` | `const char *` | The name of the menu item |
-| `theValue` | `SFE_QUAD_Menu_Every_Type_t *` | A pointer to the struct that will hold the value |
-| return value | `bool` | ```true``` if the item exists and the value is retrieved successfully, otherwise ```false``` |
+| return value | `bool` | ```true``` if the security session is open, otherwise ```false``` |
 
-### getMenuItemVariable()
+### writeI2CPassword()
 
-This method returns the value of a ```TEXT``` menu item variable.
+This method changes the I2C password. It will only be successful when a security session is open, i.e. you need to know the current password to be able to change the password (obvs.).
 
-The text is copied into ```theValue```. ```maxLen``` should be set to the size of ```theValue```.
-The text is only copied if ```theValue``` is large enough to hold it.
+!!! note
+    The password can be read back from the tag with ```readRegisterValues```, _**but**_ only when a security session is open. If you change the password, close the security session and then forget the password, _**your tag is locked forever**_. There is no way to change or reset the pasword unless you know the password. If you change it, write it down somewhere.
 
 ```c++
-bool getMenuItemVariable(const char *itemName, char *theValue, size_t maxLen)
+bool writeI2CPassword(uint8_t *password)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `itemName` | `const char *` | The name of the menu item |
-| `theValue` | `char *` | A pointer to the char array that will hold the text |
-| `maxLen` | `size_t` | Defines how many characters ```theValue``` can hold |
-| return value | `bool` | ```true``` if the item exists and the value is retrieved successfully, otherwise ```false``` |
+| `password` | `uint8_t *` | A pointer to the array of uint8_t that contains the new password. password must be uint8_t[8] |
+| return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
-### setMenuItemVariable()
+## Memory Area Control
 
-This method sets the menu item variable in the linked-list with the value passed in ```theValue```.
+### setMemoryAreaEndAddress()
+
+This method is used to modify the end address for memory Areas 1-3. The end address of Area 4 is always set to the tag's last memory location.
+
+endAddressValue is an 8-bit value. The actual memory end address is: (32 * endAddressValue) + 31
 
 ```c++
-bool setMenuItemVariable(const char *itemName, const SFE_QUAD_Menu_Every_Type_t *theValue)
+bool setMemoryAreaEndAddress(uint8_t memoryNumber, uint8_t endAddressValue)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `itemName` | `const char *` | The name of the menu item |
-| `theValue` | `const SFE_QUAD_Menu_Every_Type_t *` | A pointer to the struct holding the value |
-| return value | `bool` | ```true``` if the item exists and the value is updated successfully, otherwise ```false``` |
+| `memoryNumber` | `uint8_t` | The memory area 1-3 |
+| `endAddressValue` | `uint8_t` | The end address in 8-bit form. See notes above |
+| return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
-### setMenuItemVariable()
+### getMemoryAreaEndAddress()
 
-This method sets the menu item variable in the linked-list with the ```TEXT``` passed in ```theValue```.
+This method returns the end address for the specified area.
+
+If a read error occurs, an error callback is triggered.
+
+The returned address is the actual end address in 16-bit format, not the 8-bit register value used by ```setMemoryAreaEndAddress```.
 
 ```c++
-bool setMenuItemVariable(const char *itemName, const char *theValue)
+uint16_t getMemoryAreaEndAddress(uint8_t memoryArea)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `itemName` | `const char *` | The name of the menu item |
-| `theValue` | `const char *` | A pointer to the text to be copied into the value |
-| return value | `bool` | ```true``` if the item exists and the text is copied successfully, otherwise ```false``` |
+| `memoryNumber` | `uint8_t` | The memory area 1-3 |
+| return value | `uint16_t` | The actual end address (16-bit) |
 
-### setMenuItemVariableMin()
+## I2C Read and Write Protection
 
-This method sets the minimum permissible value for the menu item variable. This is used by the menu to check the value is _in range_.
+### programEEPROMReadProtectionBit()
+
+This method sets/clears the I2C read protection bit for the specified memory area 1-4.
+
+When set, the memory area is only readable if a security session is open.
+
+!!! note
+    Area 1 is _always_ readable. Calling ```programEEPROMReadProtectionBit(1, true)``` has no effect.
 
 ```c++
-bool setMenuItemVariableMin(const char *itemName, const SFE_QUAD_Menu_Every_Type_t *minVal)
+void programEEPROMReadProtectionBit(uint8_t memoryArea, bool readSecured)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `itemName` | `const char *` | The name of the menu item |
-| `minVal` | `const SFE_QUAD_Menu_Every_Type_t *` | A pointer to the struct holding the minimum value |
-| return value | `bool` | ```true``` if the item exists and the minimum value is updated successfully, otherwise ```false``` |
+| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| `readSecured` | `bool` | ```true```: read is allowed only if an I2C security session is open. ```false```: read is always allowed |
+| return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
-### setMenuItemVariableMax()
+### programEEPROMWriteProtectionBit()
 
-This method sets the maximum permissible value for the menu item variable. This is used by the menu to check the value is _in range_.
+This method sets/clears the I2C write protection bit for the specified memory area 1-4.
+
+When set, the memory area is only writeable if a security session is open.
 
 ```c++
-bool setMenuItemVariableMax(const char *itemName, const SFE_QUAD_Menu_Every_Type_t *maxVal)
+void programEEPROMWriteProtectionBit(uint8_t memoryArea, bool writeSecured)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `itemName` | `const char *` | The name of the menu item |
-| `maxVal` | `const SFE_QUAD_Menu_Every_Type_t *` | A pointer to the struct holding the maximum value |
-| return value | `bool` | ```true``` if the item exists and the maximum value is updated successfully, otherwise ```false``` |
+| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| `writeSecured` | `bool` | ```true```: write is allowed only if an I2C security session is open. ```false```: write is always allowed |
+| return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
-## The Menu
+### getEEPROMReadProtectionBit()
 
-### openMenu()
-
-This method opens the menu on the chosen ```Stream``` (Serial port).
-
-This method calls itself recursively when entering a sub-menu. ```start``` points to the address of the ```SUB_MENU_START``` menu item.
-If start is ```NULL``` (the default), the menu starts at ```_head```.
+This method returns the state of read protection for the specified memory area 1-4..
 
 ```c++
-bool openMenu(SFE_QUAD_Menu_Item *start)
+bool getEEPROMReadProtectionBit(uint8_t memoryArea)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `start` | `SFE_QUAD_Menu_Item *` | The address of the menu item to be shown first |
-| return value | `bool` | ```true``` if the menu item exists and the menu closes normally, otherwise ```false``` |
+| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| return value | `bool` | ```true``` if memory read is protected, otherwise ```false``` |
 
-## Menu Item Variable Storage
+### getEEPROMWriteProtectionBit()
 
-### getNumMenuVariables()
-
-The method returns the number of menu item variables which should be written to storage. The return value dictates how many
-time ```getMenuVariableAsCSV``` is called.
+This method returns the state of write protection for the specified memory area 1-4..
 
 ```c++
-uint16_t getNumMenuVariables(void)
+bool getEEPROMWriteProtectionBit(uint8_t memoryArea)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| return value | `uint16_t` | The number of menu item variables requiring storage |
+| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| return value | `bool` | ```true``` if memory write is protected, otherwise ```false``` |
 
-### getMenuVariableAsCSV()
+## RF Read and Write Protection
 
-This method reads the menu item variable with index ```num``` and writes its name, type and value into ```var``` as CSV-format text.
-Higher methods then write that CSV text to storage.
+### setAreaRfRwProtection()
 
-```maxLen``` defines how many characters ```var``` can hold. The text is not written if ```var``` is too small.
+This method sets the RF read and write protection for the specified memory area 1-4.
+
+The default protection for all memory areas is `RF_RW_READ_ALWAYS_WRITE_ALWAYS`.
+
+!!! note
+    Area 1 is _always_ readable via RF. Calling ```setAreaRfRwProtection(1, true)``` has no effect.
 
 ```c++
-bool getMenuVariableAsCSV(uint16_t num, char *var, size_t maxLen)
+bool setAreaRfRwProtection(uint8_t memoryArea, SF_ST25DV_RF_RW_PROTECTION rw)
+```
+
+The permissible values for `rw` are:
+
+```C++
+RF_RW_READ_ALWAYS_WRITE_ALWAYS,
+RF_RW_READ_ALWAYS_WRITE_SECURITY,
+RF_RW_READ_SECURITY_WRITE_SECURITY, // For Area 1: Read is always allowed
+RF_RW_READ_SECURITY_WRITE_NEVER     // For Area 1: Read is always allowed
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `num` | `uint16_t` | The menu item index |
-| `var` | `char *` | A pointer to a char array that the CSV text will be written to |
-| `maxLen` | `size_t` | The maximum number of characters ```var``` can hold |
-| return value | `bool` | ```true``` if the item exists and is copied successfully, otherwise ```false``` |
+| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| `rw` | `enum class SF_ST25DV_RF_RW_PROTECTION` | The level of read/write protection |
+| return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
-### updateMenuVariableFromCSV()
+### getAreaRfRwProtection()
 
-```line``` contains a menu variable in CSV format which has been read from storage.
-This method updates the appropriate menu item variable with the value contained in the CSV text.
+This method returns the level of RF read and write protection for the specified memory area 1-4.
+
+If a read error occurs, an error callback is triggered.
 
 ```c++
-bool updateMenuVariableFromCSV(char *line)
+SF_ST25DV_RF_RW_PROTECTION getAreaRfRwProtection(uint8_t memoryArea)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `line` | `char *` | A pointer to a char array that contains the CSV |
-| return value | `bool` | ```true``` if the menu item exists and is updated successfully, otherwise ```false``` |
+| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| return value | `enum class SF_ST25DV_RF_RW_PROTECTION` | The level of read/write protection |
+
+### setAreaRfPwdCtrl()
+
+This method defines which password is required to open a security session for the specified memory area 1-4.
+
+An "RF Configuration" security session can be opened by entering RF Password 0. This session allows the tag's configuration static registers
+and RF Password 0 to be modified via RF. The default RF Password 0 is ( 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ).
+
+An "RF User" security session can be opened by entering RF Password 1-3. This session allows the user access to protected user memory
+as defined by ```setAreaRfRwProtection```. The RF Password (1-3) can also be changed while the session is open.
+
+By default, the `pwdCtrl` setting for each memory area is `RF_PWD_NEVER`, meaning that a RF User security session can not be opened by password.
+
+To protect a tag against unwanted changes via an RF Configuration Session, RF Password 0 should be changed using an App like ST's "NFC Tap".
+It is not possible to do this via I2C. The I2C interface has no access to the four RF passwords.
+
+```c++
+bool setAreaRfPwdCtrl(uint8_t memoryArea, SF_ST25DV_RF_PWD_CTRL pwdCtrl)
+```
+
+The permissible values for `pwdCtrl` are:
+
+```C++
+RF_PWD_NEVER,
+RF_PWD_PWD1,
+RF_PWD_PWD2,
+RF_PWD_PWD3
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| `pwdCtrl` | `enum class SF_ST25DV_RF_PWD_CTRL` | The selected password option |
+| return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
+
+### getAreaRfPwdCtrl()
+
+This method returns the selected password option for the specified memory area 1-4.
+
+If a read error occurs, an error callback is triggered.
+
+```c++
+SF_ST25DV_RF_PWD_CTRL getAreaRfPwdCtrl(uint8_t memoryArea)
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| return value | `enum class SF_ST25DV_RF_PWD_CTRL` | The selected password option |
+
+## EEPROM Read and Write
+
+### readEEPROM()
+
+This method reads `dataLength` bytes from EEPROM memory, starting at `baseAddress`. The bytes are returned in `data`.
+Note: `data` must be sufficiently large to hold all `dataLength` bytes.
+
+```c++
+bool readEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength)
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `baseAddress` | `uint16_t` | The base (start) EEPROM address for the read |
+| `data` | `uint8_t *` | A pointer to an array of uint8_t to hold the read data |
+| `dataLength` | `uint16_t` | The number of bytes to be read |
+| return value | `bool` | ```true``` if the read is successful, otherwise ```false``` |
+
+### writeEEPROM()
+
+This method writes `dataLength` bytes to EEPROM memory, starting at `baseAddress`. The bytes to be written are held in `data`.
+
+```c++
+bool writeEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength)
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `baseAddress` | `uint16_t` | The base (start) EEPROM address for the write |
+| `data` | `uint8_t *` | A pointer to an array of uint8_t which holds the data to be written |
+| `dataLength` | `uint16_t` | The number of bytes to be written |
+| return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
+
+## RF Detection
+
+### RFFieldDetected()
+
+This method detects if an RF field is present.
+
+```C++
+bool RFFieldDetected()
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| return value | `bool` | ```true``` if an RF field is detected, otherwise ```false``` |
+
+## GPO Control
+
+### setGPO1Bit
+
+This method sets or clears the selected bit(s) in the GPO1 register.
+
+Multiple bits can be set or cleared with a single call.
+
+```c++
+void setGPO1Bit(uint8_t bitMask, bool enabled)
+```
+
+The GPO1 bit definitions are:
+
+```C++
+#define BIT_GPO1_GPO_EN (1 << 0)
+#define BIT_GPO1_RF_USER_EN (1 << 1)
+#define BIT_GPO1_RF_ACTIVITY_EN (1 << 2)
+#define BIT_GPO1_RF_INTERRUPT_EN (1 << 3)
+#define BIT_GPO1_FIELD_CHANGE_EN (1 << 4)
+#define BIT_GPO1_RF_PUT_MSG_EN (1 << 5)
+#define BIT_GPO1_RF_GET_MSG_EN (1 << 6)
+#define BIT_GPO1_RF_WRITE_EN (1 << 7)
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `bitMask` | `uint8_t` | The bit(s) to be set or cleared |
+| `enabled` | `bool` | If ```true```, the bit(s) set in `bitMask` are set. If ```false```, the bit(s) set in `bitMask` are cleared.
+
+### getGPO1Bit()
+
+This method return the state of the selected bit in the GPO1 register.
+
+```c++
+bool getGPO1Bit(uint8_t bitMask)
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `bitMask` | `uint8_t` | The bit to be read |
+| return value | `bool` | ```true``` if the bit is set, otherwise ```false``` |
+
+### setGPO2Bit
+
+This method sets or clears the selected bit(s) in the GPO2 register.
+
+Multiple bits can be set or cleared with a single call.
+
+```c++
+void setGPO2Bit(uint8_t bitMask, bool enabled)
+```
+
+The GPO2 bit defintions are:
+
+```C++
+#define BIT_GPO2_I2C_WRITE_EN (1 << 0)
+#define BIT_GPO2_I2C_RF_OFF_EN (1 << 1)
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `bitMask` | `uint8_t` | The bit(s) to be set or cleared |
+| `enabled` | `bool` | If ```true```, the bit(s) set in `bitMask` are set. If ```false```, the bit(s) set in `bitMask` are cleared.
+
+### getGPO2Bit()
+
+This method return the state of the selected bit in the GPO2 register.
+
+```c++
+bool getGPO2Bit(uint8_t bitMask)
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `bitMask` | `uint8_t` | The bit to be read |
+| return value | `bool` | ```true``` if the bit is set, otherwise ```false``` |
+
+### setGPO_CTRL_DynBit()
+
+This method sets or clears the GPO_EN bit in the GPO_CTRL_Dyn (Dynamic) register.
+This allows the GPO pin to be enabled or disabled without making non-volatile changes to the GPO1 register GPO_EN bit.
+
+```c++
+void setGPO_CTRL_DynBit(bool enabled)
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `enabled` | `bool` | If ```true```, the GPO_EN bit is set, otherwise it is cleared |
+
+### getGPO_CTRL_DynBit()
+
+This method retruns the state of the GPO_EN bit in the GPO_CTRL_Dyn (Dynamic) register.
+
+```c++
+bool getGPO_CTRL_DynBit()
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| return value | `bool` | ```true``` if the GPO_EN bit is set, otherwise ```false``` |
+
+## Interrupt Status
+
+### getIT_STS_Dyn()
+
+This method returns the content of the dynamic Interrupt Status register IT_SYS_Dyn, indicating the cause of an interrupt.
+
+If a read error occurs, an error callback is triggered.
+
+!!! note
+    Once read, the ITSTS_Dyn register is cleared (set to 00h).
+
+```c++
+uint8_t getIT_STS_Dyn();
+```
+
+The bit definitions of the IT_SYS_Dyn register are:
+
+```C++
+#define BIT_IT_STS_DYN_RF_USER (1 << 0)
+#define BIT_IT_STS_DYN_RF_ACTIVITY (1 << 1)
+#define BIT_IT_STS_DYN_RF_INTERRUPT (1 << 2)
+#define BIT_IT_STS_DYN_FIELD_FALLING (1 << 3)
+#define BIT_IT_STS_DYN_FIELD_RISING (1 << 4)
+#define BIT_IT_STS_DYN_RF_PUT_MSG (1 << 5)
+#define BIT_IT_STS_DYN_RF_GET_MSG (1 << 6)
+#define BIT_IT_STS_DYN_RF_WRITE (1 << 7)
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| return value | `uint8_t` | The register value |
+
+## Energy Harvesting
+
+### setEH_MODEBit()
+
+This method sets or clears the Energy Harvesting EH_MODE bit in the EH_MODE register.
+
+```c++
+void setEH_MODEBit(bool value)
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `value` | `bool` | If ```true```, Energy Harvesting is on demand only (default). If ```false```, EH  is forced after boot |
+
+### getEH_MODEBit()
+
+This method returns the state of the Energy Harvesting EH_MODE bit in the EH_MODE register.
+
+```c++
+bool getEH_MODEBit()
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| return value | `bool` | ```true``` if the EH_MODE bit is set, otherwise ```false``` |
+
+### setEH_CTRL_DYNBit()
+
+This method will set or clear bit(s) in the dynamic EH_CTRL_Dyn register.
+This allows energy harvesting to be enabled or disabled without making non-volatile changes to the EH_MODE register.
+
+```c++
+void setEH_CTRL_DYNBit(uint8_t bitMask, bool value)
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `bitMask` | `uint8_t` | The bit(s) to be set or cleared |
+| `value` | `bool` | If ```true```, the bit(s) set in `bitMask` are set. If ```false```, the bit(s) set in `bitMask` are cleared |
+
+### getEH_CTRL_DYNBit()
+
+This method returns the state of the select bit in the dynamic EH_CTRL_Dyn register.
+
+```c++
+bool getEH_CTRL_DYNBit(uint8_t bitMask)
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `bitMask` | `uint8_t` | The bit to be read |
+| return value | `bool` | ```true``` if the bit is set, otherwise ```false``` |
 
 ## Helper Methods
 
-### getMenuChoice()
+### readRegisterValue()
 
-Ask the user to select a menu item.
+This method reads a single register value.
 
 ```c++
-uint32_t getMenuChoice(unsigned long timeout)
+bool readRegisterValue(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress, uint8_t *value)
+```
+
+This is the equivalent of calling:
+
+```c++
+tag->st25_io.readSingleByte(addressType, registerAddress, value)
+```
+
+Possible values for `addressType` are:
+
+```C++
+DATA,          // E2 = 0, E1 = 1
+SYSTEM,        // E2 = 1, E1 = 1
+RF_SWITCH_OFF, // E2 = 0, E1 = 0
+RF_SWITCH_ON,  // E2 = 1, E1 = 0
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `timeout` | `unsigned long` | The timeout in milliseconds |
-| return value | `uint32_t` | The menu item selected, 0 if none or if a timeout occurred |
+| `addressType` | `enum class SF_ST25DV64KC_ADDRESS` | The register type, equivalent to the I2C address |
+| `registerAddress` | `const uint16_t` | The register address |
+| `value` | `uint8_t *` | `value` will hold the register value on return |
+| return value | `bool` | ```true``` if the read was successful, otherwise ```false``` |
 
-### getValueDouble()
+### readRegisterValues()
 
-Ask the user to enter an integer or floating point value. Exponent-format values are also acceptable.
+This method reads multiple register values.
+
+!!! note
+    `data` must be sufficiently large to hold all `dataLength` bytes.
 
 ```c++
-bool getValueDouble(double *value, unsigned long timeout)
+bool readRegisterValues(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress, uint8_t *data, const uint16_t dataLength)
+```
+
+This is the equivalent of calling:
+
+```C++
+tag->st25_io.readMultipleBytes(addressType, registerAddress, data, dataLength)
+```
+
+Possible values for `addressType` are:
+
+```C++
+DATA,          // E2 = 0, E1 = 1
+SYSTEM,        // E2 = 1, E1 = 1
+RF_SWITCH_OFF, // E2 = 0, E1 = 0
+RF_SWITCH_ON,  // E2 = 1, E1 = 0
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `timeout` | `unsigned long` | The timeout in milliseconds |
-| `value` | `double *` | A pointer to the double which will hold the value |
-| return value | `uint32_t` | ```false``` if nothing is entered or a timeout occurred, otherwise ```true``` |
-
-### getValueText()
-
-Ask the user to enter a ```TEXT``` entry, such as a WiFi password.
-
-```getValueText``` will automatically create a new char array to hold the text and returns a pointer to it.
-The old char array is automatically deleted (freed).
-
-```c++
-bool getValueText(char **value, unsigned long timeout)
-```
-
-| Parameter | Type | Description |
-| :-------- | :--- | :---------- |
-| `timeout` | `unsigned long` | The timeout in milliseconds |
-| `value` | `char * *` | A pointer to a pointer to the dynamic char array that holds the text |
-| return value | `uint32_t` | ```true``` if text is entered within the timeout, otherwise ```false``` |
-
-### getMenuItemNameMaxLen()
-
-Returns the maximum length of all of the menu item names. Used to format the menus correctly (space padding).
-
-```c++
-size_t getMenuItemNameMaxLen(void)
-```
-
-| Parameter | Type | Description |
-| :-------- | :--- | :---------- |
-| return value | `size_t` | The maximum name length |
-
-### getMenuVariablesMaxLen()
-
-Returns the likely maximum combined length of a full menu item (including min and max values if present).
-This is used to determine how much memory should be allocated to hold a menu item in CSV format.
-
-```c++
-size_t getMenuVariablesMaxLen(void)
-```
-
-| Parameter | Type | Description |
-| :-------- | :--- | :---------- |
-| return value | `size_t` | The likely maximum length |
-
-### menuItemExists()
-
-Returns a pointer to the menu item if it exists, otherwise returns ```NULL```.
-
-```c++
-SFE_QUAD_Menu_Item *menuItemExists(const char *itemName)
-```
-
-| Parameter | Type | Description |
-| :-------- | :--- | :---------- |
-| `itemName` | `const char *` | The item name |
-| return value | `SFE_QUAD_Menu_Item *` | A pointer to the menu item (if it exists), otherwise ```NULL``` |
-
-### setMenuTimeout()
-
-This method sets the menu timeout.
-
-```c++
-void setMenuTimeout(unsigned long newTimeout)
-```
-
-| Parameter | Type | Description |
-| :-------- | :--- | :---------- |
-| `newTimeout` | `unsigned long` | The new menu timeout in milliseconds |
-
-### setMaxTextChars()
-
-This method sets the maximum number of characters that can be entered into a ```TEXT``` value.
-
-```c++
-void setMaxTextChars(uint16_t newMax)
-```
-
-| Parameter | Type | Description |
-| :-------- | :--- | :---------- |
-| `newMax` | `uint16_t` | The new maximum length |
-
-### setSupportsBackspace()
-
-This method defines if the ```_menuPort``` supports backspace for ```TEXT``` entry.
-
-```c++
-void setSupportsBackspace(bool support)
-```
-
-| Parameter | Type | Description |
-| :-------- | :--- | :---------- |
-| `support` | `bool` | ```true``` in the port supports backspace, otherwise ```false``` |
+| `addressType` | `enum class SF_ST25DV64KC_ADDRESS` | The register type, equivalent to the I2C address |
+| `registerAddress` | `const uint16_t` | The start register address |
+| `data` | `uint8_t *` | `data` will hold the register values on return |
+| `dataLength` | `const uint16_t` | The number of registers to be read |
+| return value | `bool` | ```true``` if the read was successful, otherwise ```false``` |
 
 ## Member Variables
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `_head` | `SFE_QUAD_Menu_Item *` | A pointer to the first menu item in the linked-list, initially ```NULL``` |
-| `_menuPort` | `Stream *` | The address of the ```Stream``` (Serial port) to be used by the menu |
-| `_debugPort` | `Stream *` | The address of the ```Stream``` (Serial port) to be used for debug messages (if desired) |
-| `_menuTimeout` | `unsigned long` | The default menu timeout in milliseconds. Default is 10000 |
-| `_maxTextChars` | `uint16_t` | The maximum length of ```TEXT``` value entries. Default is 32 |
-| `_supportsBackspace` | `bool` | ```true``` if the port supports backspace, otherwise ```false```. Default is ```false``` |
+| `st25_io` | `class SFE_ST2525DV64KC_IO` | An instance of the `SFE_ST2525DV64KC_IO` class, providing I2C communication methods and storage for `wirePort` |

@@ -21,4 +21,4 @@ Are you developing equipment or appliances from the home? Would you like to stor
 Would you like the customer to be able to read the diagnostics with _their_ smart phone and then email them to you? This library will let you do that too! (Apart from the email bit - obvs.. You will need to add that bit yourself.)
 
 The [examples](https://sparkfun.github.io/SparkFun_ST25DV64KC_Arduino_Library/sparkfun-st25dv64kc-arduino-library-examples/ex_01_Device_Information/) in this library have been tested on multiple platforms.
-We enjoyed writing and testing them, and we hope they make your life easier.
+We enjoyed writing and testing them. We hope you enjoy them too and that they make your life easier.

@@ -2,7 +2,7 @@
 
 ## Installation
 
-The SparkFun Qwiic Universal Auto-Detect library is available within in the Arduino library manager, which is launched via the `Sketch > Include Libraries > Manage Libraries …` menu option in the Arduino IDE. Just search for ***SparkFun Qwiic Universal***
+The SparkFun ST25DV64KC Arduino Library is available within in the Arduino library manager, which is launched via the `Sketch > Include Libraries > Manage Libraries …` menu option in the Arduino IDE. Just search for ***SparkFun ST25DV64KC***
 
 !!! note
     This guide assumes you are using the latest version of the Arduino IDE on your desktop. The following resources available at [SparkFun](https://www.sparkfun.com) provide the details on setting up and configuring Arduino to use this library.
@@ -13,8 +13,7 @@ The SparkFun Qwiic Universal Auto-Detect library is available within in the Ardu
 
 ## General Use Pattern
 
-The SparkFun Qwiic Universal Auto-Detect library includes a comprehensive set of examples which show, step by step, how to use the library and create the correct `SFE_QUAD_Sensors` object for your application.
-The examples are available from the Examples menu of the Arduino IDE, and in the [`examples`](https://github.com/sparkfun/SparkFun_Qwiic_Universal_Auto-Detect/blob/main/examples) folder of this repository. 
+The SparkFun ST25DV64KC Arduino Library includes a comprehensive set of examples which show, step by step, how to use the library and exchange data with the ST25DV tag.
+The examples are available from the Examples menu of the Arduino IDE, and in the [`examples`](https://github.com/sparkfun/SparkFun_ST25DV64KC_Arduino_Library/blob/main/examples) folder of this repository. 
 
-For a detailed description of the examples, please see the Examples section of the documentation. We recommend starting with the documentation for Example1 as that demonstrates
-how to create and use a `SFE_QUAD_Sensors__SD` object in full detail. The later examples build upon Example1 and show how to use: `SFE_QUAD_Sensors__SdFat`, `SFE_QUAD_Sensors__LittleFS`, and `SFE_QUAD_Sensors__EEPROM`.
+For a detailed walk-through of each example, please see the [Examples](https://sparkfun.github.io/SparkFun_ST25DV64KC_Arduino_Library/sparkfun-st25dv64kc-arduino-library-examples/ex_01_Device_Information/) section of the documentation.
