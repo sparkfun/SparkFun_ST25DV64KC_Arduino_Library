@@ -78,7 +78,7 @@ Setting `idCode` to the appropriate ID Code will save memory. The URI prefix (e.
 
 Multiple records can be written by: providing an `address` plus Message Begin (`MB`) and Message End (`ME`) flags.
 
-If `address` is provided, it is updated with the final memory location written as part of this record. This allows it to be used as the start
+If `address` is provided, it is updated with the memory location after the final one written as part of this record. This allows it to be used as the start
 address for the next record.
 
 A single record has both `MB` and `ME` flags set ```true```.
@@ -166,7 +166,7 @@ The WiFi SSID and Password are passed in `ssid` and `passwd`.
 
 Multiple records can be written by: providing an `address` plus Message Begin (`MB`) and Message End (`ME`) flags.
 
-If `address` is provided, it is updated with the final memory location written as part of this record. This allows it to be used as the start
+If `address` is provided, it is updated with the memory location after the final one written as part of this record. This allows it to be used as the start
 address for the next record.
 
 A single record has both `MB` and `ME` flags set ```true```.
@@ -220,13 +220,13 @@ This method writes an NDEF Text record to EEPROM.
 The text passed in ```const char *theText```.
 
 The length of `theText` is calculated using ```strlen```, which will fail if `theText` contains any zero (0x00) bytes.
-An overloaded method allows the text to be defined using ```const uint8_t *theText``` and ```uint16_t textLength``` instead.
+An overloaded method allows the text to be defined using ```const uint8_t *theText``` and ```uint16_t textLength``` if required.
 
 The text language code can be defined using the `languageCode` parameter. `languageCode` defaults to ```NULL```, in which case the language code is set automatically to "en" (English).
 
 Multiple records can be written by: providing an `address` plus Message Begin (`MB`) and Message End (`ME`) flags.
 
-If `address` is provided, it is updated with the final memory location written as part of this record. This allows it to be used as the start
+If `address` is provided, it is updated with the memory location after the final one written as part of this record. This allows it to be used as the start
 address for the next record.
 
 A single record has both `MB` and `ME` flags set ```true```.
