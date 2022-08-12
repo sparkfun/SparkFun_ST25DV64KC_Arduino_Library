@@ -74,7 +74,7 @@ This method writes an NDEF URI record to EEPROM.
 
 The URI is passed in `uri`.
 
-Setting `idCode` to the appropriate ID Code will save memory. The URI prefix (e.g. ```https://www.```)is then stored as a single byte.
+Setting `idCode` to the appropriate ID Code will save memory. The URI prefix (e.g. ```https://www.``` ) is then stored as a single byte.
 
 Multiple records can be written by: providing an `address` plus Message Begin (`MB`) and Message End (`ME`) flags.
 
@@ -154,7 +154,7 @@ bool readNDEFURI(char *theURI, uint16_t maxURILen, uint8_t recordNo)
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
 | `theURI` | `char *` | A pointer to the char array which will hold the URI |
-| `maxURILen` | `uint16_t` | The maximum number of bytes which `uri` can hold. I.e. the ```sizeof``` of `uri`  |
+| `maxURILen` | `uint16_t` | The maximum number of bytes which `theURI` can hold. I.e. the ```sizeof``` of `theURI`  |
 | `recordNo` | `uint8_t` | The URI record to be read. Default is 1 |
 | return value | `bool` | ```true``` if the read is successful (i.e. `recordNo` exists), ```false``` otherwise |
 
@@ -256,7 +256,7 @@ By default, the first record is returned. The second and subsequent records can 
 If the chosen `recordNo` is not present, the method returns ```false```. This provides an easy way to count the number of WiFi records in memory.
 
 ```C++
-bool readNDEFText(char *theText, uint16_t maxTextLen, uint8_t recordNo, char *language = NULL, uint16_t maxLanguageLen)
+bool readNDEFText(char *theText, uint16_t maxTextLen, uint8_t recordNo, char *language, uint16_t maxLanguageLen)
 ```
 
 | Parameter | Type | Description |

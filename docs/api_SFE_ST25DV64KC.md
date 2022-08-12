@@ -62,19 +62,6 @@ tag.setErrorCallback(&errorHandler);
 | :-------- | :---------- |
 | `errorCallback` | The address of the callback |
 
-### errorCodeString()
-
-This method converts an SF_ST25DV64KC_ERROR error code into readable text.
-
-```C++
-const char *errorCodeString(SF_ST25DV64KC_ERROR errorCode)
-```
-
-| Parameter | Description |
-| :-------- | :---------- |
-| `errorCode` | The ```enum class SF_ST25DV64KC_ERROR``` error code |
-| return value | `const char *` | A pointer to the readable text |
-
 ### begin()
 
 This method configures I2C communication with the tag and confirms the tag is connected.
@@ -85,7 +72,7 @@ bool begin(TwoWire &wirePort)
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `wirePort` | `TwoWire &` | The address of the TwoWire port. Default is Wire |
+| `wirePort` | `TwoWire &` | The address of the TwoWire port. Default is `Wire` |
 | return value | `bool` | ```true``` if communication is begun successfully, otherwise ```false``` |
 
 ### isConnected()
@@ -114,7 +101,7 @@ bool getDeviceUID(uint8_t *values)
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `values` | `uint8_t *` | A pointer to the array of uint8_t that will contain the UID. values must be uint8_t[8] |
+| `values` | `uint8_t *` | A pointer to the array of uint8_t that will contain the UID. `values` must be uint8_t[8] |
 | return value | `bool` | ```true``` if the read is successful, otherwise ```false``` |
 
 ### getDeviceRevision()
@@ -135,7 +122,7 @@ bool getDeviceRevision(uint8_t *value)
 ### openI2CSession()
 
 This method enters the I2C security session 64-bit password. password is uint8_t[8].
-This method returns true if the password is written to the tag successfully - but that does not confirm that the password is valid/invalid.
+This method returns ```true``` if the password is written to the tag successfully - but that does not confirm that the password is valid/invalid.
 The password validity must be confirmed with ```isI2CSessionOpen```.
 
 ```c++
@@ -149,7 +136,7 @@ bool openI2CSession(uint8_t *password)
 
 ### isI2CSessionOpen()
 
-This method checks if the I2C security session is open, i.e. that the password has been entered correctly.
+This method checks if the I2C security session is open, i.e. that the correct password has been entered.
 
 ```c++
 bool isI2CSessionOpen()
@@ -181,7 +168,7 @@ bool writeI2CPassword(uint8_t *password)
 
 This method is used to modify the end address for memory Areas 1-3. The end address of Area 4 is always set to the tag's last memory location.
 
-endAddressValue is an 8-bit value. The actual memory end address is: (32 * endAddressValue) + 31
+`endAddressValue` is an 8-bit value. The actual memory end address is: (32 * `endAddressValue`) + 31
 
 ```c++
 bool setMemoryAreaEndAddress(uint8_t memoryNumber, uint8_t endAddressValue)
@@ -207,7 +194,7 @@ uint16_t getMemoryAreaEndAddress(uint8_t memoryArea)
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `memoryNumber` | `uint8_t` | The memory area 1-3 |
+| `memoryArea` | `uint8_t` | The memory area 1-3 |
 | return value | `uint16_t` | The actual end address (16-bit) |
 
 ## I2C Read and Write Protection
@@ -227,7 +214,7 @@ void programEEPROMReadProtectionBit(uint8_t memoryArea, bool readSecured)
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| `memoryArea` | `uint8_t` | The memory area 1-4 |
 | `readSecured` | `bool` | ```true```: read is allowed only if an I2C security session is open. ```false```: read is always allowed |
 | return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
@@ -243,7 +230,7 @@ void programEEPROMWriteProtectionBit(uint8_t memoryArea, bool writeSecured)
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| `memoryArea` | `uint8_t` | The memory area 1-4 |
 | `writeSecured` | `bool` | ```true```: write is allowed only if an I2C security session is open. ```false```: write is always allowed |
 | return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
@@ -257,7 +244,7 @@ bool getEEPROMReadProtectionBit(uint8_t memoryArea)
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| `memoryArea` | `uint8_t` | The memory area 1-4 |
 | return value | `bool` | ```true``` if memory read is protected, otherwise ```false``` |
 
 ### getEEPROMWriteProtectionBit()
@@ -270,7 +257,7 @@ bool getEEPROMWriteProtectionBit(uint8_t memoryArea)
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| `memoryArea` | `uint8_t` | The memory area 1-4 |
 | return value | `bool` | ```true``` if memory write is protected, otherwise ```false``` |
 
 ## RF Read and Write Protection
@@ -282,7 +269,7 @@ This method sets the RF read and write protection for the specified memory area 
 The default protection for all memory areas is `RF_RW_READ_ALWAYS_WRITE_ALWAYS`.
 
 !!! note
-    Area 1 is _always_ readable via RF. Calling ```setAreaRfRwProtection(1, true)``` has no effect.
+    Area 1 is _always_ readable via RF. Calling ```setAreaRfRwProtection(1, RF_RW_READ_SECURITY_WRITE_SECURITY)``` or ```setAreaRfRwProtection(1, RF_RW_READ_SECURITY_WRITE_NEVER)``` has no effect.
 
 ```c++
 bool setAreaRfRwProtection(uint8_t memoryArea, SF_ST25DV_RF_RW_PROTECTION rw)
@@ -299,7 +286,7 @@ RF_RW_READ_SECURITY_WRITE_NEVER     // For Area 1: Read is always allowed
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| `memoryArea` | `uint8_t` | The memory area 1-4 |
 | `rw` | `enum class SF_ST25DV_RF_RW_PROTECTION` | The level of read/write protection |
 | return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
@@ -315,7 +302,7 @@ SF_ST25DV_RF_RW_PROTECTION getAreaRfRwProtection(uint8_t memoryArea)
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| `memoryArea` | `uint8_t` | The memory area 1-4 |
 | return value | `enum class SF_ST25DV_RF_RW_PROTECTION` | The level of read/write protection |
 
 ### setAreaRfPwdCtrl()
@@ -326,7 +313,7 @@ An "RF Configuration" security session can be opened by entering RF Password 0. 
 and RF Password 0 to be modified via RF. The default RF Password 0 is ( 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ).
 
 An "RF User" security session can be opened by entering RF Password 1-3. This session allows the user access to protected user memory
-as defined by ```setAreaRfRwProtection```. The RF Password (1-3) can also be changed while the session is open.
+as defined by ```setAreaRfRwProtection```. The matching RF Password (1-3) can also be changed while the session is open.
 
 By default, the `pwdCtrl` setting for each memory area is `RF_PWD_NEVER`, meaning that a RF User security session can not be opened by password.
 
@@ -348,7 +335,7 @@ RF_PWD_PWD3
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| `memoryArea` | `uint8_t` | The memory area 1-4 |
 | `pwdCtrl` | `enum class SF_ST25DV_RF_PWD_CTRL` | The selected password option |
 | return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
@@ -364,7 +351,7 @@ SF_ST25DV_RF_PWD_CTRL getAreaRfPwdCtrl(uint8_t memoryArea)
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `memoryNumber` | `uint8_t` | The memory area 1-4 |
+| `memoryArea` | `uint8_t` | The memory area 1-4 |
 | return value | `enum class SF_ST25DV_RF_PWD_CTRL` | The selected password option |
 
 ## EEPROM Read and Write
@@ -372,7 +359,9 @@ SF_ST25DV_RF_PWD_CTRL getAreaRfPwdCtrl(uint8_t memoryArea)
 ### readEEPROM()
 
 This method reads `dataLength` bytes from EEPROM memory, starting at `baseAddress`. The bytes are returned in `data`.
-Note: `data` must be sufficiently large to hold all `dataLength` bytes.
+
+!!! note
+    `data` must be sufficiently large to hold all `dataLength` bytes.
 
 ```c++
 bool readEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength)
@@ -446,7 +435,7 @@ The GPO1 bit definitions are:
 
 ### getGPO1Bit()
 
-This method return the state of the selected bit in the GPO1 register.
+This method returns the state of the selected bit in the GPO1 register.
 
 ```c++
 bool getGPO1Bit(uint8_t bitMask)
@@ -481,7 +470,7 @@ The GPO2 bit defintions are:
 
 ### getGPO2Bit()
 
-This method return the state of the selected bit in the GPO2 register.
+This method returns the state of the selected bit in the GPO2 register.
 
 ```c++
 bool getGPO2Bit(uint8_t bitMask)
@@ -606,6 +595,19 @@ bool getEH_CTRL_DYNBit(uint8_t bitMask)
 | return value | `bool` | ```true``` if the bit is set, otherwise ```false``` |
 
 ## Helper Methods
+
+### errorCodeString()
+
+This method converts an `SF_ST25DV64KC_ERROR` error code into readable text.
+
+```C++
+const char *errorCodeString(SF_ST25DV64KC_ERROR errorCode)
+```
+
+| Parameter | Description |
+| :-------- | :---------- |
+| `errorCode` | The ```enum class SF_ST25DV64KC_ERROR``` error code |
+| return value | `const char *` | A pointer to the readable text |
 
 ### readRegisterValue()
 

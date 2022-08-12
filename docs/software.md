@@ -2,7 +2,7 @@
 
 ## Installation
 
-The SparkFun ST25DV64KC Arduino Library is available within in the Arduino library manager, which is launched via the `Sketch > Include Libraries > Manage Libraries …` menu option in the Arduino IDE. Just search for ***SparkFun ST25DV64KC***
+The SparkFun ST25DV64KC Arduino Library is available within the Arduino library manager, which is launched via the `Sketch > Include Libraries > Manage Libraries …` menu option in the Arduino IDE. Just search for ***SparkFun ST25DV64KC***
 
 !!! note
     This guide assumes you are using the latest version of the Arduino IDE on your desktop. The following resources available at [SparkFun](https://www.sparkfun.com) provide the details on setting up and configuring Arduino to use this library.

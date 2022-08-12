@@ -9,7 +9,7 @@ set or clear individual register bits, and confirm if a register bit is set.
 
 ### begin()
 
-The method records the specified TwoWire port and uses that for all future I2C communication.
+This method records the specified TwoWire port and uses that for all future I2C communication.
 
 It also calls ```isConnected()``` and returns the result, confirming whether the ST25DV has been detected successfully.
 
@@ -194,8 +194,7 @@ bool isBitSet(const SF_ST25DV64KC_ADDRESS address, const uint16_t registerAddres
 ## Member Variables
 
 !!! note
-    When the ST25DV is busy writing to its internal `DATA` memory, it will NACK any further attempted I2C transmissions until the write is complete. The write duration is variable and depends on whether the write crosses block boundaries. Therefore, the library implements a retry strategy. Each read or write will be attempted up to `maxRetries` times, with a delay of `retryDelay` in between before an error is triggered.
-
+    When the ST25DV is busy writing to its internal `DATA` memory, it will NACK any further attempted I2C transmissions until the write is complete. The write duration is variable and depends on whether the write crosses block boundaries. Therefore, the library implements a retry strategy. Each read or write will be attempted up to `maxRetries` times, with a delay of `retryDelay` in between, before an error is triggered.
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
