@@ -593,6 +593,9 @@ void setEH_CTRL_DYNBit(uint8_t bitMask, bool value)
 
 This method returns the state of the select bit in the dynamic EH_CTRL_Dyn register.
 
+!!! note
+    If multiple bits are set in `bitMask`, the method will return ```true``` if _any one of those bits_ is set.
+
 ```c++
 bool getEH_CTRL_DYNBit(uint8_t bitMask)
 ```

@@ -12,7 +12,7 @@ The ```SFE_ST25DV64KC_NDEF``` class inherits all of the methods of the ```SFE_ST
 This method will write a 4-byte Capability Container file to the first 4 bytes of EEPROM memory.
 
 !!! note
-    This method is only useful for small tags like the ST245DV04KC. The ST25DV64KC requires an 8-byte CC file.
+    This method is only useful for small tags like the ST25DV04KC. The ST25DV64KC requires an 8-byte CC file.
 
 ```c++
 bool writeCCFile4Byte(uint32_t val)
