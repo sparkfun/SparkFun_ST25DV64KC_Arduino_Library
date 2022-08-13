@@ -255,8 +255,12 @@ By default, the first record is returned. The second and subsequent records can 
 
 If the chosen `recordNo` is not present, the method returns ```false```. This provides an easy way to count the number of WiFi records in memory.
 
+If `theText` could contain any zero (0x00) bytes, you can use the overloaded method to receive the actual text length. On call, set `*textLen` to maximum number of bytes which `theText` can hold.
+On return, `*textLen` will contain the actual number of chars read.
+
 ```C++
 bool readNDEFText(char *theText, uint16_t maxTextLen, uint8_t recordNo, char *language, uint16_t maxLanguageLen)
+bool readNDEFText(uint8_t *theText, uint16_t *textLen, uint8_t recordNo, char *language, uint16_t maxLanguageLen)
 ```
 
 | Parameter | Type | Description |

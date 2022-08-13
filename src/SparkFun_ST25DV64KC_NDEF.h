@@ -106,6 +106,10 @@ public:
   // maxLanguageLen is the maximum number of chars which language can hold
   // Returns true if successful, otherwise false
   bool readNDEFText(char *theText, uint16_t maxTextLen, uint8_t recordNo = 1, char *language = NULL, uint16_t maxLanguageLen = 0);
+  // Read an NDEF UTF-8 Text Record from memory
+  // *textLen should be set to the maximum number of bytes which theText can hold
+  // On return, *textLen contains the actual number of bytes read
+  bool readNDEFText(uint8_t *theText, uint16_t *textLen, uint8_t recordNo = 1, char *language = NULL, uint16_t maxLanguageLen = 0);
 };
 
 #endif
