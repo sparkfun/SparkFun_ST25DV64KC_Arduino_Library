@@ -247,6 +247,16 @@ The TLV T and L fields are set automatically. The L field is updated from 1-byte
 | `languageCode` | `const char *` | A pointer to the text language code. Default is ```NULL``` |
 | return value | `bool` | ```true``` if the write was successful, otherwise ```false``` |
 
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `theText` | `const uint8_t *` | A pointer to the text |
+| `textLength` | `uint16_t` | The number of bytes contained in `theText` |
+| `address` | `uint16_t *` | A pointer to a `uint16_t` containing the start address for this record. Default is ```NULL```. If not provided, the record is written to ```_ccFileLen``` |
+| `MB` | `bool` | Message Begin flag. Default is ```true``` |
+| `ME` | `bool` | Message End flag. Default is ```true``` |
+| `languageCode` | `const char *` | A pointer to the text language code. Default is ```NULL``` |
+| return value | `bool` | ```true``` if the write was successful, otherwise ```false``` |
+
 ### readNDEFText()
 
 This method reads and returns a single NDEF Text record from EEPROM.
@@ -267,6 +277,15 @@ bool readNDEFText(uint8_t *theText, uint16_t *textLen, uint8_t recordNo, char *l
 | :-------- | :--- | :---------- |
 | `theText` | `char *` | A pointer to the char array which will hold the text |
 | `maxTextLen` | `uint16_t` | The maximum number of bytes which `theText` can hold. I.e. the ```sizeof``` of `theText`  |
+| `recordNo` | `uint8_t` | The URI record to be read. Default is 1 |
+| `language` | `char *` | A pointer to the char array which could hold the language code. Default is ```NULL``` |
+| `maxLanguageLen` | `uint16_t` | The maximum number of bytes which `language` can hold. I.e. the ```sizeof``` of `language`. Default is zero |
+| return value | `bool` | ```true``` if the read is successful (i.e. `recordNo` exists), ```false``` otherwise |
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `theText` | `uint8_t *` | A pointer to the array of uint8_t which will hold the text |
+| `textLen` | `uint16_t` | The maximum number of bytes which `theText` can hold. I.e. the ```sizeof``` of `theText`. On return, contains the number of bytes read |
 | `recordNo` | `uint8_t` | The URI record to be read. Default is 1 |
 | `language` | `char *` | A pointer to the char array which could hold the language code. Default is ```NULL``` |
 | `maxLanguageLen` | `uint16_t` | The maximum number of bytes which `language` can hold. I.e. the ```sizeof``` of `language`. Default is zero |
