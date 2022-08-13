@@ -285,7 +285,7 @@ bool readNDEFText(uint8_t *theText, uint16_t *textLen, uint8_t recordNo, char *l
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
 | `theText` | `uint8_t *` | A pointer to the array of uint8_t which will hold the text |
-| `textLen` | `uint16_t` | The maximum number of bytes which `theText` can hold. I.e. the ```sizeof``` of `theText`. On return, contains the number of bytes read |
+| `textLen` | `uint16_t *` | The maximum number of bytes which `theText` can hold. I.e. the ```sizeof``` of `theText`. On return, contains the number of bytes read |
 | `recordNo` | `uint8_t` | The URI record to be read. Default is 1 |
 | `language` | `char *` | A pointer to the char array which could hold the language code. Default is ```NULL``` |
 | `maxLanguageLen` | `uint16_t` | The maximum number of bytes which `language` can hold. I.e. the ```sizeof``` of `language`. Default is zero |
