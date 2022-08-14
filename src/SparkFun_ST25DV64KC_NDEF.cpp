@@ -1476,6 +1476,15 @@ bool SFE_ST25DV64KC_NDEF::writeNDEFText(const uint8_t *theText, uint16_t textLen
 // Returns true if successful, otherwise false
 bool SFE_ST25DV64KC_NDEF::readNDEFText(char *theText, uint16_t maxTextLen, uint8_t recordNo, char *language, uint16_t maxLanguageLen)
 {
+  uint16_t textLen = maxTextLen;
+  return readNDEFText((uint8_t *)theText, &textLen, recordNo, language, maxLanguageLen);
+}
+
+// Read an NDEF UTF-8 Text Record from memory
+// *textLen should be set to the maximum number of bytes which theText can hold
+// On return, *textLen contains the actual number of bytes read
+bool SFE_ST25DV64KC_NDEF::readNDEFText(uint8_t *theText, uint16_t *textLen, uint8_t recordNo, char *language, uint16_t maxLanguageLen)
+{
   uint8_t tlv[4];
 
   if (!readEEPROM(_ccFileLen, tlv, 4)) // Read the TLV T and L Fields
@@ -1705,14 +1714,16 @@ bool SFE_ST25DV64KC_NDEF::readNDEFText(char *theText, uint16_t maxTextLen, uint8
             }
           }
           uint16_t theTextLen = payloadLength - (1 + languageLength);
-          if (theTextLen <= (maxTextLen - 1))
+          if (theTextLen <= ((*textLen) - 1))
           {
             memcpy(theText, payload + 1 + languageLength, theTextLen);
             theText[theTextLen] = 0; // NULL-terminate the text
+            *textLen = theTextLen;
             loopState = allDone;
           }
           else
           {
+            *textLen = 0; // Indicate no text was read
             loopState = terminatorFound; // Not enough room to store theText. Bail...
           }
         }

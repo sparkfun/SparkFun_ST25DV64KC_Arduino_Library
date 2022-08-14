@@ -39,6 +39,36 @@ With this library, you can:
     * Read and write multiple NDEF WiFi records
     * Read and write multiple NDEF Text records
 
-## Documentation
+## Getting Started
 
-A full library use overview, API reference guide and key example walk-throughs are available on GitHub Pages - [sparkfun.github.io/SparkFun_ST25DV64KC_Arduino_Library](https://sparkfun.github.io/SparkFun_ST25DV64KC_Arduino_Library/)
+The [Getting Started Page](intro.md) outlines library installation and the general use of the SparkFun ST25DV64KC Arduino Library. 
+
+Detailed [`examples`](https://github.com/sparkfun/SparkFun_ST25DV64KC_Arduino_Library/blob/main/examples) are included as part of the library installation process and available in the Arduino IDE `File > Examples >` menu. A walk-thru of key examples is contained in the [Examples](https://sparkfun.github.io/SparkFun_ST25DV64KC_Arduino_Library/sparkfun-st25dv64kc-arduino-library-examples/ex_01_Device_Information/) section of this documentation set. 
+
+A full [API Reference](api_SFE_ST25DV64KC.md) is also provided for the library.
+
+## Tested Platforms
+
+- [ATmega328P](https://www.sparkfun.com/products/18158)
+- [ESP32](https://www.sparkfun.com/products/15663)
+- [Artemis (Apollo3)](https://www.sparkfun.com/products/15574)
+- [SAMD21](https://www.sparkfun.com/products/14812)
+- [SAMD51](https://www.sparkfun.com/products/14713)
+- [STM32](https://www.sparkfun.com/products/17712)
+- [RP2040](https://www.sparkfun.com/products/17745) following the instructions in the [Hookup Guide](https://learn.sparkfun.com/tutorials/rp2040-thing-plus-hookup-guide/software-overview) and using the pin definitions shown below:
+
+```c++
+// pins_arduino.h : pin definitions for the RP2040 Thing Plus (DEV-17745)
+// SPI
+#define PIN_SPI_MISO  (12u)
+#define PIN_SPI_MOSI  (15u)
+#define PIN_SPI_SCK   (14u)
+#define PIN_SPI_SS    (9u)
+// Wire
+#define PIN_WIRE_SDA  (6u)
+#define PIN_WIRE_SCL  (7u)
+```
+
+## License
+
+The SparkFun ST25DV64KC Arduino Library is licensed using the Open Source MIT License
