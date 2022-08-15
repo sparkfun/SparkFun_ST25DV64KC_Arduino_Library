@@ -83,6 +83,9 @@ This prevents _most_ App confusion. You may still see occasions where the App th
 a new RF transaction is attempted while the tag is already performing an I2C transaction (memory read). Once the RF read-modify-write is underway, the two second
 timer prevents the next I2C transaction from interfering with it.
 
+**It also helps a lot if you bring your phone near the tag first _and then_ press the "Write to Tag" button.** Bringing your phone near the tag generates a field.
+The code then goes into its two second timeout and isn't accessing I2C when the RF write starts.
+
 ## Writing an Empty NDEF Record
 
 Please see the previous example for details.
