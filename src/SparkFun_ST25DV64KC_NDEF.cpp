@@ -101,6 +101,76 @@ bool SFE_ST25DV64KC_NDEF::writeCCFile8Byte(uint32_t val1, uint32_t val2)
 }
 
 /*
+  To create an empty NDEF record:
+
+  0x03 0x03 0xD0 0x00 0x00 0xFE
+
+  Byte 0: Type5 Tag TLV-Format: T (Type field)
+          0x03 = NDEF Message TLV
+  Byte 1: Type5 Tag TLV-Format: L (Length field) (1-Byte Format)
+          0x03 = 3 Bytes
+  Bytes 2-4: Type5 Tag TLV-Format: V (Value field)
+          Byte 2: Record Header = 0xD0
+                  b7 = 0b1 MB (Message Begin)
+                  b6 = 0b1 ME (Message End)
+                  b5 = 0b0 CF (Chunk Flag)
+                  b4 = 0b1 SR (Short Record)
+                  b3 = 0b0 IL (ID Length)
+                  b2 b1 b0 = 0b000 TNF (Type Name Format): Empty
+          Byte 3: Type Length
+                  0x00 = 0 Bytes
+          Byte 4: Payload Length
+                  0x00 = 0 bytes
+  Byte 5: Type5 Tag TLV-Format: T (Type field)
+          0xFE = Terminator TLV
+*/
+
+// Write an empty NDEF record to user memory
+// If address is not NULL, start writing at *address, otherwise start at _ccFileLen
+bool SFE_ST25DV64KC_NDEF::writeNDEFEmpty(uint16_t *address)
+{
+  uint8_t *tagWrite = new uint8_t[6];
+
+  if (tagWrite == NULL)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::OUT_OF_MEMORY);
+    return false; // Memory allocation failed
+  }
+
+  memset(tagWrite, 0, 6);
+
+  uint8_t *tagPtr = tagWrite;
+
+  *tagPtr++ = SFE_ST25DV_TYPE5_NDEF_MESSAGE_TLV; // Type5 Tag TLV-Format: T (Type field)
+  *tagPtr++ = 0x03; // Type5 Tag TLV-Format: L (Length field) (1-Byte Format)
+
+  // NDEF Record Header
+  *tagPtr++ = SFE_ST25DV_NDEF_MB | SFE_ST25DV_NDEF_ME | SFE_ST25DV_NDEF_SR | SFE_ST25DV_NDEF_TNF_EMPTY;
+  *tagPtr++ = 0x00; // NDEF Type Length
+  *tagPtr++ = 0x00; // NDEF Payload Length (1-Byte)
+  *tagPtr++ = SFE_ST25DV_TYPE5_TERMINATOR_TLV; // Type5 Tag TLV-Format: T (Type field)
+
+  uint16_t memLoc = _ccFileLen; // Write to this memory location
+  uint16_t numBytes = tagPtr - tagWrite;
+
+  if (address != NULL)
+  {
+    memLoc = *address;
+  }
+
+  bool result = writeEEPROM(memLoc, tagWrite, numBytes);
+
+  if ((address != NULL) && (result))
+  {
+    *address = memLoc + numBytes - 1; // Update address so the next writeNDEFURI can append to this one
+  }
+
+  delete[] tagWrite; // Release the memory
+
+  return result;
+}
+
+/*
   To create a single NDEF URI short record:
 
   0x03 0x11 0xD1 0x01 0x0D 0x55 0x02 sparkfun.com 0xFE
