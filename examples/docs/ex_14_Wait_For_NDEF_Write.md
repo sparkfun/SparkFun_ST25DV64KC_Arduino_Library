@@ -1,6 +1,6 @@
-# Example 13 - Wait For NDEF Write
+# Example 14 - Wait For NDEF Write
 
-An example showing how to check if a new NDEF record has been written to the tag, using the SparkFun ST25DV64KC Arduino Library.
+An example showing how to wait for a new NDEF record to be written to the tag, using the SparkFun ST25DV64KC Arduino Library.
 
 ## Key Features
 
@@ -15,9 +15,9 @@ The ST25DV tag has a clever "interface arbitration" feature. If an I2C transacti
 
 This is obviously a good thing! But there are some complications to be aware of. It looks like the ST "NFC Tap" App uses a read-modify-write
 approach when adding new records to tag memory. We think it does this using separate RF transactions or 'sessions'. The App gets very
-confused if the tag is busy servicing a new I2C transaction (memory read) when it tries to do the RF 'write' after the 'modify'...
+confused if the tag is busy servicing a _new_ I2C transaction (memory read) when it tries to do the RF 'write' after the 'modify'...
 
-Note: this is not an issue with the tag itself. The tag is very robust. It is an issue of how the App - and this example - have been written.
+Note: this is not an issue with the tag itself. The tag is very robust. It is an issue of how the App - and this example - have been written and interact.
 
 A work-around is to use the GPO pin to indicate when RF activity is taking place and to use that to delay the next I2C transaction for a few seconds.
 
@@ -62,7 +62,8 @@ With `useGPOpin` enabled, the GPO pin is configured to indicate an RF User sessi
 ```
 
 A digital pin is used to read the status of the GPO pin. The GPO pin goes low during RF activity and the code uses that to reset a timer.
-Reading the tag's EEPROM memory - to see if a new record has been added - is delayed for up to two seconds from the last RF activity.
+Reading the tag's EEPROM memory - to see if a new record has been added - is delayed for at least two seconds from the last RF activity.
+This gives the App time to complete its read-modify-write once it has started.
 
 ```C++
 #ifdef useGPOpin
@@ -78,70 +79,15 @@ Reading the tag's EEPROM memory - to see if a new record has been added - is del
 #endif
 ```
 
-This prevents most App confusion. You may still see occasions where the App thinks there is no NDEF record present. But this only happens when
+This prevents _most_ App confusion. You may still see occasions where the App thinks there is no NDEF record present. But this only happens when
 a new RF transaction is attempted while the tag is already performing an I2C transaction (memory read). Once the RF read-modify-write is underway, the two second
 timer prevents the next I2C transaction from interfering with it.
 
 ## Writing an Empty NDEF Record
 
-After clearing the first 256 bytes of tag memory and writing the CC File, the code creates an empty NDEF record to keep the App happy.
-
-```C++
-/*
-  To create an empty NDEF record:
-
-  0x03 0x03 0xD0 0x00 0x00 0xFE
-
-  Byte 0: Type5 Tag TLV-Format: T (Type field)
-          0x03 = NDEF Message TLV
-  Byte 1: Type5 Tag TLV-Format: L (Length field) (1-Byte Format)
-          0x03 = 3 Bytes
-  Bytes 2-4: Type5 Tag TLV-Format: V (Value field)
-          Byte 2: Record Header = 0xD0
-                  b7 = 0b1 MB (Message Begin)
-                  b6 = 0b1 ME (Message End)
-                  b5 = 0b0 CF (Chunk Flag)
-                  b4 = 0b1 SR (Short Record)
-                  b3 = 0b0 IL (ID Length)
-                  b2 b1 b0 = 0b000 TNF (Type Name Format): Empty
-          Byte 3: Type Length
-                  0x00 = 0 Bytes
-          Byte 4: Payload Length
-                  0x00 = 0 bytes
-  Byte 5: Type5 Tag TLV-Format: T (Type field)
-          0xFE = Terminator TLV
-*/
-```
-
-The code to create the empty record is:
-
-```C++
-  // Add an empty record at the first memory location after the CC File
-  Serial.println(F("Writing an empty (zero-length) TLV Record"));
-  uint16_t memoryLocation = tag.getCCFileLen(); // Write to the memory location immediately after the CC File
-  tag.writeNDEFEmpty(&memoryLocation);
-```
+Please see the previous example for details.
 
 ## Checking for new NDEF Records
 
-It is possible to write multiple URI, WiFi and Text records into a single tag and for the code to detect when each is written.
+Please see the previous example for details.
 
-The code uses three `static` counters to keep track of how many URI, WiFi and Text records have already been processed:
-
-```C++
-  static uint8_t uriRecord = 1; // Keep track of how many URIs have been read
-  static uint8_t wifiRecord = 1; // Keep track of how many WiFi records have been read
-  static uint8_t textRecord = 1; // Keep track of how many Text records have been read
-```
-
-By passing the appropriate counter into the `readNDEF` function, the code can ignore existing entries and only return ```true``` when
-a new entry is found:
-
-```C++
-  if (tag.readNDEFURI(thing1, 50, uriRecord))
-    {
-      Serial.println(F("URI Record Found!"));
-      Serial.println(thing1);
-      uriRecord++; // Increase the count
-    }
-```
