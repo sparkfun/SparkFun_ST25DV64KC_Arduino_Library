@@ -13,3 +13,4 @@ nav:
   - Example 10 - NDEF Text Records: "ex_10_NDEF_Text.md"
   - Example 11 - Memory Leak Test: "ex_11_Memory_Leak_Test.md"
   - Example 12 - Production Test: "ex_12_Production_Test.md"
+  - Example 13 - Wait for NDEF Write: "ex_13_Wait_For_NDEF_Write.md"

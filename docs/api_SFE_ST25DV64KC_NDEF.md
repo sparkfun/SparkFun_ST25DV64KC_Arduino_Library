@@ -68,6 +68,20 @@ uint16_t getCCFileLen()
 
 ## NDEF Methods
 
+## writeNDEFEmpty()
+
+This method writes an empty (zero-length) NDEF record to EEPROM. It can be useful to call this after clearing the EEPROM memory and writing the CC File.
+This allows the smart phone App to read the NDEF file - even though it is empty.
+
+```C++
+bool SFE_ST25DV64KC_NDEF::writeNDEFEmpty(uint16_t *address)
+```
+
+| Parameter | Type | Description |
+| :-------- | :--- | :---------- |
+| `address` | `uint16_t *` | A pointer to a `uint16_t` containing the start address for this record. Default is ```NULL```. If not provided, the record is written to ```_ccFileLen``` |
+| return value | `bool` | ```true``` if the write was successful, otherwise ```false``` |
+
 ## writeNDEFURI()
 
 This method writes an NDEF URI record to EEPROM.

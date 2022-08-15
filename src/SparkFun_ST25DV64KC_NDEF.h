@@ -67,6 +67,11 @@ public:
   // Return the URI Prefix Code as text
   const char *getURIPrefix(uint8_t prefixCode);
 
+  // Write an empty NDEF WiFi Record to user memory
+  // If address is not NULL, start writing at *address, otherwise start at _ccFileLen
+  // Returns true if successful, otherwise false
+  bool writeNDEFEmpty(uint16_t *address = NULL);
+
   // Write an NDEF WiFi Record to user memory
   // If address is not NULL, start writing at *address, otherwise start at _ccFileLen
   // MB = Message Begin, ME = Message End
