@@ -41,6 +41,8 @@ SFE_ST25DV64KC_NDEF tag;
 const uint8_t GPO_PIN = 2; // Change this to match the digital pin you have linked GPO to
 #endif
 
+// Error handler: print the error code as readable text
+// An I2C_TRANSMISSION_ERROR probably indicates that the tag is busy servicing an RF transaction
 void errorHandler(SF_ST25DV64KC_ERROR errorCode)
 {
   Serial.print(F("Error Callback: "));
@@ -60,7 +62,7 @@ void setup()
 
   Serial.println(F("ST25DV64KC example."));
 
-  tag.setErrorCallback(&errorHandler); // Set up the error callback
+  //tag.setErrorCallback(&errorHandler); // Uncomment this line to enable the error callback
 
   if (!tag.begin(Wire))
   {

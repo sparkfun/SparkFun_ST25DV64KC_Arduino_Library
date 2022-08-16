@@ -82,13 +82,13 @@ public:
   // Memory area ranges from 1 to 4. Values outside this range are ignored and function
   // calls the error callback if function pointer is set.
   // readSecured set will demand that I2C session is opened to read memory area
-  void programEEPROMReadProtectionBit(uint8_t memoryArea, bool readSecured);
+  bool programEEPROMReadProtectionBit(uint8_t memoryArea, bool readSecured);
 
   // Programs I2CSS write protection bits (Datasheet page 53)
   // Memory area ranges from 1 to 4. Values outside this range are ignored and function
   // calls the error callback if function pointer is set.
   // writeSecured set will demand that I2C session is opened to read memory area
-  void programEEPROMWriteProtectionBit(uint8_t memoryArea, bool writeSecured);
+  bool programEEPROMWriteProtectionBit(uint8_t memoryArea, bool writeSecured);
 
   // Gets IC2SS read protection bits (Datasheet page 53)
   // Memory area ranges from 1 to 4. Values outside this range are ignored and function
@@ -133,19 +133,19 @@ public:
   bool RFFieldDetected();
 
   // Sets a specific GPO1 register bit
-  void setGPO1Bit(uint8_t bitMask, bool enabled);
+  bool setGPO1Bit(uint8_t bitMask, bool enabled);
 
   // Gets a specific GPO1 register bit
   bool getGPO1Bit(uint8_t bitMask);
 
   // Sets a specific GPO2 register bit
-  void setGPO2Bit(uint8_t bitMask, bool enabled);
+  bool setGPO2Bit(uint8_t bitMask, bool enabled);
 
   // Gets a specific GPO2 register bit
   bool getGPO2Bit(uint8_t bitMask);
 
   // Sets GPO_CTRL dynamic register bit
-  void setGPO_CTRL_DynBit(bool enabled);
+  bool setGPO_CTRL_DynBit(bool enabled);
 
   // Gets GPO_CTRL dynamic register bit
   bool getGPO_CTRL_DynBit();
@@ -155,13 +155,13 @@ public:
   uint8_t getIT_STS_Dyn();
 
   // Sets EH_MODE bit
-  void setEH_MODEBit(bool value);
+  bool setEH_MODEBit(bool value);
 
   // Gets EH_MODE bit
   bool getEH_MODEBit();
 
   // Sets a specific EH_CTRL_DYN dynamic register bit
-  void setEH_CTRL_DYNBit(uint8_t bitMask, bool value);
+  bool setEH_CTRL_DYNBit(uint8_t bitMask, bool value);
 
   // Gets a specific EH_CTRL_DYN dynamic register bit
   bool getEH_CTRL_DYNBit(uint8_t bitMask);

@@ -209,7 +209,7 @@ When set, the memory area is only readable if a security session is open.
     Area 1 is _always_ readable. Calling ```programEEPROMReadProtectionBit(1, true)``` has no effect.
 
 ```c++
-void programEEPROMReadProtectionBit(uint8_t memoryArea, bool readSecured)
+bool programEEPROMReadProtectionBit(uint8_t memoryArea, bool readSecured)
 ```
 
 | Parameter | Type | Description |
@@ -225,7 +225,7 @@ This method sets/clears the I2C write protection bit for the specified memory ar
 When set, the memory area is only writeable if a security session is open.
 
 ```c++
-void programEEPROMWriteProtectionBit(uint8_t memoryArea, bool writeSecured)
+bool programEEPROMWriteProtectionBit(uint8_t memoryArea, bool writeSecured)
 ```
 
 | Parameter | Type | Description |
@@ -412,7 +412,7 @@ This method sets or clears the selected bit(s) in the GPO1 register.
 Multiple bits can be set or cleared with a single call.
 
 ```c++
-void setGPO1Bit(uint8_t bitMask, bool enabled)
+bool setGPO1Bit(uint8_t bitMask, bool enabled)
 ```
 
 The GPO1 bit definitions are:
@@ -432,6 +432,7 @@ The GPO1 bit definitions are:
 | :-------- | :--- | :---------- |
 | `bitMask` | `uint8_t` | The bit(s) to be set or cleared |
 | `enabled` | `bool` | If ```true```, the bit(s) set in `bitMask` are set. If ```false```, the bit(s) set in `bitMask` are cleared.
+| return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
 ### getGPO1Bit()
 
@@ -453,7 +454,7 @@ This method sets or clears the selected bit(s) in the GPO2 register.
 Multiple bits can be set or cleared with a single call.
 
 ```c++
-void setGPO2Bit(uint8_t bitMask, bool enabled)
+bool setGPO2Bit(uint8_t bitMask, bool enabled)
 ```
 
 The GPO2 bit defintions are:
@@ -467,6 +468,7 @@ The GPO2 bit defintions are:
 | :-------- | :--- | :---------- |
 | `bitMask` | `uint8_t` | The bit(s) to be set or cleared |
 | `enabled` | `bool` | If ```true```, the bit(s) set in `bitMask` are set. If ```false```, the bit(s) set in `bitMask` are cleared.
+| return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
 ### getGPO2Bit()
 
@@ -487,12 +489,13 @@ This method sets or clears the GPO_EN bit in the GPO_CTRL_Dyn (Dynamic) register
 This allows the GPO pin to be enabled or disabled without making non-volatile changes to the GPO1 register GPO_EN bit.
 
 ```c++
-void setGPO_CTRL_DynBit(bool enabled)
+bool setGPO_CTRL_DynBit(bool enabled)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
 | `enabled` | `bool` | If ```true```, the GPO_EN bit is set, otherwise it is cleared |
+| return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
 ### getGPO_CTRL_DynBit()
 
@@ -545,12 +548,13 @@ The bit definitions of the IT_SYS_Dyn register are:
 This method sets or clears the Energy Harvesting EH_MODE bit in the EH_MODE register.
 
 ```c++
-void setEH_MODEBit(bool value)
+bool setEH_MODEBit(bool value)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
 | `value` | `bool` | If ```true```, Energy Harvesting is on demand only (default). If ```false```, EH  is forced after boot |
+| return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
 ### getEH_MODEBit()
 
@@ -570,13 +574,14 @@ This method will set or clear bit(s) in the dynamic EH_CTRL_Dyn register.
 This allows energy harvesting to be enabled or disabled without making non-volatile changes to the EH_MODE register.
 
 ```c++
-void setEH_CTRL_DYNBit(uint8_t bitMask, bool value)
+bool setEH_CTRL_DYNBit(uint8_t bitMask, bool value)
 ```
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
 | `bitMask` | `uint8_t` | The bit(s) to be set or cleared |
 | `value` | `bool` | If ```true```, the bit(s) set in `bitMask` are set. If ```false```, the bit(s) set in `bitMask` are cleared |
+| return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
 ### getEH_CTRL_DYNBit()
 

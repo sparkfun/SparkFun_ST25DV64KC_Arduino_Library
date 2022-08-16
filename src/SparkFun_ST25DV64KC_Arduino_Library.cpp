@@ -78,12 +78,26 @@ bool SFE_ST25DV64KC::isConnected()
 
 bool SFE_ST25DV64KC::readRegisterValue(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress, uint8_t *value)
 {
-  return st25_io.readSingleByte(addressType, registerAddress, value);
+  bool success = st25_io.readSingleByte(addressType, registerAddress, value);
+
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return success;
 }
 
 bool SFE_ST25DV64KC::readRegisterValues(const SF_ST25DV64KC_ADDRESS addressType, const uint16_t registerAddress, uint8_t *data, uint16_t dataLength)
 {
-  return st25_io.readMultipleBytes(addressType, registerAddress, data, dataLength);
+  bool success = st25_io.readMultipleBytes(addressType, registerAddress, data, dataLength);
+
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return success;
 }
 
 bool SFE_ST25DV64KC::getDeviceUID(uint8_t *values)
@@ -99,12 +113,24 @@ bool SFE_ST25DV64KC::getDeviceUID(uint8_t *values)
       values[i] = tempBuffer[7 - i];
   }
 
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
   return success;
 }
 
 bool SFE_ST25DV64KC::getDeviceRevision(uint8_t *value)
 {
-  return st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_IC_REV, value);
+  bool success =  st25_io.readSingleByte(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_IC_REV, value);
+
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return success;
 }
 
 bool SFE_ST25DV64KC::openI2CSession(uint8_t *password)
@@ -124,7 +150,14 @@ bool SFE_ST25DV64KC::openI2CSession(uint8_t *password)
   for (uint8_t i = 0; i < 8; i++)
     tempBuffer[i + 9] = tempBuffer[i];
 
-  return st25_io.writeMultipleBytes(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2C_PASSWD_BASE, tempBuffer, 17);
+  bool success = st25_io.writeMultipleBytes(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2C_PASSWD_BASE, tempBuffer, 17);
+
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return success;
 }
 
 bool SFE_ST25DV64KC::isI2CSessionOpen()
@@ -142,7 +175,8 @@ bool SFE_ST25DV64KC::writeI2CPassword(uint8_t *password)
 
   // Disable Fast Transfer Mode (datasheet page 75)
   bool ftmIsSet = st25_io.isBitSet(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_FTM, BIT_FTM_MB_MODE);
-  st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_FTM, BIT_FTM_MB_MODE);
+  
+  bool success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_FTM, BIT_FTM_MB_MODE);
 
   // Passwords are written MSB first and need to be sent twice with 0x07 sent after the first
   // set of 8 bytes.
@@ -159,114 +193,137 @@ bool SFE_ST25DV64KC::writeI2CPassword(uint8_t *password)
   for (uint8_t i = 0; i < 8; i++)
     tempBuffer[i + 9] = tempBuffer[i];
 
-  st25_io.writeMultipleBytes(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2C_PASSWD_BASE, tempBuffer, 17);
+  success &= st25_io.writeMultipleBytes(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2C_PASSWD_BASE, tempBuffer, 17);
 
   if (ftmIsSet)
-    st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_FTM, BIT_FTM_MB_MODE);
+    success &= st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_FTM, BIT_FTM_MB_MODE);
 
-  return true;
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return success;
 }
 
-void SFE_ST25DV64KC::programEEPROMReadProtectionBit(uint8_t memoryArea, bool readSecured)
+bool SFE_ST25DV64KC::programEEPROMReadProtectionBit(uint8_t memoryArea, bool readSecured)
 {
   if (memoryArea < 1 || memoryArea > 4)
   {
     SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2CSS_MEMORY_AREA_INVALID);
-    return;
+    return false;
   }
+  
+  bool success = false;
 
   switch (memoryArea)
   {
   case 1:
   {
     if (readSecured)
-      st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM1_READ);
+      success = st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM1_READ);
     else
-      st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM1_READ);
+      success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM1_READ);
   }
   break;
 
   case 2:
   {
     if (readSecured)
-      st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM2_READ);
+      success = st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM2_READ);
     else
-      st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM2_READ);
+      success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM2_READ);
   }
   break;
 
   case 3:
   {
     if (readSecured)
-      st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM3_READ);
+      success = st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM3_READ);
     else
-      st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM3_READ);
+      success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM3_READ);
   }
   break;
 
   case 4:
   {
     if (readSecured)
-      st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM4_READ);
+      success = st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM4_READ);
     else
-      st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM4_READ);
+      success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM4_READ);
   }
   break;
 
   default:
     break;
   }
+
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return success;
 }
 
-void SFE_ST25DV64KC::programEEPROMWriteProtectionBit(uint8_t memoryArea, bool writeSecured)
+bool SFE_ST25DV64KC::programEEPROMWriteProtectionBit(uint8_t memoryArea, bool writeSecured)
 {
   if (memoryArea < 1 || memoryArea > 4)
   {
     SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2CSS_MEMORY_AREA_INVALID);
-    return;
+    return false;
   }
+
+  bool success = false;
 
   switch (memoryArea)
   {
   case 1:
   {
     if (writeSecured)
-      st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM1_WRITE);
+      success = st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM1_WRITE);
     else
-      st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM1_WRITE);
+      success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM1_WRITE);
   }
   break;
 
   case 2:
   {
     if (writeSecured)
-      st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM2_WRITE);
+      success = st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM2_WRITE);
     else
-      st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM2_WRITE);
+      success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM2_WRITE);
   }
   break;
 
   case 3:
   {
     if (writeSecured)
-      st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM3_WRITE);
+      success = st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM3_WRITE);
     else
-      st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM3_WRITE);
+      success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM3_WRITE);
   }
   break;
 
   case 4:
   {
     if (writeSecured)
-      st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM4_WRITE);
+      success = st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM4_WRITE);
     else
-      st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM4_WRITE);
+      success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_I2CSS, BIT_I2CSS_MEM4_WRITE);
   }
   break;
 
   default:
     break;
   }
+
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return success;
 }
 
 bool SFE_ST25DV64KC::getEEPROMReadProtectionBit(uint8_t memoryArea)
@@ -365,12 +422,24 @@ bool SFE_ST25DV64KC::writeEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t d
   if (ftmEnabled)
     success &= st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_FTM, BIT_FTM_MB_MODE);
 
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
   return success;
 }
 
 bool SFE_ST25DV64KC::readEEPROM(uint16_t baseAddress, uint8_t *data, uint16_t dataLength)
 {
-  return st25_io.readMultipleBytes(SF_ST25DV64KC_ADDRESS::DATA, baseAddress, data, dataLength);
+  bool success =  st25_io.readMultipleBytes(SF_ST25DV64KC_ADDRESS::DATA, baseAddress, data, dataLength);
+
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return (success);
 }
 
 bool SFE_ST25DV64KC::setMemoryAreaEndAddress(uint8_t memoryArea, uint8_t endAddressValue)
@@ -665,12 +734,21 @@ bool SFE_ST25DV64KC::RFFieldDetected()
   return st25_io.isBitSet(SF_ST25DV64KC_ADDRESS::DATA, DYN_REG_EH_CTRL_DYN, BIT_EH_CTRL_DYN_FIELD_ON);
 }
 
-void SFE_ST25DV64KC::setGPO1Bit(uint8_t bitMask, bool enabled)
+bool SFE_ST25DV64KC::setGPO1Bit(uint8_t bitMask, bool enabled)
 {
+  bool success;
+
   if (enabled)
-    st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_GPO1, bitMask);
+    success = st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_GPO1, bitMask);
   else
-    st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_GPO1, bitMask);
+    success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_GPO1, bitMask);
+
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return success;
 }
 
 bool SFE_ST25DV64KC::getGPO1Bit(uint8_t bitMask)
@@ -678,12 +756,21 @@ bool SFE_ST25DV64KC::getGPO1Bit(uint8_t bitMask)
   return st25_io.isBitSet(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_GPO1, bitMask);
 }
 
-void SFE_ST25DV64KC::setGPO2Bit(uint8_t bitMask, bool enabled)
+bool SFE_ST25DV64KC::setGPO2Bit(uint8_t bitMask, bool enabled)
 {
+  bool success;
+
   if (enabled)
-    st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_GPO2, bitMask);
+    success = st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_GPO2, bitMask);
   else
-    st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_GPO2, bitMask);
+    success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_GPO2, bitMask);
+
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return success;
 }
 
 bool SFE_ST25DV64KC::getGPO2Bit(uint8_t bitMask)
@@ -691,12 +778,21 @@ bool SFE_ST25DV64KC::getGPO2Bit(uint8_t bitMask)
   return st25_io.isBitSet(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_GPO2, bitMask);
 }
 
-void SFE_ST25DV64KC::setGPO_CTRL_DynBit(bool enabled)
+bool SFE_ST25DV64KC::setGPO_CTRL_DynBit(bool enabled)
 {
+  bool success;
+
   if (enabled)
-    st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::DATA, DYN_REG_GPO_CTRL_DYN, BIT_GPO_CTRL_DYN_GPO_EN);
+    success = st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::DATA, DYN_REG_GPO_CTRL_DYN, BIT_GPO_CTRL_DYN_GPO_EN);
   else
-    st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::DATA, DYN_REG_GPO_CTRL_DYN, BIT_GPO_CTRL_DYN_GPO_EN);
+    success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::DATA, DYN_REG_GPO_CTRL_DYN, BIT_GPO_CTRL_DYN_GPO_EN);
+
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return success;
 }
 
 bool SFE_ST25DV64KC::getGPO_CTRL_DynBit()
@@ -718,12 +814,21 @@ uint8_t SFE_ST25DV64KC::getIT_STS_Dyn()
   return value;
 }
 
-void SFE_ST25DV64KC::setEH_MODEBit(bool value)
+bool SFE_ST25DV64KC::setEH_MODEBit(bool value)
 {
+  bool success;
+
   if (value)
-    st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_EH_MODE, BIT_EH_MODE_EH_MODE);
+    success = st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_EH_MODE, BIT_EH_MODE_EH_MODE);
   else
-    st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_EH_MODE, BIT_EH_MODE_EH_MODE);
+    success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_EH_MODE, BIT_EH_MODE_EH_MODE);
+
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return success;
 }
 
 bool SFE_ST25DV64KC::getEH_MODEBit()
@@ -731,12 +836,21 @@ bool SFE_ST25DV64KC::getEH_MODEBit()
   return st25_io.isBitSet(SF_ST25DV64KC_ADDRESS::SYSTEM, REG_EH_MODE, BIT_EH_MODE_EH_MODE);
 }
 
-void SFE_ST25DV64KC::setEH_CTRL_DYNBit(uint8_t bitMask, bool value)
+bool SFE_ST25DV64KC::setEH_CTRL_DYNBit(uint8_t bitMask, bool value)
 {
+  bool success;
+
   if (value)
-    st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::DATA, DYN_REG_EH_CTRL_DYN, bitMask);
+    success = st25_io.setRegisterBit(SF_ST25DV64KC_ADDRESS::DATA, DYN_REG_EH_CTRL_DYN, bitMask);
   else
-    st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::DATA, DYN_REG_EH_CTRL_DYN, bitMask);
+    success = st25_io.clearRegisterBit(SF_ST25DV64KC_ADDRESS::DATA, DYN_REG_EH_CTRL_DYN, bitMask);
+
+  if (!success)
+  {
+    SAFE_CALLBACK(_errorCallback, SF_ST25DV64KC_ERROR::I2C_TRANSMISSION_ERROR);
+  }
+
+  return success;
 }
 
 bool SFE_ST25DV64KC::getEH_CTRL_DYNBit(uint8_t bitMask)
