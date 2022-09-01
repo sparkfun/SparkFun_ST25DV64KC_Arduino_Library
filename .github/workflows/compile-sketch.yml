@@ -1,9 +1,8 @@
 name: Compile Sketch
 
 on:
-  # - push
-  - pull_request
-
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   compile-sketch:

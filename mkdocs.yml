@@ -3,6 +3,8 @@ site_name: SparkFun ST25DV64KC Arduino Library - Documentation
 site_description: SparkFun ST25DV64KC Arduino Library. A library which makes it easy to read and write a ST25DV dynamic tag's EEPROM memory. It has built-in support for reading and writing NDEF URI, WiFi and Text records.
 site_url: https://sparkfun.github.io/SparkFun_ST25DV64KC_Arduino_Library/
 
+edit_uri: edit/main/docs/
+
 theme:
   name: material
   logo: img/sfe_logo_sm.png
@@ -57,6 +59,8 @@ markdown_extensions:
   - pymdownx.tilde
   - tables
   - admonition
+  - md_in_html
+  - attr_list
 
 extra:
   social:
@@ -81,4 +85,6 @@ nav:
     - SFE_ST25DV64KC_NDEF: api_SFE_ST25DV64KC_NDEF.md
     - SFE_ST25DV64KC_IO: api_SFE_ST25DV64KC_IO.md
   - Examples: '!include ./examples/mkdocs.yml'
-    
+  - Contribution/Issues:
+    - Contribute: contribute.md
+        
