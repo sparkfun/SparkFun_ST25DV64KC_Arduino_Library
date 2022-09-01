@@ -26,6 +26,7 @@
 An Arduino library for the ST25DV64KC Dynamic NFC/RFID Tag.
 
 With this library, you can:
+
 * Write WiFi credentials to the tag using your smart phone and then have your Arduino board read them via I2C
 * Log data from your Arduino project into the tag's EEPROM memory and then read it back with your smart phone - even while your Arduino board is asleep or powered off!
 * Configure or update your project's keys, usernames or passwords securely and easily using contactless near field communication
