@@ -1,6 +1,6 @@
 # Used to run mkdocs on the repo
 
-name: ci 
+name: mkdocs
 on:
   push:
     branches:
@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 jobs:
   deploy:
     runs-on: ubuntu-latest

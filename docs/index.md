@@ -3,11 +3,15 @@
 <p align="center">
     <a href="https://github.com/sparkfun/SparkFun_ST25DV64KC_Arduino_Library/issues" alt="Issues">
         <img src="https://img.shields.io/github/issues/sparkfun/SparkFun_ST25DV64KC_Arduino_Library.svg" /></a>
+    <a href="https://github.com/sparkfun/SparkFun_ST25DV64KC_Arduino_Library/actions" alt="Actions">
+        <img src="https://github.com/sparkfun/SparkFun_ST25DV64KC_Arduino_Library/actions/workflows/mkdocs.yml/badge.svg" /></a>
+    <a href="https://github.com/sparkfun/SparkFun_ST25DV64KC_Arduino_Library/actions" alt="Actions">
+        <img src="https://github.com/sparkfun/SparkFun_ST25DV64KC_Arduino_Library/actions/workflows/compile-sketch.yml/badge.svg" /></a>
     <a href="https://github.com/sparkfun/SparkFun_ST25DV64KC_Arduino_Library/blob/master/LICENSE" alt="License">
         <img src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
     <a href="https://twitter.com/intent/follow?screen_name=sparkfun">
-                    <img src="https://img.shields.io/twitter/follow/sparkfun.svg?style=social&logo=twitter"
-                          alt="follow on Twitter"></a>
+        <img src="https://img.shields.io/twitter/follow/sparkfun.svg?style=social&logo=twitter"
+        alt="follow on Twitter"></a>
 </p>
 
 <table class="table table-hover table-striped table-bordered">
