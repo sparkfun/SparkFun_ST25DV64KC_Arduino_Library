@@ -4,7 +4,7 @@ A more complex example showing how to read and write the tag's EEPROM memory usi
 
 ## Key Features
 
-- Opening a I2C Security Session using the password
+- Opening a I<sup>2</sup>C Security Session using the password
 - Reading and changing the memory read and write protection
 - Reading memory
 - Writing to memory
@@ -14,24 +14,24 @@ A more complex example showing how to read and write the tag's EEPROM memory usi
 
 The ST25DV64KC has 64-kBits of EEPROM user memory. That's 8-kBytes or 8102 Bytes. We can use all of that memory to store data.
 
-The ST25DV tags are "dynamic". The memory can be read and written to using both I2C and RF (NFC). For I2C, the tag needs to be powered up via your Arduino board.
+The ST25DV tags are "dynamic". The memory can be read and written to using both I<sup>2</sup>C and RF (NFC). For I<sup>2</sup>C, the tag needs to be powered up via your Arduino board.
 But for RF, the tag memory can be read and written to even when the tag is powered off. The RF field provides the power.
 
-By default, the memory can be both read and written using both I2C and RF. We do not need to enter a password for either interface.
-But it is possible to change that using the tag's read and write protection settings. There are independent settings for I2C and RF.
+By default, the memory can be both read and written using both I<sup>2</sup>C and RF. We do not need to enter a password for either interface.
+But it is possible to change that using the tag's read and write protection settings. There are independent settings for I<sup>2</sup>C and RF.
 
 The tag's memory can also be divided up into four areas. By default, Area 1 occupies the whole 8-kBytes of memory and Areas 2-4 are zero length.
 Example 4 demonstrates how to change the size of the areas.
 
 Area 1 is special in that it is _always_ readable. We can only change its write permission. Areas 2-4 can be both read and write protected.
 
-If we enable the I2C write protection for Area 1, we need to enter a password before we can write to Area 1. Remember that Area 1 is always readable.
+If we enable the I<sup>2</sup>C write protection for Area 1, we need to enter a password before we can write to Area 1. Remember that Area 1 is always readable.
 
 The default password is eight zero bytes: 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00. Example 3 shows how to change the password.
 
 ## Entering The Password
 
-Example 2 starts by beginning communication with the tag. It then enters the I2C password so we can change the write protection.
+Example 2 starts by beginning communication with the tag. It then enters the I<sup>2</sup>C password so we can change the write protection.
 
 By default, we do not _need_ to enter a password to write _data_ to Area 1. Write protection is disabled by default.
 _But_ we do need to enter the password to be able to _change_ the write protection.
@@ -113,7 +113,7 @@ We read the tag's EEPROM memory by calling ```readEEPROM```:
   // Read 16 bytes from EEPROM location 0x0
   uint8_t tagRead[16] = {0}; // Create storage to hold the tag read
   Serial.print(F("Reading values, starting at location 0x0, with opened security session:        "));
-  tag.readEEPROM(0x0, tagRead, 16); // Read the EEPROM: start at address 0x0; read contents into tagRead; read 16 bytes
+  tag.readEEPROM(0x00, tagRead, 16); // Read the EEPROM: start at address 0x0; read contents into tagRead; read 16 bytes
 ```
 
 The code creates an array of ```uint8_t``` (unsigned 8-bit bytes) to hold the memory contents.
@@ -158,7 +158,7 @@ Now the fun part! The example writes 16 random bytes to the first 16 memory loca
   Serial.print(F("Writing random values, starting at location 0x0, with opened security session: "));
   // ...
   Serial.println();
-  tag.writeEEPROM(0x0, tagWrite, 16); // Write data to EEPROM: start at address 0x0; use the data in tagWrite; write 16 bytes
+  tag.writeEEPROM(0x00, tagWrite, 16); // Write data to EEPROM: start at address 0x0; use the data in tagWrite; write 16 bytes
 ```
 
 The code creates 16 random values and puts them into an array called ```tagWrite```. The actual writing is performed by ```writeEEPROM```:
@@ -169,7 +169,10 @@ The code creates 16 random values and puts them into an array called ```tagWrite
 
 The code then reads those 16 bytes back again, just to prove they have been written correctly:
 
-![Arduino IDE - Serial Monitor - Example 2](img/ex_02_Serial_Monitor_1.png "Arduino IDE - Serial Monitor - Example 2")
+<center>
+[![Arduino IDE - Serial Monitor - Example 2](img/ex_02_Serial_Monitor_1.png){ width="400" }](img/ex_02_Serial_Monitor_1.png)<br>
+*Arduino IDE Serial Monitor output for Example 2. (Click to enlarge)*
+</center>
 
 ## Closing the Security Session
 
@@ -191,7 +194,10 @@ It does not matter what password we enter, so long as it is not the current pass
 
 If we try to write data to Area 1 now, the write is rejected and the memory is not changed:
 
-![Arduino IDE - Serial Monitor - Example 2](img/ex_02_Serial_Monitor_2.png "Arduino IDE - Serial Monitor - Example 2")
+<center>
+[![Arduino IDE - Serial Monitor - Example 2](img/ex_02_Serial_Monitor_2.png){ width="400" }](img/ex_02_Serial_Monitor_2.png)<br>
+*Arduino IDE Serial Monitor output for Example 2. (Click to enlarge)*
+</center>
 
 We can not change the write protection either because the security session is closed.
 
@@ -206,5 +212,9 @@ The example concludes by doing the following:
 
 This leaves the tag in its default state: write protection is not enabled; and the first 16 memory locations are all zero
 
-![Arduino IDE - Serial Monitor - Example 2](img/ex_02_Serial_Monitor_3.png "Arduino IDE - Serial Monitor - Example 2")
+<center>
+[![Arduino IDE - Serial Monitor - Example 2](img/ex_02_Serial_Monitor_3.png){ width="400" }](img/ex_02_Serial_Monitor_3.png)<br>
+*Arduino IDE Serial Monitor output for Example 2. (Click to enlarge)*
+</center>
+
 

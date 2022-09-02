@@ -6,23 +6,23 @@ An example showing how to check if a new NDEF record has been written to the tag
 
 - Writing the tag's Capability Container (CC)
 - Writing an Empty NDEF Record
-- Waiting for a key press - to say it is 'safe' to read the tag with I2C
+- Waiting for a key press - to say it is 'safe' to read the tag with I<sup>2</sup>C
 - Checking for the writing of new URI, WiFi or Text records
 
 ## Interface Arbitration
 
-The ST25DV tag has a clever "interface arbitration" feature. If an I2C transaction is in progress, RF transactions are 'blocked'. And vice versa.
+The ST25DV tag has a clever "interface arbitration" feature. If an I<sup>2</sup>C transaction is in progress, RF transactions are 'blocked'. And vice versa.
 
 This is obviously a good thing! But there are some complications to be aware of. It looks like the ST "NFC Tap" App uses a read-modify-write
 approach when adding new records to tag memory. We think it does this using separate RF transactions or 'sessions'. The App gets very
-confused if the tag is busy servicing a _new_ I2C transaction (memory read) when it tries to do the RF 'write' after the 'modify'...
+confused if the tag is busy servicing a _new_ I<sup>2</sup>C transaction (memory read) when it tries to do the RF 'write' after the 'modify'...
 
 Note: this is not an issue with the tag itself. The tag is very robust. It is an issue of how the App - and this example - have been written.
 
-The simple solution is to only read the tag using I2C when you know it is 'safe' to do so. I.e. when you know there is no RF activity taking place.
+The simple solution is to only read the tag using I<sup>2</sup>C when you know it is 'safe' to do so. I.e. when you know there is no RF activity taking place.
 In this example, the user presses a key (sends a single Serial character) to indicate the tag should be read.
 
-The next example shows how to avoid most I2C and RF 'collisions' using the GPO pin.
+The next example shows how to avoid most I<sup>2</sup>C and RF 'collisions' using the GPO pin.
 
 ## Writing an Empty NDEF Record
 

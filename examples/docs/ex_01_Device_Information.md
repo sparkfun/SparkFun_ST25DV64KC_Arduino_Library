@@ -5,7 +5,7 @@ A simple example to show the basic setup and use of SparkFun ST25DV64KC Arduino 
 ## Key Features
 
 - Declaring a SFE_ST25DV64KC tag object
-- Beginning communication with the tag over I2C
+- Beginning communication with the tag over I<sup>2</sup>C
 - Reading the tag's Unique Identifier (UID)
 - Reading the tag's Device Revision
 
@@ -66,10 +66,10 @@ void setup()
   Serial.println(F("ST25 connected."));
 ```
 
-The ```begin``` method tells the **SFE_ST25DV64KC** object that it is connected via the I2C port called ```Wire```.
+The ```begin``` method tells the **SFE_ST25DV64KC** object that it is connected via the I<sup>2</sup>C port called ```Wire```.
 If your board supports multiple ports, you could (e.g.) replace ```Wire``` with ```Wire1``` as appropriate.
 
-If you call ```begin``` without naming a I2C port, the object assumes you are using ```Wire```.
+If you call ```begin``` without naming a I<sup>2</sup>C port, the object assumes you are using ```Wire```.
 
 The ```begin``` method returns **true** if the ST25DV is connected. If it returns **false**, we know no device is connected and - in this simple example - the code will freeze at that point.
 
@@ -101,12 +101,13 @@ Not all platforms support the printing of 64-bit numbers so we: create an array 
 Like ```begin```, ```getDeviceUID``` will return **false** if an error occurs. In this example, we print a warning message ("Could not read device UID!") if that happens.
 
 It is fun to read the tag's identifier using ST's "NFC Tap" App on your smart phone and compare it to the UID printed by this example. You will find they are exactly the same.
-You can find "NFC Tap" in the App Store. Open the App, hit "Scan" and then "Read Tag". Hold your phone over the tag and the Tag Information will appear. On iPhones, the NFC reader is
-at the 'top' of the phone, near the cameras.
+You can find "NFC Tap" in [the Apple App Store](https://apps.apple.com/us/app/nfc-tap/id1278913597) and [Google Play](https://play.google.com/store/apps/details?id=com.st.st25nfc&hl=en_GB&gl=US).
+Open the App, hit "Scan" and then "Read Tag". Hold your phone over the tag and the Tag Information will appear. On iPhones, the NFC reader is at the 'top' of the phone, near the cameras.
 
-![ST NFC Tag - Scan - Read Tag](img/ex_01_NFC_Tag_Scan.PNG "ST NFC Tag - Scan - Read Tag")
-
-![ST NFC Tag - Scan - Tag Information](img/ex_01_NFC_Tag_Device_Info.PNG "ST NFC Tag - Scan - Tag Information")
+<center>
+[![ST NFC Tap - Scan - Read Tag](img/ex_01_NFC_Tag_Scan.PNG){ width="200" }](img/ex_01_NFC_Tag_Scan.PNG)  [![ST NFC Tap - Scan - Tag Information](img/ex_01_NFC_Tag_Device_Info.PNG){ width="200" }](img/ex_01_NFC_Tag_Device_Info.PNG)<br>
+*NFC Tap images. (Click to enlarge)*
+</center>
 
 ![Arduino IDE - Serial Monitor - Example 1](img/ex_01_Serial_Monitor.png "Arduino IDE - Serial Monitor - Example 1")
 

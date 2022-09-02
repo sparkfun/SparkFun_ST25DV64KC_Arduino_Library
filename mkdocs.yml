@@ -80,11 +80,11 @@ nav:
   - Getting Started:
     - Introduction: intro.md
     - Software Setup: software.md
+  - Examples: '!include ./examples/mkdocs.yml'
   - API Reference:
     - SFE_ST25DV64KC: api_SFE_ST25DV64KC.md
     - SFE_ST25DV64KC_NDEF: api_SFE_ST25DV64KC_NDEF.md
     - SFE_ST25DV64KC_IO: api_SFE_ST25DV64KC_IO.md
-  - Examples: '!include ./examples/mkdocs.yml'
   - Contribution/Issues:
     - Contribute: contribute.md
         

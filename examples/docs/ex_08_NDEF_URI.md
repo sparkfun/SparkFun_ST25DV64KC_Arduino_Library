@@ -74,7 +74,7 @@ The default Capability Container is written by calling ```writeCCFile8Byte()```:
 If you want to use a non-standard CC, you can define your own e.g. by calling:
 
 ```C++
-  tag.writeCCFile8Byte( 0xE2400001, 0x00000400);
+  tag.writeCCFile8Byte( 0xE2400001, 0x00000400 );
 ```
 
 If you are using a small tag, like the ST25DV04K, you could call:

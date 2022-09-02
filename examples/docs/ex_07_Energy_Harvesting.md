@@ -25,6 +25,6 @@ breakout pin whenever an RF field is present.
   tag.setEH_CTRL_DYNBit(BIT_EH_CTRL_DYN_EH_EN, true);
 ```
 
-!!! note
+!!! attention
     The voltage on the EH pin _could_ be higher than 3.3V. Take care if you are using a microcontroller analog pin to measure the voltage.
 

@@ -4,7 +4,7 @@ An example showing how to configure the user memory areas using the SparkFun ST2
 
 ## Key Features
 
-- Opening a I2C Security Session using the password
+- Opening a I<sup>2</sup>C Security Session using the password
 - Changing the size of Area 1 by changing its end address
 - Attempting to change the size of Area 2 using an invalid end address
 - Changing the size of Area 1 back to the default
@@ -29,13 +29,15 @@ This library will work with smaller ST25DV devices. For the ST25DV04KC, the memo
 !!! note
     When accessing the memory via the RF interface, the memory is read and written in blocks of four bytes. The last user memory block address, seen by RF, for the ST25DV64KC is 0x07FF. It is still possible to access the full memory via the RF interface.
 
-It can be useful to change the memory area sizes so that different security levels can be applied to each. Remember that Area 1 is always readable, but can be write-protected. For Areas 2-4, it is possible to apply read-protection. It is also possible to apply different security levels for the I2C and RF interfaces for each area.
+It can be useful to change the memory area sizes so that different security levels can be applied to each. Remember that Area 1 is always readable, but can be write-protected. For Areas 2-4, it is possible to apply read-protection. It is also possible to apply different security levels for the I<sup>2</sup>C and RF interfaces for each area.
 
 Example 4 changes the size of Area 1 by calling ```setMemoryAreaEndAddress```.
 
 The end address is defined using a single byte. The true end address is: (32 * ENDA) + 31
 
-For Area 1, the default value of ENDA1 is actually 0xFF (Hexadecimal) or 255 (Decimal). (32 * 255) + 31 = 8191
+For Area 1, the default value of ENDA1 is actually 0xFF (Hexadecimal) or 255 (Decimal):
+
+<b>(32 * 255) + 31 = 8191</b>
 
 The area sizes can only be changed in increments of 32 bytes. The minimum size for Area 1 is 32 bytes (when ENDA1 is zero).
 
@@ -119,5 +121,7 @@ The example finishes by restoring ENDA1 back to 0x1FFF:
   Serial.println(endAddress);
 ```
 
-![Arduino IDE - Serial Monitor - Example 4](img/ex_04_Serial_Monitor.png "Arduino IDE - Serial Monitor - Example 4")
-
+<center>
+[![Arduino IDE - Serial Monitor - Example 4](img/ex_04_Serial_Monitor.png){ width="400" }](img/ex_04_Serial_Monitor.png)<br>
+*Arduino IDE Serial Monitor output for Example 4. (Click to enlarge)*
+</center>
