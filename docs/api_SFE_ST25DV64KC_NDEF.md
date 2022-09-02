@@ -195,6 +195,24 @@ The TLV T and L fields are set automatically. The L field is updated from 1-byte
 bool writeNDEFWiFi(const char *ssid, const char *passwd, uint16_t *address, bool MB, bool ME, const uint8_t auth[2], const uint8_t encrypt[2])
 ```
 
+Possible values for `auth` and `encrypt` are:
+
+```C++
+static const uint8_t SFE_ST25DV_WIFI_AUTH_OPEN[2] = {0x00, 0x01};
+static const uint8_t SFE_ST25DV_WIFI_AUTH_WPA_PERSONAL[2] = {0x00, 0x02};
+static const uint8_t SFE_ST25DV_WIFI_AUTH_SHARED[2] = {0x00, 0x04};
+static const uint8_t SFE_ST25DV_WIFI_AUTH_WPA_ENTERPRISE[2] = {0x00, 0x08};
+static const uint8_t SFE_ST25DV_WIFI_AUTH_WPA2_ENTERPRISE[2] = {0x00, 0x10};
+static const uint8_t SFE_ST25DV_WIFI_AUTH_WPA2_PERSONAL[2] = {0x00, 0x20};
+static const uint8_t SFE_ST25DV_WIFI_AUTH_WPA_WPA2_PERSONAL[2] = {0x00, 0x22};
+
+static const uint8_t SFE_ST25DV_WIFI_ENCRYPT_NONE[2] = {0x00, 0x01};
+static const uint8_t SFE_ST25DV_WIFI_ENCRYPT_WEP[2] = {0x00, 0x02};
+static const uint8_t SFE_ST25DV_WIFI_ENCRYPT_TKIP[2] = {0x00, 0x04};
+static const uint8_t SFE_ST25DV_WIFI_ENCRYPT_AES[2] = {0x00, 0x08};
+static const uint8_t SFE_ST25DV_WIFI_ENCRYPT_AES_TKIP[2] = {0x00, 0x0C};
+```
+
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
 | `ssid` | `const char *` | A pointer to the SSID (Network Name) |
@@ -202,8 +220,8 @@ bool writeNDEFWiFi(const char *ssid, const char *passwd, uint16_t *address, bool
 | `address` | `uint16_t *` | A pointer to a `uint16_t` containing the start address for this record. Default is ```NULL```. If not provided, the record is written to ```_ccFileLen``` |
 | `MB` | `bool` | Message Begin flag. Default is ```true``` |
 | `ME` | `bool` | Message End flag. Default is ```true``` |
-| `auth` | `const uint8_t[2]` | The WiFi authentication method. Default is `SFE_ST25DV_WIFI_AUTH_WPA2_PERSONAL` = {0x00, 0x20} |
-| `encrypt` | `const uint8_t[2]` | The WiFi encryption method. Default is `SFE_ST25DV_WIFI_ENCRYPT_AES` = {0x00, 0x08} |
+| `auth` | `const uint8_t[2]` | The WiFi authentication method. Default is `SFE_ST25DV_WIFI_AUTH_WPA2_PERSONAL` = 0x00, 0x20 |
+| `encrypt` | `const uint8_t[2]` | The WiFi encryption method. Default is `SFE_ST25DV_WIFI_ENCRYPT_AES` = 0x00, 0x08 |
 | return value | `bool` | ```true``` if the write was successful, otherwise ```false``` |
 
 ### readNDEFWiFi()
@@ -233,8 +251,8 @@ This method writes an NDEF Text record to EEPROM.
 
 The text passed in ```const char *theText```.
 
-The length of `theText` is calculated using ```strlen```, which will fail if `theText` contains any zero (0x00) bytes.
-An overloaded method allows the text to be defined using ```const uint8_t *theText``` and ```uint16_t textLength``` if required.
+!!! note
+    The length of `theText` is calculated using ```strlen```, which will fail if `theText` contains any zero (0x00) bytes. An overloaded method allows the text to be defined using ```const uint8_t *theText``` and ```uint16_t textLength``` if required.
 
 The text language code can be defined using the `languageCode` parameter. `languageCode` defaults to ```NULL```, in which case the language code is set automatically to "en" (English).
 
@@ -279,8 +297,8 @@ By default, the first record is returned. The second and subsequent records can 
 
 If the chosen `recordNo` is not present, the method returns ```false```. This provides an easy way to count the number of WiFi records in memory.
 
-If `theText` could contain any zero (0x00) bytes, you can use the overloaded method to receive the actual text length. On call, set `*textLen` to maximum number of bytes which `theText` can hold.
-On return, `*textLen` will contain the actual number of chars read.
+!!! note
+    If `theText` could contain any zero (0x00) bytes, you can use the overloaded method to receive the actual text length. On call, set `*textLen` to maximum number of bytes which `theText` can hold. On return, `*textLen` will contain the actual number of chars read.
 
 ```C++
 bool readNDEFText(char *theText, uint16_t maxTextLen, uint8_t recordNo, char *language, uint16_t maxLanguageLen)

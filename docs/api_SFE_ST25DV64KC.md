@@ -4,21 +4,21 @@
 
 The ```SFE_ST25DV64KC``` class provides all of the necessary methods to exchange data with the ST25DV tag.
 
-Communication with the tag is started by calling ```begin``` and providing the address of a ```TwoWire``` (I2C) Port. ```begin``` will default to ```Wire``` if no ```wirePort``` is provided.
+Communication with the tag is started by calling ```begin``` and providing the address of a ```TwoWire``` (I<sup>2</sup>C) Port. ```begin``` will default to ```Wire``` if no ```wirePort``` is provided.
 
 The tag's unique identifier (UID) can be read with ```getDeviceUID```. The hardware version can be checked with ```getDeviceRevision```.
 
-By default, the user memory can be both read and written to via both I2C and RF (NFC). But, to change any of the IC's settings, a security session needs to be opened
-by entering the correct password. The default password is eight zeros ( 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ) and - for I2C - can be entered by calling
-```openI2CSession```. The status of the security session can be checked with ```isI2CSessionOpen```. The I2C password can be changed with ```writeI2CPassword```.
+By default, the user memory can be both read and written to via both I<sup>2</sup>C and RF (NFC). But, to change any of the IC's settings, a security session needs to be opened
+by entering the correct password. The default password is eight zeros ( 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ) and - for I<sup>2</sup>C - can be entered by calling
+```openI2CSession```. The status of the security session can be checked with ```isI2CSessionOpen```. The I<sup>2</sup>C password can be changed with ```writeI2CPassword```.
 
-!!! note
+!!! attention
     The password can be read back from the tag with ```readRegisterValues```, _**but**_ only when a security session is open. If you change the password, close the security session and then forget the password, _**your tag is locked forever**_. There is no way to change or reset the pasword unless you know the password. If you change it, write it down somewhere.
 
 The memory can be divided up into four areas, each of which can have different security levels applied. ```setMemoryAreaEndAddress``` and ```getMemoryAreaEndAddress```
 can change and read the end address for each area.
 
-With an open security session, the I2C read and write permissions for each area can be changed and read with ```programEEPROMReadProtectionBit```, ```programEEPROMWriteProtectionBit```,
+With an open security session, the I<sup>2</sup>C read and write permissions for each area can be changed and read with ```programEEPROMReadProtectionBit```, ```programEEPROMWriteProtectionBit```,
 ```getEEPROMReadProtectionBit``` and ```getEEPROMWriteProtectionBit```.
 
 With an open security session, the RF read and write permissions for each area can be changed and read with ```setAreaRfRwProtection``` and ```getAreaRfRwProtection```.
@@ -64,7 +64,7 @@ tag.setErrorCallback(&errorHandler);
 
 ### begin()
 
-This method configures I2C communication with the tag and confirms the tag is connected.
+This method configures I<sup>2</sup>C communication with the tag and confirms the tag is connected.
 
 ```c++
 bool begin(TwoWire &wirePort)
@@ -77,7 +77,7 @@ bool begin(TwoWire &wirePort)
 
 ### isConnected()
 
-This method confirms if a device is connected at the expected I2C address.
+This method confirms if a device is connected at the expected I<sup>2</sup>C address.
 This method can only be called after ```begin```, as ```begin``` configures which TwoWire port will be used.
 ```begin``` calls ```isConnected``` internally to establish if a tag is connected.
 
@@ -121,7 +121,7 @@ bool getDeviceRevision(uint8_t *value)
 
 ### openI2CSession()
 
-This method enters the I2C security session 64-bit password. password is uint8_t[8].
+This method enters the I<sup>2</sup>C security session 64-bit password. password is uint8_t[8].
 This method returns ```true``` if the password is written to the tag successfully - but that does not confirm that the password is valid/invalid.
 The password validity must be confirmed with ```isI2CSessionOpen```.
 
@@ -136,7 +136,7 @@ bool openI2CSession(uint8_t *password)
 
 ### isI2CSessionOpen()
 
-This method checks if the I2C security session is open, i.e. that the correct password has been entered.
+This method checks if the I<sup>2</sup>C security session is open, i.e. that the correct password has been entered.
 
 ```c++
 bool isI2CSessionOpen()
@@ -148,9 +148,9 @@ bool isI2CSessionOpen()
 
 ### writeI2CPassword()
 
-This method changes the I2C password. It will only be successful when a security session is open, i.e. you need to know the current password to be able to change the password (obvs.).
+This method changes the I<sup>2</sup>C password. It will only be successful when a security session is open, i.e. you need to know the current password to be able to change the password (obvs.).
 
-!!! note
+!!! attention
     The password can be read back from the tag with ```readRegisterValues```, _**but**_ only when a security session is open. If you change the password, close the security session and then forget the password, _**your tag is locked forever**_. There is no way to change or reset the pasword unless you know the password. If you change it, write it down somewhere.
 
 ```c++
@@ -197,11 +197,11 @@ uint16_t getMemoryAreaEndAddress(uint8_t memoryArea)
 | `memoryArea` | `uint8_t` | The memory area 1-3 |
 | return value | `uint16_t` | The actual end address (16-bit) |
 
-## I2C Read and Write Protection
+## I<sup>2</sup>C Read and Write Protection
 
 ### programEEPROMReadProtectionBit()
 
-This method sets/clears the I2C read protection bit for the specified memory area 1-4.
+This method sets/clears the I<sup>2</sup>C read protection bit for the specified memory area 1-4.
 
 When set, the memory area is only readable if a security session is open.
 
@@ -215,12 +215,12 @@ bool programEEPROMReadProtectionBit(uint8_t memoryArea, bool readSecured)
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
 | `memoryArea` | `uint8_t` | The memory area 1-4 |
-| `readSecured` | `bool` | ```true```: read is allowed only if an I2C security session is open. ```false```: read is always allowed |
+| `readSecured` | `bool` | ```true```: read is allowed only if an I<sup>2</sup>C security session is open. ```false```: read is always allowed |
 | return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
 ### programEEPROMWriteProtectionBit()
 
-This method sets/clears the I2C write protection bit for the specified memory area 1-4.
+This method sets/clears the I<sup>2</sup>C write protection bit for the specified memory area 1-4.
 
 When set, the memory area is only writeable if a security session is open.
 
@@ -231,7 +231,7 @@ bool programEEPROMWriteProtectionBit(uint8_t memoryArea, bool writeSecured)
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
 | `memoryArea` | `uint8_t` | The memory area 1-4 |
-| `writeSecured` | `bool` | ```true```: write is allowed only if an I2C security session is open. ```false```: write is always allowed |
+| `writeSecured` | `bool` | ```true```: write is allowed only if an I<sup>2</sup>C security session is open. ```false```: write is always allowed |
 | return value | `bool` | ```true``` if the write is successful, otherwise ```false``` |
 
 ### getEEPROMReadProtectionBit()
@@ -317,8 +317,8 @@ as defined by ```setAreaRfRwProtection```. The matching RF Password (1-3) can al
 
 By default, the `pwdCtrl` setting for each memory area is `RF_PWD_NEVER`, meaning that a RF User security session can not be opened by password.
 
-To protect a tag against unwanted changes via an RF Configuration Session, RF Password 0 should be changed using an App like ST's "NFC Tap".
-It is not possible to do this via I2C. The I2C interface has no access to the four RF passwords.
+!!! attention
+    To protect a tag against unwanted changes via an RF Configuration Session, RF Password 0 should be changed using an App like ST's "NFC Tap". It is not possible to do this via I<sup>2</sup>C. The I<sup>2</sup>C interface has no access to the four RF passwords.
 
 ```c++
 bool setAreaRfPwdCtrl(uint8_t memoryArea, SF_ST25DV_RF_PWD_CTRL pwdCtrl)
@@ -639,7 +639,7 @@ RF_SWITCH_ON,  // E2 = 1, E1 = 0
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `addressType` | `enum class SF_ST25DV64KC_ADDRESS` | The register type, equivalent to the I2C address |
+| `addressType` | `enum class SF_ST25DV64KC_ADDRESS` | The register type, equivalent to the I<sup>2</sup>C address |
 | `registerAddress` | `const uint16_t` | The register address |
 | `value` | `uint8_t *` | `value` will hold the register value on return |
 | return value | `bool` | ```true``` if the read was successful, otherwise ```false``` |
@@ -672,7 +672,7 @@ RF_SWITCH_ON,  // E2 = 1, E1 = 0
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `addressType` | `enum class SF_ST25DV64KC_ADDRESS` | The register type, equivalent to the I2C address |
+| `addressType` | `enum class SF_ST25DV64KC_ADDRESS` | The register type, equivalent to the I<sup>2</sup>C address |
 | `registerAddress` | `const uint16_t` | The start register address |
 | `data` | `uint8_t *` | `data` will hold the register values on return |
 | `dataLength` | `const uint16_t` | The number of registers to be read |
@@ -682,4 +682,4 @@ RF_SWITCH_ON,  // E2 = 1, E1 = 0
 
 | Parameter | Type | Description |
 | :-------- | :--- | :---------- |
-| `st25_io` | `class SFE_ST2525DV64KC_IO` | An instance of the `SFE_ST2525DV64KC_IO` class, providing I2C communication methods and storage for `wirePort` |
+| `st25_io` | `class SFE_ST2525DV64KC_IO` | An instance of the `SFE_ST2525DV64KC_IO` class, providing I<sup>2</sup>C communication methods and storage for `wirePort` |
