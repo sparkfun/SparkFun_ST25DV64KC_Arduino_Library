@@ -1,0 +1,3309 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="SparkFun ST25DV64KC Arduino Library. A library which makes it easy to read and write a ST25DV dynamic tag's EEPROM memory. It has built-in support for reading and writing NDEF URI, WiFi and Text records.">
+      
+      
+      
+        <link rel="canonical" href="https://sparkfun.github.io/SparkFun_ST25DV64KC_Arduino_Library/api_SFE_ST25DV64KC/">
+      
+      
+        <link rel="prev" href="../sparkfun-st25dv64kc-arduino-library-examples/ex_14_Wait_For_NDEF_Write/">
+      
+      
+        <link rel="next" href="../api_SFE_ST25DV64KC_NDEF/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.4">
+    
+    
+      
+        <title>SFE_ST25DV64KC - SparkFun ST25DV64KC Arduino Library - Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.50c56a3b.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+  
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+    
+    
+  
+  
+  <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1 7.775V2.75C1 1.784 1.784 1 2.75 1h5.025c.464 0 .91.184 1.238.513l6.25 6.25a1.75 1.75 0 0 1 0 2.474l-5.026 5.026a1.75 1.75 0 0 1-2.474 0l-6.25-6.25A1.752 1.752 0 0 1 1 7.775Zm1.5 0c0 .066.026.13.073.177l6.25 6.25a.25.25 0 0 0 .354 0l5.025-5.025a.25.25 0 0 0 0-.354l-6.25-6.25a.25.25 0 0 0-.177-.073H2.75a.25.25 0 0 0-.25.25ZM6 5a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z"/></svg>');--md-admonition-icon--abstract:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.5 1.75v11.5c0 .138.112.25.25.25h3.17a.75.75 0 0 1 0 1.5H2.75A1.75 1.75 0 0 1 1 13.25V1.75C1 .784 1.784 0 2.75 0h8.5C12.216 0 13 .784 13 1.75v7.736a.75.75 0 0 1-1.5 0V1.75a.25.25 0 0 0-.25-.25h-8.5a.25.25 0 0 0-.25.25Zm13.274 9.537v-.001l-4.557 4.45a.75.75 0 0 1-1.055-.008l-1.943-1.95a.75.75 0 0 1 1.062-1.058l1.419 1.425 4.026-3.932a.75.75 0 1 1 1.048 1.074ZM4.75 4h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM4 7.75A.75.75 0 0 1 4.75 7h2a.75.75 0 0 1 0 1.5h-2A.75.75 0 0 1 4 7.75Z"/></svg>');--md-admonition-icon--info:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/></svg>');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M3.499.75a.75.75 0 0 1 1.5 0v.996C5.9 2.903 6.793 3.65 7.662 4.376l.24.202c-.036-.694.055-1.422.426-2.163C9.1.873 10.794-.045 12.622.26 14.408.558 16 1.94 16 4.25c0 1.278-.954 2.575-2.44 2.734l.146.508.065.22c.203.701.412 1.455.476 2.226.142 1.707-.4 3.03-1.487 3.898C11.714 14.671 10.27 15 8.75 15h-6a.75.75 0 0 1 0-1.5h1.376a4.484 4.484 0 0 1-.563-1.191 3.835 3.835 0 0 1-.05-2.063 4.647 4.647 0 0 1-2.025-.293.75.75 0 0 1 .525-1.406c1.357.507 2.376-.006 2.698-.318l.009-.01a.747.747 0 0 1 1.06 0 .748.748 0 0 1-.012 1.074c-.912.92-.992 1.835-.768 2.586.221.74.745 1.337 1.196 1.621H8.75c1.343 0 2.398-.296 3.074-.836.635-.507 1.036-1.31.928-2.602-.05-.603-.216-1.224-.422-1.93l-.064-.221c-.12-.407-.246-.84-.353-1.29a2.425 2.425 0 0 1-.507-.441 3.075 3.075 0 0 1-.633-1.248.75.75 0 0 1 1.455-.364c.046.185.144.436.31.627.146.168.353.305.712.305.738 0 1.25-.615 1.25-1.25 0-1.47-.95-2.315-2.123-2.51-1.172-.196-2.227.387-2.706 1.345-.46.92-.27 1.774.019 3.062l.042.19a.884.884 0 0 1 .01.05c.348.443.666.949.94 1.553a.75.75 0 1 1-1.365.62c-.553-1.217-1.32-1.94-2.3-2.768L6.7 5.527c-.814-.68-1.75-1.462-2.692-2.619a3.737 3.737 0 0 0-1.023.88c-.406.495-.663 1.036-.722 1.508.116.122.306.21.591.239.388.038.797-.06 1.032-.19a.75.75 0 0 1 .728 1.31c-.515.287-1.23.439-1.906.373-.682-.067-1.473-.38-1.879-1.193L.75 5.677V5.5c0-.984.48-1.94 1.077-2.664.46-.559 1.05-1.055 1.673-1.353V.75Z"/></svg>');--md-admonition-icon--success:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z"/></svg>');--md-admonition-icon--question:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.92 6.085h.001a.749.749 0 1 1-1.342-.67c.169-.339.436-.701.849-.977C6.845 4.16 7.369 4 8 4a2.756 2.756 0 0 1 1.637.525c.503.377.863.965.863 1.725 0 .448-.115.83-.329 1.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6.24 6.24 0 0 0-.26.16.952.952 0 0 0-.276.245.75.75 0 0 1-1.248-.832c.184-.264.42-.489.692-.661.103-.067.207-.132.313-.195l.007-.004c.1-.061.182-.11.258-.161a.969.969 0 0 0 .277-.245C8.96 6.514 9 6.427 9 6.25a.612.612 0 0 0-.262-.525A1.27 1.27 0 0 0 8 5.5c-.369 0-.595.09-.74.187a1.01 1.01 0 0 0-.34.398ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>');--md-admonition-icon--failure:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M2.344 2.343h-.001a8 8 0 0 1 11.314 11.314A8.002 8.002 0 0 1 .234 10.089a8 8 0 0 1 2.11-7.746Zm1.06 10.253a6.5 6.5 0 1 0 9.108-9.275 6.5 6.5 0 0 0-9.108 9.275ZM6.03 4.97 8 6.94l1.97-1.97a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l1.97 1.97a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-1.97 1.97a.749.749 0 0 1-1.275-.326.749.749 0 0 1 .215-.734L6.94 8 4.97 6.03a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018Z"/></svg>');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M9.504.43a1.516 1.516 0 0 1 2.437 1.713L10.415 5.5h2.123c1.57 0 2.346 1.909 1.22 3.004l-7.34 7.142a1.249 1.249 0 0 1-.871.354h-.302a1.25 1.25 0 0 1-1.157-1.723L5.633 10.5H3.462c-1.57 0-2.346-1.909-1.22-3.004L9.503.429Zm1.047 1.074L3.286 8.571A.25.25 0 0 0 3.462 9H6.75a.75.75 0 0 1 .694 1.034l-1.713 4.188 6.982-6.793A.25.25 0 0 0 12.538 7H9.25a.75.75 0 0 1-.683-1.06l2.008-4.418.003-.006a.036.036 0 0 0-.004-.009l-.006-.006-.008-.001c-.003 0-.006.002-.009.004Z"/></svg>');--md-admonition-icon--bug:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M4.72.22a.75.75 0 0 1 1.06 0l1 .999a3.488 3.488 0 0 1 2.441 0l.999-1a.748.748 0 0 1 1.265.332.75.75 0 0 1-.205.729l-.775.776c.616.63.995 1.493.995 2.444v.327c0 .1-.009.197-.025.292.408.14.764.392 1.029.722l1.968-.787a.75.75 0 0 1 .556 1.392L13 7.258V9h2.25a.75.75 0 0 1 0 1.5H13v.5c0 .409-.049.806-.141 1.186l2.17.868a.75.75 0 0 1-.557 1.392l-2.184-.873A4.997 4.997 0 0 1 8 16a4.997 4.997 0 0 1-4.288-2.427l-2.183.873a.75.75 0 0 1-.558-1.392l2.17-.868A5.036 5.036 0 0 1 3 11v-.5H.75a.75.75 0 0 1 0-1.5H3V7.258L.971 6.446a.75.75 0 0 1 .558-1.392l1.967.787c.265-.33.62-.583 1.03-.722a1.677 1.677 0 0 1-.026-.292V4.5c0-.951.38-1.814.995-2.444L4.72 1.28a.75.75 0 0 1 0-1.06Zm.53 6.28a.75.75 0 0 0-.75.75V11a3.5 3.5 0 1 0 7 0V7.25a.75.75 0 0 0-.75-.75ZM6.173 5h3.654A.172.172 0 0 0 10 4.827V4.5a2 2 0 1 0-4 0v.327c0 .096.077.173.173.173Z"/></svg>');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M5 5.782V2.5h-.25a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 0 1.5H11v3.282l3.666 5.76C15.619 13.04 14.543 15 12.767 15H3.233c-1.776 0-2.852-1.96-1.899-3.458Zm-2.4 6.565a.75.75 0 0 0 .633 1.153h9.534a.75.75 0 0 0 .633-1.153L12.225 10.5h-8.45ZM9.5 2.5h-3V6c0 .143-.04.283-.117.403L4.73 9h6.54L9.617 6.403A.746.746 0 0 1 9.5 6Z"/></svg>');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M1.75 2.5h10.5a.75.75 0 0 1 0 1.5H1.75a.75.75 0 0 1 0-1.5Zm4 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5Zm0 5h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1 0-1.5ZM2.5 7.75v6a.75.75 0 0 1-1.5 0v-6a.75.75 0 0 1 1.5 0Z"/></svg>');}</style>
+
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="grey" data-md-color-accent="red">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#api-reference-for-the-sfe_st25dv64kc-class" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SparkFun ST25DV64KC Arduino Library - Documentation" class="md-header__button md-logo" aria-label="SparkFun ST25DV64KC Arduino Library - Documentation" data-md-component="logo">
+      
+  <img src="../img/sfe_logo_sm.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SparkFun ST25DV64KC Arduino Library - Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SFE_ST25DV64KC
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sparkfun/SparkFun_ST25DV64KC_Arduino_Library" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sparkfun/SparkFun_ST25DV64KC_Arduino_Library
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../intro/" class="md-tabs__link">
+          
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_01_Device_Information/" class="md-tabs__link">
+          
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contribute/" class="md-tabs__link">
+          
+  
+  Contribution/Issues
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SparkFun ST25DV64KC Arduino Library - Documentation" class="md-nav__button md-logo" aria-label="SparkFun ST25DV64KC Arduino Library - Documentation" data-md-component="logo">
+      
+  <img src="../img/sfe_logo_sm.png" alt="logo">
+
+    </a>
+    SparkFun ST25DV64KC Arduino Library - Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sparkfun/SparkFun_ST25DV64KC_Arduino_Library" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sparkfun/SparkFun_ST25DV64KC_Arduino_Library
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../intro/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../software/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Software Setup
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Examples
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Examples
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_01_Device_Information/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 1 - Device Information
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_02_Memory_Read_Write/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 2 - Memory Read Write Operations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_03_I2C_Password/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 3 - I2C Password
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_04_Memory_End_Address/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 4 - Memory End Address Programming
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_05_RF_Field_Poll/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 5 - Detect RF Field - Polling
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_06_RF_Field_Interrupt/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 6 - Detect RF Field - Interrupt
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_07_Energy_Harvesting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 7 - Energy Harvesting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_08_NDEF_URI/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 8 - NDEF URI Records
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_09_NDEF_WiFi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 9 - NDEF WiFi Records
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_10_NDEF_Text/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 10 - NDEF Text Records
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_11_Memory_Leak_Test/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 11 - Memory Leak Test
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_12_Production_Test/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 12 - Production Test
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_13_Check_For_NDEF_Write/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 13 - Check for NDEF Write
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparkfun-st25dv64kc-arduino-library-examples/ex_14_Wait_For_NDEF_Write/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Example 14 - Wait for NDEF Write
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    SFE_ST25DV64KC
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    SFE_ST25DV64KC
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#brief-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Brief Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#initialization-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initialization / Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Initialization / Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#seterrorcallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      setErrorCallback()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#begin" class="md-nav__link">
+    <span class="md-ellipsis">
+      begin()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#isconnected" class="md-nav__link">
+    <span class="md-ellipsis">
+      isConnected()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Device Properties
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Properties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getdeviceuid" class="md-nav__link">
+    <span class="md-ellipsis">
+      getDeviceUID()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getdevicerevision" class="md-nav__link">
+    <span class="md-ellipsis">
+      getDeviceRevision()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-session-password-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Session Password Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security Session Password Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openi2csession" class="md-nav__link">
+    <span class="md-ellipsis">
+      openI2CSession()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#isi2csessionopen" class="md-nav__link">
+    <span class="md-ellipsis">
+      isI2CSessionOpen()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writei2cpassword" class="md-nav__link">
+    <span class="md-ellipsis">
+      writeI2CPassword()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memory-area-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Area Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Memory Area Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setmemoryareaendaddress" class="md-nav__link">
+    <span class="md-ellipsis">
+      setMemoryAreaEndAddress()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getmemoryareaendaddress" class="md-nav__link">
+    <span class="md-ellipsis">
+      getMemoryAreaEndAddress()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i2c-read-and-write-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      I2C Read and Write Protection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="I2C Read and Write Protection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#programeepromreadprotectionbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      programEEPROMReadProtectionBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#programeepromwriteprotectionbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      programEEPROMWriteProtectionBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geteepromreadprotectionbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getEEPROMReadProtectionBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geteepromwriteprotectionbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getEEPROMWriteProtectionBit()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rf-read-and-write-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      RF Read and Write Protection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RF Read and Write Protection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setarearfrwprotection" class="md-nav__link">
+    <span class="md-ellipsis">
+      setAreaRfRwProtection()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getarearfrwprotection" class="md-nav__link">
+    <span class="md-ellipsis">
+      getAreaRfRwProtection()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setarearfpwdctrl" class="md-nav__link">
+    <span class="md-ellipsis">
+      setAreaRfPwdCtrl()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getarearfpwdctrl" class="md-nav__link">
+    <span class="md-ellipsis">
+      getAreaRfPwdCtrl()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eeprom-read-and-write" class="md-nav__link">
+    <span class="md-ellipsis">
+      EEPROM Read and Write
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EEPROM Read and Write">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#readeeprom" class="md-nav__link">
+    <span class="md-ellipsis">
+      readEEPROM()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writeeeprom" class="md-nav__link">
+    <span class="md-ellipsis">
+      writeEEPROM()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rf-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      RF Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RF Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rffielddetected" class="md-nav__link">
+    <span class="md-ellipsis">
+      RFFieldDetected()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gpo-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      GPO Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GPO Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setgpo1bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      setGPO1Bit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getgpo1bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getGPO1Bit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setgpo2bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      setGPO2Bit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getgpo2bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getGPO2Bit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setgpo_ctrl_dynbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      setGPO_CTRL_DynBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getgpo_ctrl_dynbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getGPO_CTRL_DynBit()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interrupt-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interrupt Status
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interrupt Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getit_sts_dyn" class="md-nav__link">
+    <span class="md-ellipsis">
+      getIT_STS_Dyn()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#energy-harvesting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Energy Harvesting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Energy Harvesting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#seteh_modebit" class="md-nav__link">
+    <span class="md-ellipsis">
+      setEH_MODEBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geteh_modebit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getEH_MODEBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seteh_ctrl_dynbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      setEH_CTRL_DYNBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geteh_ctrl_dynbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getEH_CTRL_DYNBit()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#errorcodestring" class="md-nav__link">
+    <span class="md-ellipsis">
+      errorCodeString()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#readregistervalue" class="md-nav__link">
+    <span class="md-ellipsis">
+      readRegisterValue()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#readregistervalues" class="md-nav__link">
+    <span class="md-ellipsis">
+      readRegisterValues()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#member-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Member Variables
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_SFE_ST25DV64KC_NDEF/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SFE_ST25DV64KC_NDEF
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_SFE_ST25DV64KC_IO/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SFE_ST25DV64KC_IO
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Contribution/Issues
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Contribution/Issues
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contribute/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contribute
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#brief-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Brief Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#initialization-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initialization / Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Initialization / Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#seterrorcallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      setErrorCallback()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#begin" class="md-nav__link">
+    <span class="md-ellipsis">
+      begin()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#isconnected" class="md-nav__link">
+    <span class="md-ellipsis">
+      isConnected()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      Device Properties
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Device Properties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getdeviceuid" class="md-nav__link">
+    <span class="md-ellipsis">
+      getDeviceUID()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getdevicerevision" class="md-nav__link">
+    <span class="md-ellipsis">
+      getDeviceRevision()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-session-password-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Security Session Password Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Security Session Password Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#openi2csession" class="md-nav__link">
+    <span class="md-ellipsis">
+      openI2CSession()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#isi2csessionopen" class="md-nav__link">
+    <span class="md-ellipsis">
+      isI2CSessionOpen()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writei2cpassword" class="md-nav__link">
+    <span class="md-ellipsis">
+      writeI2CPassword()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memory-area-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Area Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Memory Area Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setmemoryareaendaddress" class="md-nav__link">
+    <span class="md-ellipsis">
+      setMemoryAreaEndAddress()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getmemoryareaendaddress" class="md-nav__link">
+    <span class="md-ellipsis">
+      getMemoryAreaEndAddress()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i2c-read-and-write-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      I2C Read and Write Protection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="I2C Read and Write Protection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#programeepromreadprotectionbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      programEEPROMReadProtectionBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#programeepromwriteprotectionbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      programEEPROMWriteProtectionBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geteepromreadprotectionbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getEEPROMReadProtectionBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geteepromwriteprotectionbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getEEPROMWriteProtectionBit()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rf-read-and-write-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      RF Read and Write Protection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RF Read and Write Protection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setarearfrwprotection" class="md-nav__link">
+    <span class="md-ellipsis">
+      setAreaRfRwProtection()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getarearfrwprotection" class="md-nav__link">
+    <span class="md-ellipsis">
+      getAreaRfRwProtection()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setarearfpwdctrl" class="md-nav__link">
+    <span class="md-ellipsis">
+      setAreaRfPwdCtrl()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getarearfpwdctrl" class="md-nav__link">
+    <span class="md-ellipsis">
+      getAreaRfPwdCtrl()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eeprom-read-and-write" class="md-nav__link">
+    <span class="md-ellipsis">
+      EEPROM Read and Write
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EEPROM Read and Write">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#readeeprom" class="md-nav__link">
+    <span class="md-ellipsis">
+      readEEPROM()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writeeeprom" class="md-nav__link">
+    <span class="md-ellipsis">
+      writeEEPROM()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rf-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      RF Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RF Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rffielddetected" class="md-nav__link">
+    <span class="md-ellipsis">
+      RFFieldDetected()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gpo-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      GPO Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="GPO Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setgpo1bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      setGPO1Bit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getgpo1bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getGPO1Bit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setgpo2bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      setGPO2Bit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getgpo2bit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getGPO2Bit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setgpo_ctrl_dynbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      setGPO_CTRL_DynBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#getgpo_ctrl_dynbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getGPO_CTRL_DynBit()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interrupt-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interrupt Status
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Interrupt Status">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getit_sts_dyn" class="md-nav__link">
+    <span class="md-ellipsis">
+      getIT_STS_Dyn()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#energy-harvesting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Energy Harvesting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Energy Harvesting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#seteh_modebit" class="md-nav__link">
+    <span class="md-ellipsis">
+      setEH_MODEBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geteh_modebit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getEH_MODEBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seteh_ctrl_dynbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      setEH_CTRL_DYNBit()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#geteh_ctrl_dynbit" class="md-nav__link">
+    <span class="md-ellipsis">
+      getEH_CTRL_DYNBit()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#helper-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Helper Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Helper Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#errorcodestring" class="md-nav__link">
+    <span class="md-ellipsis">
+      errorCodeString()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#readregistervalue" class="md-nav__link">
+    <span class="md-ellipsis">
+      readRegisterValue()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#readregistervalues" class="md-nav__link">
+    <span class="md-ellipsis">
+      readRegisterValues()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#member-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Member Variables
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="api-reference-for-the-sfe_st25dv64kc-class">API Reference for the SFE_ST25DV64KC class</h1>
+<h2 id="brief-overview">Brief Overview</h2>
+<p>The <code>SFE_ST25DV64KC</code> class provides all of the necessary methods to exchange data with the ST25DV tag.</p>
+<p>Communication with the tag is started by calling <code>begin</code> and providing the address of a <code>TwoWire</code> (I<sup>2</sup>C) Port. <code>begin</code> will default to <code>Wire</code> if no <code>wirePort</code> is provided.</p>
+<p>The tag's unique identifier (UID) can be read with <code>getDeviceUID</code>. The hardware version can be checked with <code>getDeviceRevision</code>.</p>
+<p>By default, the user memory can be both read and written to via both I<sup>2</sup>C and RF (NFC). But, to change any of the IC's settings, a security session needs to be opened
+by entering the correct password. The default password is eight zeros ( 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ) and - for I<sup>2</sup>C - can be entered by calling
+<code>openI2CSession</code>. The status of the security session can be checked with <code>isI2CSessionOpen</code>. The I<sup>2</sup>C password can be changed with <code>writeI2CPassword</code>.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The password can be read back from the tag with <code>readRegisterValues</code>, <em><strong>but</strong></em> only when a security session is open. If you change the password, close the security session and then forget the password, <em><strong>your tag is locked forever</strong></em>. There is no way to change or reset the pasword unless you know the password. If you change it, write it down somewhere.</p>
+</div>
+<p>The memory can be divided up into four areas, each of which can have different security levels applied. <code>setMemoryAreaEndAddress</code> and <code>getMemoryAreaEndAddress</code>
+can change and read the end address for each area.</p>
+<p>With an open security session, the I<sup>2</sup>C read and write permissions for each area can be changed and read with <code>programEEPROMReadProtectionBit</code>, <code>programEEPROMWriteProtectionBit</code>,
+<code>getEEPROMReadProtectionBit</code> and <code>getEEPROMWriteProtectionBit</code>.</p>
+<p>With an open security session, the RF read and write permissions for each area can be changed and read with <code>setAreaRfRwProtection</code> and <code>getAreaRfRwProtection</code>.
+RF password control and be set and read with <code>setAreaRfPwdCtrl</code> and <code>getAreaRfPwdCtrl</code>.</p>
+<p>The EEPROM memory can be read and written with <code>readEEPROM</code> and <code>writeEEPROM</code>.</p>
+<p>The behaviour of the GPO pin can be set and read with <code>setGPO1Bit</code>, <code>getGPO1Bit</code>, <code>setGPO2Bit</code> and <code>getGPO2Bit</code>.</p>
+<p>Energy harvesting can be controlled with <code>setEH_MODEBit</code> and <code>getEH_MODEBit</code>.</p>
+<h2 id="initialization-configuration">Initialization / Configuration</h2>
+<h3 id="seterrorcallback">setErrorCallback()</h3>
+<p>This method sets the address of the error callback. Once set, a callback is triggered if an error occurs within a method.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kt">void</span><span class="w"> </span><span class="n">setErrorCallback</span><span class="p">(</span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">errorCallback</span><span class="p">)(</span><span class="n">SF_ST25DV64KC_ERROR</span><span class="w"> </span><span class="n">errorCode</span><span class="p">))</span>
+</code></pre></div>
+<p>An example error handler - if <code>tag</code> is global - is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">errorHandler</span><span class="p">(</span><span class="n">SF_ST25DV64KC_ERROR</span><span class="w"> </span><span class="n">errorCode</span><span class="p">)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="p">{</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">F</span><span class="p">(</span><span class="s">&quot;Error Callback: &quot;</span><span class="p">));</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">Serial</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="n">tag</span><span class="p">.</span><span class="n">errorCodeString</span><span class="p">(</span><span class="n">errorCode</span><span class="p">));</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>errorCodeString</code> converts the <code>SF_ST25DV64KC_ERROR</code> enum into readable text.</p>
+<p>The callback is set with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">tag</span><span class="p">.</span><span class="n">setErrorCallback</span><span class="p">(</span><span class="o">&amp;</span><span class="n">errorHandler</span><span class="p">);</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>errorCallback</code></td>
+<td style="text-align: left;">The address of the callback</td>
+</tr>
+</tbody>
+</table>
+<h3 id="begin">begin()</h3>
+<p>This method configures I<sup>2</sup>C communication with the tag and confirms the tag is connected.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">begin</span><span class="p">(</span><span class="n">TwoWire</span><span class="w"> </span><span class="o">&amp;</span><span class="n">wirePort</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>wirePort</code></td>
+<td style="text-align: left;"><code>TwoWire &amp;</code></td>
+<td style="text-align: left;">The address of the TwoWire port. Default is <code>Wire</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if communication is begun successfully, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="isconnected">isConnected()</h3>
+<p>This method confirms if a device is connected at the expected I<sup>2</sup>C address.
+This method can only be called after <code>begin</code>, as <code>begin</code> configures which TwoWire port will be used.
+<code>begin</code> calls <code>isConnected</code> internally to establish if a tag is connected.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">isConnected</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the tag is connected, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="device-properties">Device Properties</h2>
+<h3 id="getdeviceuid">getDeviceUID()</h3>
+<p>This method reads the tag's 64-bit unique identifier as uint8_t[8].</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">getDeviceUID</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">values</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>values</code></td>
+<td style="text-align: left;"><code>uint8_t *</code></td>
+<td style="text-align: left;">A pointer to the array of uint8_t that will contain the UID. <code>values</code> must be uint8_t[8]</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the read is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="getdevicerevision">getDeviceRevision()</h3>
+<p>This method reads the tag's hardware revision.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">getDeviceRevision</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">value</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>value</code></td>
+<td style="text-align: left;"><code>uint8_t *</code></td>
+<td style="text-align: left;">A pointer to uint8_t that will contain the revision</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the read is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="security-session-password-control">Security Session Password Control</h2>
+<h3 id="openi2csession">openI2CSession()</h3>
+<p>This method enters the I<sup>2</sup>C security session 64-bit password. password is uint8_t[8].
+This method returns <code>true</code> if the password is written to the tag successfully - but that does not confirm that the password is valid/invalid.
+The password validity must be confirmed with <code>isI2CSessionOpen</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">openI2CSession</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">password</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>password</code></td>
+<td style="text-align: left;"><code>uint8_t *</code></td>
+<td style="text-align: left;">A pointer to the array of uint8_t that contains the password. password must be uint8_t[8]</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the write is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="isi2csessionopen">isI2CSessionOpen()</h3>
+<p>This method checks if the I<sup>2</sup>C security session is open, i.e. that the correct password has been entered.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">isI2CSessionOpen</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the security session is open, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="writei2cpassword">writeI2CPassword()</h3>
+<p>This method changes the I<sup>2</sup>C password. It will only be successful when a security session is open, i.e. you need to know the current password to be able to change the password (obvs.).</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The password can be read back from the tag with <code>readRegisterValues</code>, <em><strong>but</strong></em> only when a security session is open. If you change the password, close the security session and then forget the password, <em><strong>your tag is locked forever</strong></em>. There is no way to change or reset the pasword unless you know the password. If you change it, write it down somewhere.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">writeI2CPassword</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">password</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>password</code></td>
+<td style="text-align: left;"><code>uint8_t *</code></td>
+<td style="text-align: left;">A pointer to the array of uint8_t that contains the new password. password must be uint8_t[8]</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the write is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="memory-area-control">Memory Area Control</h2>
+<h3 id="setmemoryareaendaddress">setMemoryAreaEndAddress()</h3>
+<p>This method is used to modify the end address for memory Areas 1-3. The end address of Area 4 is always set to the tag's last memory location.</p>
+<p><code>endAddressValue</code> is an 8-bit value. The actual memory end address is: (32 * <code>endAddressValue</code>) + 31</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">setMemoryAreaEndAddress</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">memoryNumber</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">endAddressValue</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>memoryNumber</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The memory area 1-3</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>endAddressValue</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The end address in 8-bit form. See notes above</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the write is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="getmemoryareaendaddress">getMemoryAreaEndAddress()</h3>
+<p>This method returns the end address for the specified area.</p>
+<p>If a read error occurs, an error callback is triggered.</p>
+<p>The returned address is the actual end address in 16-bit format, not the 8-bit register value used by <code>setMemoryAreaEndAddress</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kt">uint16_t</span><span class="w"> </span><span class="n">getMemoryAreaEndAddress</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">memoryArea</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>memoryArea</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The memory area 1-3</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>uint16_t</code></td>
+<td style="text-align: left;">The actual end address (16-bit)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="i2c-read-and-write-protection">I<sup>2</sup>C Read and Write Protection</h2>
+<h3 id="programeepromreadprotectionbit">programEEPROMReadProtectionBit()</h3>
+<p>This method sets/clears the I<sup>2</sup>C read protection bit for the specified memory area 1-4.</p>
+<p>When set, the memory area is only readable if a security session is open.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Area 1 is <em>always</em> readable. Calling <code>programEEPROMReadProtectionBit(1, true)</code> has no effect.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">programEEPROMReadProtectionBit</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">memoryArea</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">readSecured</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>memoryArea</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The memory area 1-4</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>readSecured</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code>: read is allowed only if an I<sup>2</sup>C security session is open. <code>false</code>: read is always allowed</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the write is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="programeepromwriteprotectionbit">programEEPROMWriteProtectionBit()</h3>
+<p>This method sets/clears the I<sup>2</sup>C write protection bit for the specified memory area 1-4.</p>
+<p>When set, the memory area is only writeable if a security session is open.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">programEEPROMWriteProtectionBit</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">memoryArea</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">writeSecured</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>memoryArea</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The memory area 1-4</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>writeSecured</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code>: write is allowed only if an I<sup>2</sup>C security session is open. <code>false</code>: write is always allowed</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the write is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="geteepromreadprotectionbit">getEEPROMReadProtectionBit()</h3>
+<p>This method returns the state of read protection for the specified memory area 1-4..</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">getEEPROMReadProtectionBit</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">memoryArea</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>memoryArea</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The memory area 1-4</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if memory read is protected, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="geteepromwriteprotectionbit">getEEPROMWriteProtectionBit()</h3>
+<p>This method returns the state of write protection for the specified memory area 1-4..</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">getEEPROMWriteProtectionBit</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">memoryArea</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>memoryArea</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The memory area 1-4</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if memory write is protected, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="rf-read-and-write-protection">RF Read and Write Protection</h2>
+<h3 id="setarearfrwprotection">setAreaRfRwProtection()</h3>
+<p>This method sets the RF read and write protection for the specified memory area 1-4.</p>
+<p>The default protection for all memory areas is <code>RF_RW_READ_ALWAYS_WRITE_ALWAYS</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Area 1 is <em>always</em> readable via RF. Calling <code>setAreaRfRwProtection(1, RF_RW_READ_SECURITY_WRITE_SECURITY)</code> or <code>setAreaRfRwProtection(1, RF_RW_READ_SECURITY_WRITE_NEVER)</code> has no effect.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">setAreaRfRwProtection</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">memoryArea</span><span class="p">,</span><span class="w"> </span><span class="n">SF_ST25DV_RF_RW_PROTECTION</span><span class="w"> </span><span class="n">rw</span><span class="p">)</span>
+</code></pre></div>
+<p>The permissible values for <code>rw</code> are:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">RF_RW_READ_ALWAYS_WRITE_ALWAYS</span><span class="p">,</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="n">RF_RW_READ_ALWAYS_WRITE_SECURITY</span><span class="p">,</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">RF_RW_READ_SECURITY_WRITE_SECURITY</span><span class="p">,</span><span class="w"> </span><span class="c1">// For Area 1: Read is always allowed</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="n">RF_RW_READ_SECURITY_WRITE_NEVER</span><span class="w">     </span><span class="c1">// For Area 1: Read is always allowed</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>memoryArea</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The memory area 1-4</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>rw</code></td>
+<td style="text-align: left;"><code>enum class SF_ST25DV_RF_RW_PROTECTION</code></td>
+<td style="text-align: left;">The level of read/write protection</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the write is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="getarearfrwprotection">getAreaRfRwProtection()</h3>
+<p>This method returns the level of RF read and write protection for the specified memory area 1-4.</p>
+<p>If a read error occurs, an error callback is triggered.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">SF_ST25DV_RF_RW_PROTECTION</span><span class="w"> </span><span class="n">getAreaRfRwProtection</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">memoryArea</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>memoryArea</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The memory area 1-4</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>enum class SF_ST25DV_RF_RW_PROTECTION</code></td>
+<td style="text-align: left;">The level of read/write protection</td>
+</tr>
+</tbody>
+</table>
+<h3 id="setarearfpwdctrl">setAreaRfPwdCtrl()</h3>
+<p>This method defines which password is required to open a security session for the specified memory area 1-4.</p>
+<p>An "RF Configuration" security session can be opened by entering RF Password 0. This session allows the tag's configuration static registers
+and RF Password 0 to be modified via RF. The default RF Password 0 is ( 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ).</p>
+<p>An "RF User" security session can be opened by entering RF Password 1-3. This session allows the user access to protected user memory
+as defined by <code>setAreaRfRwProtection</code>. The matching RF Password (1-3) can also be changed while the session is open.</p>
+<p>By default, the <code>pwdCtrl</code> setting for each memory area is <code>RF_PWD_NEVER</code>, meaning that a RF User security session can not be opened by password.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>To protect a tag against unwanted changes via an RF Configuration Session, RF Password 0 should be changed using an App like ST's "NFC Tap". It is not possible to do this via I<sup>2</sup>C. The I<sup>2</sup>C interface has no access to the four RF passwords.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">setAreaRfPwdCtrl</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">memoryArea</span><span class="p">,</span><span class="w"> </span><span class="n">SF_ST25DV_RF_PWD_CTRL</span><span class="w"> </span><span class="n">pwdCtrl</span><span class="p">)</span>
+</code></pre></div>
+<p>The permissible values for <code>pwdCtrl</code> are:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">RF_PWD_NEVER</span><span class="p">,</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="n">RF_PWD_PWD1</span><span class="p">,</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="n">RF_PWD_PWD2</span><span class="p">,</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="n">RF_PWD_PWD3</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>memoryArea</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The memory area 1-4</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>pwdCtrl</code></td>
+<td style="text-align: left;"><code>enum class SF_ST25DV_RF_PWD_CTRL</code></td>
+<td style="text-align: left;">The selected password option</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the write is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="getarearfpwdctrl">getAreaRfPwdCtrl()</h3>
+<p>This method returns the selected password option for the specified memory area 1-4.</p>
+<p>If a read error occurs, an error callback is triggered.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">SF_ST25DV_RF_PWD_CTRL</span><span class="w"> </span><span class="n">getAreaRfPwdCtrl</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">memoryArea</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>memoryArea</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The memory area 1-4</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>enum class SF_ST25DV_RF_PWD_CTRL</code></td>
+<td style="text-align: left;">The selected password option</td>
+</tr>
+</tbody>
+</table>
+<h2 id="eeprom-read-and-write">EEPROM Read and Write</h2>
+<h3 id="readeeprom">readEEPROM()</h3>
+<p>This method reads <code>dataLength</code> bytes from EEPROM memory, starting at <code>baseAddress</code>. The bytes are returned in <code>data</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>data</code> must be sufficiently large to hold all <code>dataLength</code> bytes.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">readEEPROM</span><span class="p">(</span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">baseAddress</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">dataLength</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>baseAddress</code></td>
+<td style="text-align: left;"><code>uint16_t</code></td>
+<td style="text-align: left;">The base (start) EEPROM address for the read</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>data</code></td>
+<td style="text-align: left;"><code>uint8_t *</code></td>
+<td style="text-align: left;">A pointer to an array of uint8_t to hold the read data</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>dataLength</code></td>
+<td style="text-align: left;"><code>uint16_t</code></td>
+<td style="text-align: left;">The number of bytes to be read</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the read is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="writeeeprom">writeEEPROM()</h3>
+<p>This method writes <code>dataLength</code> bytes to EEPROM memory, starting at <code>baseAddress</code>. The bytes to be written are held in <code>data</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">writeEEPROM</span><span class="p">(</span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">baseAddress</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">dataLength</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>baseAddress</code></td>
+<td style="text-align: left;"><code>uint16_t</code></td>
+<td style="text-align: left;">The base (start) EEPROM address for the write</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>data</code></td>
+<td style="text-align: left;"><code>uint8_t *</code></td>
+<td style="text-align: left;">A pointer to an array of uint8_t which holds the data to be written</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>dataLength</code></td>
+<td style="text-align: left;"><code>uint16_t</code></td>
+<td style="text-align: left;">The number of bytes to be written</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the write is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="rf-detection">RF Detection</h2>
+<h3 id="rffielddetected">RFFieldDetected()</h3>
+<p>This method detects if an RF field is present.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">RFFieldDetected</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if an RF field is detected, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="gpo-control">GPO Control</h2>
+<h3 id="setgpo1bit">setGPO1Bit</h3>
+<p>This method sets or clears the selected bit(s) in the GPO1 register.</p>
+<p>Multiple bits can be set or cleared with a single call.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">setGPO1Bit</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bitMask</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">enabled</span><span class="p">)</span>
+</code></pre></div>
+<p>The GPO1 bit definitions are:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="cp">#define BIT_GPO1_GPO_EN (1 &lt;&lt; 0)</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="cp">#define BIT_GPO1_RF_USER_EN (1 &lt;&lt; 1)</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="cp">#define BIT_GPO1_RF_ACTIVITY_EN (1 &lt;&lt; 2)</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="cp">#define BIT_GPO1_RF_INTERRUPT_EN (1 &lt;&lt; 3)</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="cp">#define BIT_GPO1_FIELD_CHANGE_EN (1 &lt;&lt; 4)</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="cp">#define BIT_GPO1_RF_PUT_MSG_EN (1 &lt;&lt; 5)</span>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="cp">#define BIT_GPO1_RF_GET_MSG_EN (1 &lt;&lt; 6)</span>
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="cp">#define BIT_GPO1_RF_WRITE_EN (1 &lt;&lt; 7)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>bitMask</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The bit(s) to be set or cleared</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>enabled</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;">If <code>true</code>, the bit(s) set in <code>bitMask</code> are set. If <code>false</code>, the bit(s) set in <code>bitMask</code> are cleared.</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the write is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="getgpo1bit">getGPO1Bit()</h3>
+<p>This method returns the state of the selected bit in the GPO1 register.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">getGPO1Bit</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bitMask</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>bitMask</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The bit to be read</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the bit is set, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="setgpo2bit">setGPO2Bit</h3>
+<p>This method sets or clears the selected bit(s) in the GPO2 register.</p>
+<p>Multiple bits can be set or cleared with a single call.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">setGPO2Bit</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bitMask</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">enabled</span><span class="p">)</span>
+</code></pre></div>
+<p>The GPO2 bit defintions are:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="cp">#define BIT_GPO2_I2C_WRITE_EN (1 &lt;&lt; 0)</span>
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="cp">#define BIT_GPO2_I2C_RF_OFF_EN (1 &lt;&lt; 1)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>bitMask</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The bit(s) to be set or cleared</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>enabled</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;">If <code>true</code>, the bit(s) set in <code>bitMask</code> are set. If <code>false</code>, the bit(s) set in <code>bitMask</code> are cleared.</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the write is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="getgpo2bit">getGPO2Bit()</h3>
+<p>This method returns the state of the selected bit in the GPO2 register.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">getGPO2Bit</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bitMask</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>bitMask</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The bit to be read</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the bit is set, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="setgpo_ctrl_dynbit">setGPO_CTRL_DynBit()</h3>
+<p>This method sets or clears the GPO_EN bit in the GPO_CTRL_Dyn (Dynamic) register.
+This allows the GPO pin to be enabled or disabled without making non-volatile changes to the GPO1 register GPO_EN bit.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">setGPO_CTRL_DynBit</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">enabled</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>enabled</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;">If <code>true</code>, the GPO_EN bit is set, otherwise it is cleared</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the write is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="getgpo_ctrl_dynbit">getGPO_CTRL_DynBit()</h3>
+<p>This method retruns the state of the GPO_EN bit in the GPO_CTRL_Dyn (Dynamic) register.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">getGPO_CTRL_DynBit</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the GPO_EN bit is set, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="interrupt-status">Interrupt Status</h2>
+<h3 id="getit_sts_dyn">getIT_STS_Dyn()</h3>
+<p>This method returns the content of the dynamic Interrupt Status register IT_SYS_Dyn, indicating the cause of an interrupt.</p>
+<p>If a read error occurs, an error callback is triggered.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Once read, the ITSTS_Dyn register is cleared (set to 00h).</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="kt">uint8_t</span><span class="w"> </span><span class="nf">getIT_STS_Dyn</span><span class="p">();</span>
+</code></pre></div>
+<p>The bit definitions of the IT_SYS_Dyn register are:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="cp">#define BIT_IT_STS_DYN_RF_USER (1 &lt;&lt; 0)</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="cp">#define BIT_IT_STS_DYN_RF_ACTIVITY (1 &lt;&lt; 1)</span>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a><span class="cp">#define BIT_IT_STS_DYN_RF_INTERRUPT (1 &lt;&lt; 2)</span>
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="cp">#define BIT_IT_STS_DYN_FIELD_FALLING (1 &lt;&lt; 3)</span>
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a><span class="cp">#define BIT_IT_STS_DYN_FIELD_RISING (1 &lt;&lt; 4)</span>
+<a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a><span class="cp">#define BIT_IT_STS_DYN_RF_PUT_MSG (1 &lt;&lt; 5)</span>
+<a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a><span class="cp">#define BIT_IT_STS_DYN_RF_GET_MSG (1 &lt;&lt; 6)</span>
+<a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a><span class="cp">#define BIT_IT_STS_DYN_RF_WRITE (1 &lt;&lt; 7)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The register value</td>
+</tr>
+</tbody>
+</table>
+<h2 id="energy-harvesting">Energy Harvesting</h2>
+<h3 id="seteh_modebit">setEH_MODEBit()</h3>
+<p>This method sets or clears the Energy Harvesting EH_MODE bit in the EH_MODE register.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">setEH_MODEBit</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">value</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>value</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;">If <code>true</code>, Energy Harvesting is on demand only (default). If <code>false</code>, EH  is forced after boot</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the write is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="geteh_modebit">getEH_MODEBit()</h3>
+<p>This method returns the state of the Energy Harvesting EH_MODE bit in the EH_MODE register.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">getEH_MODEBit</span><span class="p">()</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the EH_MODE bit is set, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="seteh_ctrl_dynbit">setEH_CTRL_DYNBit()</h3>
+<p>This method will set or clear bit(s) in the dynamic EH_CTRL_Dyn register.
+This allows energy harvesting to be enabled or disabled without making non-volatile changes to the EH_MODE register.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">setEH_CTRL_DYNBit</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bitMask</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">value</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>bitMask</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The bit(s) to be set or cleared</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>value</code></td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;">If <code>true</code>, the bit(s) set in <code>bitMask</code> are set. If <code>false</code>, the bit(s) set in <code>bitMask</code> are cleared</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the write is successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="geteh_ctrl_dynbit">getEH_CTRL_DYNBit()</h3>
+<p>This method returns the state of the select bit in the dynamic EH_CTRL_Dyn register.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If multiple bits are set in <code>bitMask</code>, the method will return <code>true</code> if <em>any one of those bits</em> is set.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">getEH_CTRL_DYNBit</span><span class="p">(</span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">bitMask</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>bitMask</code></td>
+<td style="text-align: left;"><code>uint8_t</code></td>
+<td style="text-align: left;">The bit to be read</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the bit is set, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="helper-methods">Helper Methods</h2>
+<h3 id="errorcodestring">errorCodeString()</h3>
+<p>This method converts an <code>SF_ST25DV64KC_ERROR</code> error code into readable text.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">errorCodeString</span><span class="p">(</span><span class="n">SF_ST25DV64KC_ERROR</span><span class="w"> </span><span class="n">errorCode</span><span class="p">)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>errorCode</code></td>
+<td style="text-align: left;">The <code>enum class SF_ST25DV64KC_ERROR</code> error code</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>const char *</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="readregistervalue">readRegisterValue()</h3>
+<p>This method reads a single register value.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">readRegisterValue</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SF_ST25DV64KC_ADDRESS</span><span class="w"> </span><span class="n">addressType</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">registerAddress</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">value</span><span class="p">)</span>
+</code></pre></div>
+<p>This is the equivalent of calling:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="n">tag</span><span class="o">-&gt;</span><span class="n">st25_io</span><span class="p">.</span><span class="n">readSingleByte</span><span class="p">(</span><span class="n">addressType</span><span class="p">,</span><span class="w"> </span><span class="n">registerAddress</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">)</span>
+</code></pre></div>
+<p>Possible values for <code>addressType</code> are:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="n">DATA</span><span class="p">,</span><span class="w">          </span><span class="c1">// E2 = 0, E1 = 1</span>
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a><span class="n">SYSTEM</span><span class="p">,</span><span class="w">        </span><span class="c1">// E2 = 1, E1 = 1</span>
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a><span class="n">RF_SWITCH_OFF</span><span class="p">,</span><span class="w"> </span><span class="c1">// E2 = 0, E1 = 0</span>
+<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a><span class="n">RF_SWITCH_ON</span><span class="p">,</span><span class="w">  </span><span class="c1">// E2 = 1, E1 = 0</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>addressType</code></td>
+<td style="text-align: left;"><code>enum class SF_ST25DV64KC_ADDRESS</code></td>
+<td style="text-align: left;">The register type, equivalent to the I<sup>2</sup>C address</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>registerAddress</code></td>
+<td style="text-align: left;"><code>const uint16_t</code></td>
+<td style="text-align: left;">The register address</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>value</code></td>
+<td style="text-align: left;"><code>uint8_t *</code></td>
+<td style="text-align: left;"><code>value</code> will hold the register value on return</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the read was successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="readregistervalues">readRegisterValues()</h3>
+<p>This method reads multiple register values.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>data</code> must be sufficiently large to hold all <code>dataLength</code> bytes.</p>
+</div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="kt">bool</span><span class="w"> </span><span class="n">readRegisterValues</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">SF_ST25DV64KC_ADDRESS</span><span class="w"> </span><span class="n">addressType</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">registerAddress</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="o">*</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">dataLength</span><span class="p">)</span>
+</code></pre></div>
+<p>This is the equivalent of calling:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="n">tag</span><span class="o">-&gt;</span><span class="n">st25_io</span><span class="p">.</span><span class="n">readMultipleBytes</span><span class="p">(</span><span class="n">addressType</span><span class="p">,</span><span class="w"> </span><span class="n">registerAddress</span><span class="p">,</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">dataLength</span><span class="p">)</span>
+</code></pre></div>
+<p>Possible values for <code>addressType</code> are:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-45-1" name="__codelineno-45-1" href="#__codelineno-45-1"></a><span class="n">DATA</span><span class="p">,</span><span class="w">          </span><span class="c1">// E2 = 0, E1 = 1</span>
+<a id="__codelineno-45-2" name="__codelineno-45-2" href="#__codelineno-45-2"></a><span class="n">SYSTEM</span><span class="p">,</span><span class="w">        </span><span class="c1">// E2 = 1, E1 = 1</span>
+<a id="__codelineno-45-3" name="__codelineno-45-3" href="#__codelineno-45-3"></a><span class="n">RF_SWITCH_OFF</span><span class="p">,</span><span class="w"> </span><span class="c1">// E2 = 0, E1 = 0</span>
+<a id="__codelineno-45-4" name="__codelineno-45-4" href="#__codelineno-45-4"></a><span class="n">RF_SWITCH_ON</span><span class="p">,</span><span class="w">  </span><span class="c1">// E2 = 1, E1 = 0</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>addressType</code></td>
+<td style="text-align: left;"><code>enum class SF_ST25DV64KC_ADDRESS</code></td>
+<td style="text-align: left;">The register type, equivalent to the I<sup>2</sup>C address</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>registerAddress</code></td>
+<td style="text-align: left;"><code>const uint16_t</code></td>
+<td style="text-align: left;">The start register address</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>data</code></td>
+<td style="text-align: left;"><code>uint8_t *</code></td>
+<td style="text-align: left;"><code>data</code> will hold the register values on return</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>dataLength</code></td>
+<td style="text-align: left;"><code>const uint16_t</code></td>
+<td style="text-align: left;">The number of registers to be read</td>
+</tr>
+<tr>
+<td style="text-align: left;">return value</td>
+<td style="text-align: left;"><code>bool</code></td>
+<td style="text-align: left;"><code>true</code> if the read was successful, otherwise <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="member-variables">Member Variables</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Parameter</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>st25_io</code></td>
+<td style="text-align: left;"><code>class SFE_ST2525DV64KC_IO</code></td>
+<td style="text-align: left;">An instance of the <code>SFE_ST2525DV64KC_IO</code> class, providing I<sup>2</sup>C communication methods and storage for <code>wirePort</code></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright 2022 SparkFun Electronics (6333 Dry Creek Parkway, Niwot, Colorado 80503)
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.youtube.com/sparkfun" target="_blank" rel="noopener" title="www.youtube.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.instagram.com/sparkfun" target="_blank" rel="noopener" title="www.instagram.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.github.com/sparkfun" target="_blank" rel="noopener" title="www.github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.facebook.com/SparkFun" target="_blank" rel="noopener" title="www.facebook.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M512 256C512 114.6 397.4 0 256 0S0 114.6 0 256c0 120 82.7 220.8 194.2 248.5V334.2h-52.8V256h52.8v-33.7c0-87.1 39.4-127.5 125-127.5 16.2 0 44.2 3.2 55.7 6.4V172c-6-.6-16.5-1-29.6-1-42 0-58.2 15.9-58.2 57.2V256h83.6l-14.4 78.2H287v175.9C413.8 494.8 512 386.9 512 256z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://twitter.com/sparkfun" target="_blank" rel="noopener" title="twitter.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["content.code.annotate", "navigation.tracking", "navigation.tabs.sticky", "navigation.tabs"], "search": "../assets/javascripts/workers/search.c011b7c0.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.7389ff0e.min.js"></script>
+      
+    
+  </body>
+</html>
