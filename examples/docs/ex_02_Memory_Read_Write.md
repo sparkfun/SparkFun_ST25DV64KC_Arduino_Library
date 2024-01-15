@@ -12,7 +12,7 @@ A more complex example showing how to read and write the tag's EEPROM memory usi
 
 ## Tag Memory
 
-The ST25DV64KC has 64-kBits of EEPROM user memory. That's 8-kBytes or 8102 Bytes. We can use all of that memory to store data.
+The ST25DV64KC has 64-kBits of EEPROM user memory. That's 8-kBytes or 8192 Bytes. We can use all of that memory to store data.
 
 The ST25DV tags are "dynamic". The memory can be read and written to using both I<sup>2</sup>C and RF (NFC). For I<sup>2</sup>C, the tag needs to be powered up via your Arduino board.
 But for RF, the tag memory can be read and written to even when the tag is powered off. The RF field provides the power.
